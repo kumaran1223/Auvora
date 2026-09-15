@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PLANS } from "@/lib/entitlements";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { RazorpayCheckoutButton } from "@/components/billing/razorpay-checkout-button";
+import { CancelSubscriptionButton } from "@/components/billing/cancel-subscription-button";
 
 export default async function PricingPage() {
   const supabase = await createClient();
@@ -10,6 +12,9 @@ export default async function PricingPage() {
   } = await supabase.auth.getUser();
 
   let userPlan = "free";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let activeSubRecord: any = null;
+
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -19,6 +24,17 @@ export default async function PricingPage() {
 
     if (profile?.plan) {
       userPlan = profile.plan.toLowerCase();
+    }
+
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("id, status, plan, cancel_at_period_end")
+      .eq("user_id", user.id)
+      .in("status", ["active", "authenticated"])
+      .maybeSingle();
+
+    if (sub) {
+      activeSubRecord = sub;
     }
   }
 
@@ -74,6 +90,20 @@ export default async function PricingPage() {
             Every plan includes Auvora&apos;s full decision-stress-testing model (assumptions, evidence gaps, blind spots, risks, consequences, scenarios, and alternatives). Choose the monthly capacity that matches your decision volume.
           </p>
         </div>
+
+        {activeSubRecord && (
+          <div className="mx-auto max-w-xl rounded-xl border border-zinc-800 bg-zinc-900/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="space-y-1 text-center sm:text-left">
+              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                Subscription Active (Razorpay Test Mode)
+              </div>
+              <div className="text-xs text-zinc-300">
+                You are currently subscribed to the <strong className="text-white capitalize">{activeSubRecord.plan}</strong> plan.
+              </div>
+            </div>
+            <CancelSubscriptionButton cancelAtPeriodEnd={activeSubRecord.cancel_at_period_end} />
+          </div>
+        )}
 
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -147,19 +177,28 @@ export default async function PricingPage() {
                 </div>
 
                 <div className="pt-4">
-                  {isCurrent ? (
-                    <button
-                      disabled
-                      className="w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2.5 text-xs font-semibold text-zinc-400 cursor-default text-center"
-                    >
-                      Active Plan
-                    </button>
+                  {plan.id === "free" ? (
+                    isCurrent ? (
+                      <button
+                        disabled
+                        className="w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2.5 text-xs font-semibold text-zinc-400 cursor-default text-center"
+                      >
+                        Active Plan
+                      </button>
+                    ) : (
+                      <Link
+                        href={user ? "/dashboard" : "/signup"}
+                        className="block w-full rounded-lg border border-zinc-700 bg-zinc-800 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-700 text-center"
+                      >
+                        Default Tier
+                      </Link>
+                    )
                   ) : user ? (
-                    <button
-                      className="w-full rounded-lg bg-white py-2.5 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 text-center"
-                    >
-                      {plan.id === "free" ? "Downgrade to Free" : `Select ${plan.name}`}
-                    </button>
+                    <RazorpayCheckoutButton
+                      plan={plan.id as "pro" | "business"}
+                      buttonText={isCurrent ? "Active Plan" : `Upgrade to ${plan.name}`}
+                      isCurrentPlan={isCurrent}
+                    />
                   ) : (
                     <Link
                       href="/signup"
@@ -176,7 +215,7 @@ export default async function PricingPage() {
 
         {/* Plan FAQ / Information */}
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 space-y-6">
-          <h2 className="text-lg font-bold text-white">How Auvora Usage & Limits Work</h2>
+          <h2 className="text-lg font-bold text-white">How Auvora Subscriptions & Quotas Work</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-zinc-400">
             <div className="space-y-2">
@@ -201,9 +240,9 @@ export default async function PricingPage() {
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-semibold text-zinc-200">Can I upgrade or downgrade anytime?</h3>
+              <h3 className="font-semibold text-zinc-200">Are payments secure?</h3>
               <p className="leading-relaxed">
-                Yes. Subscription plan upgrades take effect immediately and expand your monthly decision analysis quota.
+                All subscriptions are authenticated via Razorpay (Test Mode). No card credentials or banking passwords are ever stored on Auvora servers.
               </p>
             </div>
           </div>
@@ -212,4 +251,3 @@ export default async function PricingPage() {
     </main>
   );
 }
-

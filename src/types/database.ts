@@ -7,6 +7,16 @@ export type OutcomeStatus =
   | "unsuccessful"
   | "cancelled";
 
+export type SubscriptionStatus =
+  | "created"
+  | "authenticated"
+  | "active"
+  | "pending"
+  | "halted"
+  | "cancelled"
+  | "completed"
+  | "expired";
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -105,4 +115,28 @@ export interface DecisionUsage {
   analysis_count: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface SubscriptionRecord {
+  id: string;
+  user_id: string;
+  plan: "pro" | "business";
+  razorpay_subscription_id: string;
+  razorpay_plan_id: string;
+  status: SubscriptionStatus;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+  cancelled_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WebhookEventRecord {
+  id: string;
+  event_id: string;
+  event_type: string;
+  payload: Record<string, unknown>;
+  processed_at: string;
+  created_at: string;
 }
