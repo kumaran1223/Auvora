@@ -77,6 +77,7 @@ DECISION METADATA & CONTEXT:
 
   const maxAttempts = 3;
   let lastError: unknown = null;
+  const FALLBACK_MODEL = "gemini-3.5-flash-lite";
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -110,6 +111,31 @@ DECISION METADATA & CONTEXT:
       }
 
       break;
+    }
+  }
+
+  if (isTransientGeminiError(lastError)) {
+    try {
+      const fallbackResponse = await ai.models.generateContent({
+        model: FALLBACK_MODEL,
+        contents: userPrompt,
+        config: {
+          systemInstruction: AUVORA_SYSTEM_PROMPT,
+          responseMimeType: "application/json",
+        },
+      });
+
+      const fallbackContent = fallbackResponse.text;
+      if (!fallbackContent || fallbackContent.trim() === "") {
+        throw new Error("AI returned empty response content.");
+      }
+
+      const fallbackParsedJson = JSON.parse(fallbackContent);
+      const fallbackReport = AuvoraReportSchema.parse(fallbackParsedJson);
+
+      return fallbackReport;
+    } catch (fallbackErr: unknown) {
+      lastError = fallbackErr;
     }
   }
 
