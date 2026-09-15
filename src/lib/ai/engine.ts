@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import {
   AuvoraReportSchema,
   type AuvoraReportData,
@@ -146,13 +147,17 @@ DECISION METADATA & CONTEXT:
   if (needsFallback) {
     try {
       console.warn("Attempting fallback model:", FALLBACK_MODEL);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const jsonSchema = zodToJsonSchema(AuvoraReportSchema as any, { target: "jsonSchema7" });
+
       const fallbackResponse = await ai.models.generateContent({
         model: FALLBACK_MODEL,
         contents: userPrompt,
         config: {
           systemInstruction: AUVORA_SYSTEM_PROMPT,
           responseMimeType: "application/json",
-          responseSchema: AuvoraReportSchema,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          responseJsonSchema: jsonSchema as any,
         },
       });
 
