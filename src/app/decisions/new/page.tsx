@@ -71,14 +71,18 @@ export default function NewDecisionPage() {
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label htmlFor="description" className="block text-xs font-semibold text-zinc-200">
-              What decision are you trying to make? <span className="text-red-400">*</span>
-            </label>
+            <div className="flex justify-between items-baseline">
+              <label htmlFor="description" className="block text-xs font-semibold text-zinc-200">
+                What decision are you trying to make? <span className="text-red-400">*</span>
+              </label>
+              <span className="text-[10px] text-zinc-500">Max 5,000 characters</span>
+            </div>
             <textarea
               id="description"
               name="description"
               required
               rows={4}
+              maxLength={5000}
               placeholder="Describe the core decision, key choices available, primary objectives, and assumptions..."
               className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
             />
@@ -184,13 +188,17 @@ export default function NewDecisionPage() {
 
           {/* Success Definition */}
           <div className="space-y-1.5">
-            <label htmlFor="success_definition" className="block text-xs font-medium text-zinc-300">
-              What would a successful outcome look like? <span className="text-zinc-500">(Optional)</span>
-            </label>
+            <div className="flex justify-between items-baseline">
+              <label htmlFor="success_definition" className="block text-xs font-medium text-zinc-300">
+                What would a successful outcome look like? <span className="text-zinc-500">(Optional)</span>
+              </label>
+              <span className="text-[10px] text-zinc-500">Max 5,000 characters</span>
+            </div>
             <textarea
               id="success_definition"
               name="success_definition"
               rows={3}
+              maxLength={5000}
               placeholder="e.g. Achieving $100k ARR within 6 months while keeping CAC under $300..."
               className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
             />

@@ -42,7 +42,9 @@ export default async function DashboardPage() {
         {/* Top Navbar */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-6">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Auvora</h1>
+            <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+              <h1 className="text-3xl font-bold tracking-tight text-white">Auvora</h1>
+            </Link>
             <p className="text-sm font-medium text-zinc-400">
               Think it through. Before reality does.
             </p>
