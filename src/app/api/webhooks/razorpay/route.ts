@@ -1,18 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { verifyWebhookSignature, getAuvoraPlanFromRazorpayId } from "@/lib/razorpay";
-
-// Use admin client for webhooks to bypass RLS restrictions safely on server
-function getAdminSupabaseClient() {
-  const url = process.env["NEXT_PUBLIC_SUPABASE_URL"];
-  const secretKey = process.env["SUPABASE_SECRET_KEY"];
-
-  if (!url || !secretKey) {
-    return null;
-  }
-
-  return createClient(url, secretKey);
-}
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
   try {

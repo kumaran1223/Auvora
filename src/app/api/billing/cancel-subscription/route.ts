@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getRazorpayClient } from "@/lib/razorpay";
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export async function POST() {
   try {
@@ -43,8 +44,16 @@ export async function POST() {
       }
     }
 
+    const adminClient = getAdminSupabaseClient();
+    if (!adminClient) {
+      return NextResponse.json(
+        { error: "Server database configuration missing." },
+        { status: 500 }
+      );
+    }
+
     // Update local database record
-    await supabase
+    await adminClient
       .from("subscriptions")
       .update({
         cancel_at_period_end: true,

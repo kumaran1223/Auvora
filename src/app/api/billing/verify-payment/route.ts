@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { verifyPaymentSignature, getRazorpayClient } from "@/lib/razorpay";
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
   try {
@@ -83,8 +84,16 @@ export async function POST(request: Request) {
     if (currentStartISO) updateData["current_period_start"] = currentStartISO;
     if (currentEndISO) updateData["current_period_end"] = currentEndISO;
 
+    const adminClient = getAdminSupabaseClient();
+    if (!adminClient) {
+      return NextResponse.json(
+        { error: "Server database configuration missing." },
+        { status: 500 }
+      );
+    }
+
     // 4. Update status to 'active' (database trigger & entitlement module sync plan)
-    const { error: updateError } = await supabase
+    const { error: updateError } = await adminClient
       .from("subscriptions")
       .update(updateData)
       .eq("id", subRecord.id);

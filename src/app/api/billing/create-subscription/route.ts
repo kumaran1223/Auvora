@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getRazorpayClient, getRazorpayPlanId } from "@/lib/razorpay";
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
   try {
@@ -77,6 +78,14 @@ export async function POST(request: Request) {
       }
     }
 
+    const adminClient = getAdminSupabaseClient();
+    if (!adminClient) {
+      return NextResponse.json(
+        { error: "Server database configuration missing." },
+        { status: 500 }
+      );
+    }
+
     // Create subscription on Razorpay (Test Mode)
     const subscription = await razorpay.subscriptions.create({
       plan_id: razorpayPlanId,
@@ -90,7 +99,7 @@ export async function POST(request: Request) {
     });
 
     // Save initial subscription record in public.subscriptions
-    const { error: dbError } = await supabase.from("subscriptions").insert({
+    const { error: dbError } = await adminClient.from("subscriptions").insert({
       user_id: user.id,
       plan,
       razorpay_subscription_id: subscription.id,
@@ -100,6 +109,16 @@ export async function POST(request: Request) {
 
     if (dbError) {
       console.error("Failed to insert subscription record:", dbError);
+      
+      // Rollback: Attempt to cancel the orphaned Razorpay subscription
+      try {
+        // cancel_at_cycle_end: 0 to cancel immediately
+        await razorpay.subscriptions.cancel(subscription.id, 0);
+        console.info(`Successfully cancelled orphaned Razorpay subscription: ${subscription.id}`);
+      } catch (cancelError) {
+        console.error(`Failed to cancel orphaned Razorpay subscription: ${subscription.id}. Cleanup failed.`, cancelError);
+      }
+
       return NextResponse.json(
         { error: "Failed to persist subscription initialization." },
         { status: 500 }
