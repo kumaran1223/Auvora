@@ -61,12 +61,20 @@ export default async function DashboardPage() {
             <h2 className="text-xl font-semibold text-white">Decision Intelligence Dashboard</h2>
             <p className="text-xs text-zinc-400">Stress-test choices, surface risks, and track outcomes.</p>
           </div>
-          <Link
-            href="/decisions/new"
-            className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-          >
-            + New Decision
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/patterns"
+              className="inline-flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:border-zinc-600 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            >
+              Decision Patterns
+            </Link>
+            <Link
+              href="/decisions/new"
+              className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            >
+              + New Decision
+            </Link>
+          </div>
         </div>
 
         {/* Usage Entitlements Summary Card */}
