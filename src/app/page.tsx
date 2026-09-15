@@ -4,6 +4,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { ProblemSection } from "@/components/landing/problem-section";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { TrustSection } from "@/components/landing/trust-section";
 import { ExampleReport } from "@/components/landing/example-report";
 import { FeatureGrid } from "@/components/landing/feature-grid";
 import { WhyAuvora } from "@/components/landing/why-auvora";
@@ -39,6 +40,7 @@ export default async function HomePage() {
       <Hero isAuthenticated={isAuthenticated} />
       <ProblemSection />
       <HowItWorks />
+      <TrustSection />
       <ExampleReport />
       <FeatureGrid />
       <WhyAuvora />

@@ -181,7 +181,22 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
       </div>
 
       {/* Decision List */}
-      {paginatedDecisions.length === 0 ? (
+      {decisions.length === 0 ? (
+        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 p-8 text-center space-y-4">
+          <div className="space-y-2 max-w-md">
+            <h4 className="text-xl font-bold text-white">No decisions stress-tested yet</h4>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Auvora challenges your assumptions, exposes evidence gaps, and maps second-order consequences before you commit capital.
+            </p>
+          </div>
+          <Link
+            href="/decisions/new"
+            className="inline-flex items-center justify-center rounded-md bg-white px-5 py-2.5 text-xs font-bold text-zinc-950 transition hover:bg-zinc-200"
+          >
+            + Stress-test your first decision
+          </Link>
+        </div>
+      ) : paginatedDecisions.length === 0 ? (
         <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/20 p-8 text-center space-y-3">
           <h4 className="text-lg font-semibold text-white">No matching decisions found</h4>
           <p className="text-xs text-zinc-400 max-w-sm">

@@ -72,14 +72,14 @@ export default function NewDecisionPage() {
           {/* Description */}
           <div className="space-y-1.5">
             <label htmlFor="description" className="block text-xs font-semibold text-zinc-200">
-              What are you considering? <span className="text-red-400">*</span>
+              What decision are you trying to make? <span className="text-red-400">*</span>
             </label>
             <textarea
               id="description"
               name="description"
               required
               rows={4}
-              placeholder="Describe the core decision, key choices available, and primary objectives..."
+              placeholder="Describe the core decision, key choices available, primary objectives, and assumptions..."
               className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
             />
           </div>
@@ -87,13 +87,13 @@ export default function NewDecisionPage() {
           {/* Context / Why Now */}
           <div className="space-y-1.5">
             <label htmlFor="why_now" className="block text-xs font-medium text-zinc-300">
-              Why are you considering this now? <span className="text-zinc-500">(Optional)</span>
+              What changed or created the need to decide now? <span className="text-zinc-500">(Optional)</span>
             </label>
             <textarea
               id="why_now"
               name="why_now"
               rows={3}
-              placeholder="What triggered this opportunity or deadline? e.g. Competitor launch, cash reserves..."
+              placeholder="What triggered this opportunity or deadline? e.g. Competitor launch, runway limit, customer request..."
               className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
             />
           </div>
@@ -185,7 +185,7 @@ export default function NewDecisionPage() {
           {/* Success Definition */}
           <div className="space-y-1.5">
             <label htmlFor="success_definition" className="block text-xs font-medium text-zinc-300">
-              What would make this decision successful? <span className="text-zinc-500">(Optional)</span>
+              What would a successful outcome look like? <span className="text-zinc-500">(Optional)</span>
             </label>
             <textarea
               id="success_definition"
@@ -208,7 +208,7 @@ export default function NewDecisionPage() {
               disabled={loading}
               className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
             >
-              {loading ? "Saving decision..." : "Save decision"}
+              {loading ? "Creating decision..." : "Stress-test with Auvora"}
             </button>
           </div>
         </form>
