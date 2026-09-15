@@ -111,3 +111,36 @@ export const AuvoraReportSchema = z.object({
 
 export type AuvoraReportData = z.infer<typeof AuvoraReportSchema>;
 
+// Phase 10B: Decision Replay Schemas
+
+export const AssumptionResultSchema = z.object({
+  original_statement: z.string(),
+  result: z.enum(["validated", "failed", "inconclusive"]),
+  explanation: z.string(),
+});
+
+export const RiskResultSchema = z.object({
+  risk_title: z.string(),
+  materialized: z.enum(["yes", "no", "partially", "inconclusive"]),
+  explanation: z.string(),
+});
+
+export const BlindSpotResultSchema = z.object({
+  blind_spot_title: z.string(),
+  result: z.enum(["surfaced", "not_observed", "inconclusive"]),
+  explanation: z.string(),
+});
+
+export const AuvoraReplaySchema = z.object({
+  alignment_score: z.number().min(0).max(100),
+  overall_verdict: z.string(),
+  key_takeaway: z.string(),
+  assumption_results: z.array(AssumptionResultSchema),
+  risk_results: z.array(RiskResultSchema),
+  blind_spot_results: z.array(BlindSpotResultSchema),
+  lessons_learned: z.array(z.string()),
+});
+
+export type AuvoraReplayData = z.infer<typeof AuvoraReplaySchema>;
+
+

@@ -6,7 +6,9 @@ import type {
   DecisionReport,
   Scenario,
   DecisionOutcome,
+  DecisionReplay,
 } from "@/types/database";
+import type { AuvoraReplayData } from "@/lib/ai/schemas";
 
 export interface DecisionWithMeta extends Decision {
   risk_score?: number | null;
@@ -312,3 +314,111 @@ export async function saveDecisionOutcome(
 
   return savedData;
 }
+
+/**
+ * Retrieve the decision replay associated with a specific decision.
+ */
+export async function getDecisionReplay(
+  decisionId: string
+): Promise<DecisionReplay | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("decision_replays")
+    .select("*")
+    .eq("decision_id", decisionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error("Failed to fetch decision replay.");
+  }
+
+  return (data as DecisionReplay) || null;
+}
+
+/**
+ * Save or update (upsert) the decision replay for a decision.
+ */
+export async function saveDecisionReplay(
+  decisionId: string,
+  outcomeId: string,
+  outcomeRecordedAt: string,
+  replayData: AuvoraReplayData
+): Promise<DecisionReplay> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Authentication required.");
+  }
+
+  // Verify ownership of the target decision
+  const decision = await getDecisionById(decisionId);
+  if (!decision || decision.user_id !== user.id) {
+    throw new Error("Decision not found or unauthorized.");
+  }
+
+  const payload = {
+    decision_id: decisionId,
+    user_id: user.id,
+    outcome_id: outcomeId,
+    outcome_recorded_at: outcomeRecordedAt,
+    alignment_score: replayData.alignment_score,
+    overall_verdict: replayData.overall_verdict,
+    key_takeaway: replayData.key_takeaway,
+    assumption_results: replayData.assumption_results,
+    risk_results: replayData.risk_results,
+    blind_spot_results: replayData.blind_spot_results,
+    lessons_learned: replayData.lessons_learned,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: existingReplay } = await supabase
+    .from("decision_replays")
+    .select("id")
+    .eq("decision_id", decisionId)
+    .maybeSingle();
+
+  let savedData: DecisionReplay | null = null;
+  let saveError = null;
+
+  if (existingReplay) {
+    const { data, error } = await supabase
+      .from("decision_replays")
+      .update(payload)
+      .eq("id", existingReplay.id)
+      .select("*")
+      .single();
+    savedData = data as DecisionReplay;
+    saveError = error;
+  } else {
+    const { data, error } = await supabase
+      .from("decision_replays")
+      .insert(payload)
+      .select("*")
+      .single();
+    savedData = data as DecisionReplay;
+    saveError = error;
+
+    // Fallback: handle potential Postgres 23505 unique constraint race condition
+    if (saveError && (saveError as { code?: string }).code === "23505") {
+      const { data: retryData, error: retryError } = await supabase
+        .from("decision_replays")
+        .update(payload)
+        .eq("decision_id", decisionId)
+        .select("*")
+        .single();
+      savedData = retryData as DecisionReplay;
+      saveError = retryError;
+    }
+  }
+
+  if (saveError || !savedData) {
+    console.error("Save replay DB error:", saveError);
+    throw new Error("Failed to save decision replay.");
+  }
+
+  return savedData;
+}
+

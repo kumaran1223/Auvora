@@ -141,3 +141,33 @@ export interface WebhookEventRecord {
   processed_at: string;
   created_at: string;
 }
+
+export interface DecisionReplay {
+  id: string;
+  decision_id: string;
+  user_id: string;
+  outcome_id: string;
+  outcome_recorded_at: string;
+  alignment_score: number;
+  overall_verdict: string;
+  key_takeaway: string;
+  assumption_results: Array<{
+    original_statement: string;
+    result: "validated" | "failed" | "inconclusive";
+    explanation: string;
+  }>;
+  risk_results: Array<{
+    risk_title: string;
+    materialized: "yes" | "no" | "partially" | "inconclusive";
+    explanation: string;
+  }>;
+  blind_spot_results: Array<{
+    blind_spot_title: string;
+    result: "surfaced" | "not_observed" | "inconclusive";
+    explanation: string;
+  }>;
+  lessons_learned: string[];
+  created_at: string;
+  updated_at: string;
+}
+

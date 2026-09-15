@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getDecisionById, getDecisionReport, getDecisionOutcome } from "@/lib/db/decisions";
+import {
+  getDecisionById,
+  getDecisionReport,
+  getDecisionOutcome,
+  getDecisionReplay,
+} from "@/lib/db/decisions";
 import { ArchiveButton } from "@/components/decisions/archive-button";
 import { DeleteModal } from "@/components/decisions/delete-modal";
 import { ReanalyzeDialog } from "@/components/decisions/reanalyze-dialog";
@@ -18,6 +23,7 @@ import { AlternativePaths } from "@/components/report/alternative-paths";
 import { KillQuestions } from "@/components/report/kill-questions";
 import { FinalStressTest } from "@/components/report/final-stress-test";
 import { OutcomeSection } from "@/components/decisions/outcome-section";
+import { ReplaySection } from "@/components/decisions/replay-section";
 import type { AuvoraReportData } from "@/lib/ai/schemas";
 
 interface DecisionDetailPageProps {
@@ -42,9 +48,10 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
     notFound();
   }
 
-  const [rawReport, outcome] = await Promise.all([
+  const [rawReport, outcome, replay] = await Promise.all([
     getDecisionReport(id),
     getDecisionOutcome(id),
+    getDecisionReplay(id),
   ]);
 
   const statusColors: Record<string, string> = {
@@ -211,7 +218,17 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
 
         {/* Outcome Section (Decision Reality Track) */}
         <OutcomeSection decisionId={decision.id} outcome={outcome} />
+
+        {/* Replay Section (Prediction vs. Reality Audit) */}
+        <ReplaySection
+          decisionId={decision.id}
+          status={decision.status}
+          hasReport={Boolean(parsedReport)}
+          hasOutcome={Boolean(outcome)}
+          existingReplay={replay}
+        />
       </div>
     </main>
   );
 }
+
