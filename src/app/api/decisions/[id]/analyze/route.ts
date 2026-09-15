@@ -181,9 +181,15 @@ export async function POST(
       // Ignore secondary rollback errors
     }
 
+    const isGlobalQuotaExhausted = err instanceof Error && err.name === "GlobalProviderQuotaExhaustedError";
+    const errorMessage = isGlobalQuotaExhausted
+      ? err.message
+      : "AI analysis failed. Please verify configuration and try again.";
+    const statusCode = isGlobalQuotaExhausted ? 503 : 500;
+
     return NextResponse.json(
-      { error: "AI analysis failed. Please verify configuration and try again." },
-      { status: 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
   }
 }

@@ -125,14 +125,15 @@ export async function POST() {
       }
     }
 
+    const isGlobalQuotaExhausted = error instanceof Error && error.name === "GlobalProviderQuotaExhaustedError";
+    const errorMessage = isGlobalQuotaExhausted
+      ? error.message
+      : "Failed to generate decision pattern report. Please try again.";
+    const statusCode = isGlobalQuotaExhausted ? 503 : 500;
+
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to generate decision pattern report. Please try again.",
-      },
-      { status: 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
   }
 }

@@ -17,6 +17,36 @@ import type {
   NormalizedReplayContext,
   NormalizedPatternInput,
 } from "./types";
+import { createClient } from "@/lib/supabase/server";
+
+export class GlobalProviderQuotaExhaustedError extends Error {
+  constructor(message = "Auvora's AI analysis is temporarily unavailable. Please try again later.") {
+    super(message);
+    this.name = "GlobalProviderQuotaExhaustedError";
+  }
+}
+
+async function reserveProviderRequest(provider: string = "gemini"): Promise<void> {
+  const limitStr = process.env["AUVORA_GEMINI_DAILY_REQUEST_LIMIT"];
+  const limit = limitStr ? parseInt(limitStr, 10) : 500;
+  
+  if (isNaN(limit) || limit <= 0) {
+    throw new GlobalProviderQuotaExhaustedError();
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("reserve_ai_provider_request", {
+    p_provider: provider,
+    p_daily_limit: limit
+  });
+
+  if (error || data !== true) {
+    if (error) {
+       console.error("Global AI guard error (masked from client).");
+    }
+    throw new GlobalProviderQuotaExhaustedError();
+  }
+}
 
 function getGeminiClient(): { ai: GoogleGenAI; model: string } {
   const apiKey = process.env["GEMINI_API_KEY"];
@@ -102,6 +132,7 @@ DECISION METADATA & CONTEXT:
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
+      await reserveProviderRequest();
       const response = await ai.models.generateContent({
         model,
         contents: userPrompt,
@@ -121,6 +152,10 @@ DECISION METADATA & CONTEXT:
 
       return report;
     } catch (err: unknown) {
+      if (err instanceof GlobalProviderQuotaExhaustedError) {
+        throw err;
+      }
+      
       lastError = err;
 
       const isQuotaExhausted = isDailyQuotaExhaustionError(err);
@@ -198,6 +233,7 @@ function zodToJsonSchemaCustom(schema: any): any {
         throw new Error("Failed to generate a valid JSON Schema for Gemini fallback.");
       }
 
+      await reserveProviderRequest();
       const fallbackResponse = await ai.models.generateContent({
         model: FALLBACK_MODEL,
         contents: userPrompt,
@@ -226,6 +262,9 @@ function zodToJsonSchemaCustom(schema: any): any {
       console.warn("Fallback model succeeded.");
       return fallbackReport;
     } catch (fallbackErr: unknown) {
+      if (fallbackErr instanceof GlobalProviderQuotaExhaustedError) {
+        throw fallbackErr;
+      }
       console.error("Fallback model failed.");
       lastError = fallbackErr;
     }
@@ -267,6 +306,7 @@ Please audit prediction alignment for the following decision:
 `;
 
   try {
+    await reserveProviderRequest();
     const response = await ai.models.generateContent({
       model,
       contents: userPrompt,
@@ -286,6 +326,9 @@ Please audit prediction alignment for the following decision:
 
     return replay;
   } catch (err: unknown) {
+    if (err instanceof GlobalProviderQuotaExhaustedError) {
+      throw err;
+    }
     if (err instanceof Error) {
       throw new Error(`AI Replay Execution Failed: ${err.message}`);
     }
@@ -306,6 +349,7 @@ ${JSON.stringify(input, null, 2)}
 `;
 
   try {
+    await reserveProviderRequest();
     const response = await ai.models.generateContent({
       model,
       contents: userPrompt,
@@ -325,6 +369,9 @@ ${JSON.stringify(input, null, 2)}
 
     return patternReport;
   } catch (err: unknown) {
+    if (err instanceof GlobalProviderQuotaExhaustedError) {
+      throw err;
+    }
     if (err instanceof Error) {
       throw new Error(`AI Pattern Analysis Execution Failed: ${err.message}`);
     }
