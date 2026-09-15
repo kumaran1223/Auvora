@@ -24,10 +24,10 @@ function getGeminiClient(): { ai: GoogleGenAI; model: string } {
     throw new Error("Gemini API key is not configured on the server.");
   }
 
-  const rawModel = (process.env["GEMINI_MODEL"] || "gemini-2.5-flash").trim();
+  const rawModel = (process.env["GEMINI_MODEL"] || "gemini-3.5-flash").trim();
   let model = rawModel;
   if (rawModel.toLowerCase().includes("flash")) {
-    model = "gemini-2.5-flash";
+    model = "gemini-3.5-flash";
   }
 
   const ai = new GoogleGenAI({ apiKey });
