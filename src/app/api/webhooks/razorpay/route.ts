@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       // Safe unknown subscription lookup
       const { data: existingSub } = await supabase
         .from("subscriptions")
-        .select("id, updated_at, status, razorpay_plan_id, plan")
+        .select("id, updated_at, last_webhook_created_at, status, razorpay_plan_id, plan")
         .eq("razorpay_subscription_id", razorpaySubId)
         .maybeSingle();
 
@@ -97,15 +97,17 @@ export async function POST(request: Request) {
         );
       }
 
-      // Out-of-order timestamp verification: ignore events older than the current record's updated_at
+      // Out-of-order timestamp verification: compare incoming event created_at against last_webhook_created_at
       const eventCreatedAt = payload.created_at
         ? new Date(payload.created_at * 1000)
         : new Date();
-      const lastUpdatedAt = new Date(existingSub.updated_at);
 
-      if (eventCreatedAt < lastUpdatedAt) {
+      if (
+        existingSub.last_webhook_created_at &&
+        eventCreatedAt < new Date(existingSub.last_webhook_created_at)
+      ) {
         console.warn(
-          `Out-of-order webhook event ${actualEventId} ignored for sub ${razorpaySubId}`
+          `Out-of-order webhook event ${actualEventId} ignored for sub ${razorpaySubId}. Event time (${eventCreatedAt.toISOString()}) < Last Webhook time (${existingSub.last_webhook_created_at})`
         );
         await supabase.from("webhook_events").insert({
           event_id: actualEventId,
@@ -128,6 +130,7 @@ export async function POST(request: Request) {
 
       const updatePayload: Record<string, unknown> = {
         updated_at: new Date().toISOString(),
+        last_webhook_created_at: eventCreatedAt.toISOString(),
       };
       if (currentStart) updatePayload["current_period_start"] = currentStart;
       if (currentEnd) updatePayload["current_period_end"] = currentEnd;

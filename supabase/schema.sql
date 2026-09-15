@@ -351,13 +351,26 @@ DECLARE
   v_period_start DATE;
   v_usage RECORD;
 BEGIN
-  -- 1. Determine user plan (default 'free')
-  SELECT COALESCE(plan, 'free') INTO v_plan
-  FROM public.profiles
-  WHERE id = p_user_id;
+  -- 1. Determine effective user plan dynamically from active unexpired subscription
+  SELECT plan INTO v_plan
+  FROM public.subscriptions
+  WHERE user_id = p_user_id
+    AND (
+      status = 'active'
+      OR (status = 'cancelled' AND cancel_at_period_end = TRUE AND (current_period_end IS NULL OR current_period_end > NOW()))
+    )
+  ORDER BY created_at DESC
+  LIMIT 1;
 
   IF v_plan IS NULL THEN
-    v_plan := 'free';
+    -- Fall back to profiles table (for manual overrides) or default to 'free'
+    SELECT COALESCE(plan, 'free') INTO v_plan
+    FROM public.profiles
+    WHERE id = p_user_id;
+
+    IF v_plan IS NULL THEN
+      v_plan := 'free';
+    END IF;
   END IF;
 
   -- 2. Determine plan limit
@@ -449,6 +462,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   current_period_end TIMESTAMPTZ,
   cancel_at_period_end BOOLEAN NOT NULL DEFAULT FALSE,
   cancelled_at TIMESTAMPTZ,
+  last_webhook_created_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

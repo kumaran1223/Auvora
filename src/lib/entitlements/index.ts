@@ -60,18 +60,45 @@ export function getPlanConfig(planType: string | null | undefined): PlanConfig {
 export async function getUserUsageSummary(userId: string): Promise<UserUsageSummary> {
   const supabase = await createClient();
 
-  // 1. Fetch user profile plan
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("plan")
-    .eq("id", userId)
-    .single();
+  const now = new Date();
 
-  const planType = (profile?.plan?.toLowerCase() || "free") as PlanType;
+  // 1. Fetch effective plan from subscriptions or profile
+  const { data: activeSub } = await supabase
+    .from("subscriptions")
+    .select("plan, status, current_period_end, cancel_at_period_end")
+    .eq("user_id", userId)
+    .in("status", ["active", "cancelled"])
+    .order("created_at", { ascending: false })
+    .maybeSingle();
+
+  let effectivePlanStr = "free";
+
+  if (activeSub) {
+    if (activeSub.status === "active") {
+      effectivePlanStr = activeSub.plan;
+    } else if (
+      activeSub.status === "cancelled" &&
+      activeSub.cancel_at_period_end &&
+      activeSub.current_period_end &&
+      new Date(activeSub.current_period_end) > now
+    ) {
+      effectivePlanStr = activeSub.plan;
+    }
+  } else {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", userId)
+      .maybeSingle();
+    if (profile?.plan) {
+      effectivePlanStr = profile.plan;
+    }
+  }
+
+  const planType = (effectivePlanStr.toLowerCase() || "free") as PlanType;
   const config = getPlanConfig(planType);
 
   // 2. Determine current UTC period start (1st day of current month)
-  const now = new Date();
   const currentPeriodStart =
     new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
       .toISOString()

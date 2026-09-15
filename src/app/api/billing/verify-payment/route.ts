@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { verifyPaymentSignature } from "@/lib/razorpay";
+import { verifyPaymentSignature, getRazorpayClient } from "@/lib/razorpay";
 
 export async function POST(request: Request) {
   try {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify HMAC SHA256 signature
+    // 1. Verify HMAC SHA256 signature
     const isValid = verifyPaymentSignature({
       razorpay_payment_id,
       razorpay_subscription_id,
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify ownership of subscription record
+    // 2. Verify ownership of subscription record in database
     const { data: subRecord, error: subError } = await supabase
       .from("subscriptions")
       .select("id, user_id, plan")
@@ -55,13 +55,39 @@ export async function POST(request: Request) {
       );
     }
 
-    // Update status to 'active' (database trigger handles profile.plan sync)
+    // 3. Optional: fetch current period bounds from Razorpay SDK if available
+    const razorpay = getRazorpayClient();
+    let currentStartISO: string | null = null;
+    let currentEndISO: string | null = null;
+
+    if (razorpay) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const razorpaySub = await (razorpay.subscriptions as any).fetch(
+          razorpay_subscription_id
+        );
+        if (razorpaySub?.current_start) {
+          currentStartISO = new Date(razorpaySub.current_start * 1000).toISOString();
+        }
+        if (razorpaySub?.current_end) {
+          currentEndISO = new Date(razorpaySub.current_end * 1000).toISOString();
+        }
+      } catch (err) {
+        console.warn("Razorpay SDK fetch warning during verification:", err);
+      }
+    }
+
+    const updateData: Record<string, unknown> = {
+      status: "active",
+      updated_at: new Date().toISOString(),
+    };
+    if (currentStartISO) updateData["current_period_start"] = currentStartISO;
+    if (currentEndISO) updateData["current_period_end"] = currentEndISO;
+
+    // 4. Update status to 'active' (database trigger & entitlement module sync plan)
     const { error: updateError } = await supabase
       .from("subscriptions")
-      .update({
-        status: "active",
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("id", subRecord.id);
 
     if (updateError) {
@@ -75,7 +101,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: true,
-        message: "Payment verified successfully. Plan updated.",
+        message: "Payment verified successfully. Plan activated.",
         plan: subRecord.plan,
       },
       { status: 200 }
@@ -88,4 +114,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
