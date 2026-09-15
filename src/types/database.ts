@@ -98,3 +98,11 @@ export interface DecisionOutcome {
   updated_at: string;
 }
 
+export interface DecisionUsage {
+  id: string;
+  user_id: string;
+  period_start: string;
+  analysis_count: number;
+  created_at: string;
+  updated_at: string;
+}

@@ -48,6 +48,27 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
+-- Trigger to prevent client-side tampering of profiles.plan
+CREATE OR REPLACE FUNCTION public.prevent_profile_plan_tampering()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  -- If plan column is changed by an authenticated user session, revert plan to OLD.plan
+  IF NEW.plan IS DISTINCT FROM OLD.plan AND auth.uid() IS NOT NULL THEN
+    NEW.plan := OLD.plan;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_profile_plan_protection ON public.profiles;
+CREATE TRIGGER enforce_profile_plan_protection
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_profile_plan_tampering();
+
 -- --------------------------------------------------
 -- Reusable Timestamp Trigger Function
 -- --------------------------------------------------
