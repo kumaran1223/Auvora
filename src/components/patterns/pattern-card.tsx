@@ -74,3 +74,4 @@ export function PatternCard({ pattern, index }: PatternCardProps) {
     </div>
   );
 }
+

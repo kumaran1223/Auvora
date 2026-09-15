@@ -37,3 +37,4 @@ export function PatternImpact({ impact }: PatternImpactProps) {
     </span>
   );
 }
+

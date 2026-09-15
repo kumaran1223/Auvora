@@ -111,3 +111,4 @@ export function PatternDecisionHistory({ decisions }: PatternDecisionHistoryProp
     </div>
   );
 }
+

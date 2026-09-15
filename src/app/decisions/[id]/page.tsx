@@ -23,7 +23,7 @@ import { AlternativePaths } from "@/components/report/alternative-paths";
 import { KillQuestions } from "@/components/report/kill-questions";
 import { FinalStressTest } from "@/components/report/final-stress-test";
 import { OutcomeSection } from "@/components/decisions/outcome-section";
-import { ReplaySection } from "@/components/decisions/replay-section";
+import { DecisionAutopsy } from "@/components/autopsy/decision-autopsy";
 import type { AuvoraReportData } from "@/lib/ai/schemas";
 
 interface DecisionDetailPageProps {
@@ -219,13 +219,15 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
         {/* Outcome Section (Decision Reality Track) */}
         <OutcomeSection decisionId={decision.id} outcome={outcome} />
 
-        {/* Replay Section (Prediction vs. Reality Audit) */}
-        <ReplaySection
+        {/* Decision Autopsy Section (Post-Decision Learning Experience) */}
+        <DecisionAutopsy
           decisionId={decision.id}
+          decisionTitle={decision.title}
+          decisionCreatedAt={decision.created_at}
           status={decision.status}
           hasReport={Boolean(parsedReport)}
-          hasOutcome={Boolean(outcome)}
-          existingReplay={replay}
+          outcome={outcome}
+          replay={replay}
         />
       </div>
     </main>

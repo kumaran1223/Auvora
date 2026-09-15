@@ -222,3 +222,4 @@ export function PatternsClient({ initialHistory, initialReport }: PatternsClient
     </div>
   );
 }
+

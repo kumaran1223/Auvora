@@ -45,3 +45,4 @@ export function PatternConfidence({ confidence }: PatternConfidenceProps) {
     </div>
   );
 }
+

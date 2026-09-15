@@ -55,3 +55,4 @@ export function PatternCounterexamples({ counterexamples }: PatternCounterexampl
     </div>
   );
 }
+
