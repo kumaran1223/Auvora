@@ -63,10 +63,12 @@ async function reserveProviderRequest(provider: string = "gemini"): Promise<void
     throw new GlobalProviderGuardError();
   }
 
+  const t_guard_start = performance.now();
   const { data, error } = await supabase.rpc("reserve_ai_provider_request", {
     p_provider: provider,
     p_daily_limit: limit
   });
+  console.log(`[AI LATENCY] global-provider-guard: ${Math.round(performance.now() - t_guard_start)}ms`);
 
   if (error) {
     console.error("Global AI guard error (masked from client):", error.message);
@@ -161,8 +163,10 @@ DECISION METADATA & CONTEXT:
   const FALLBACK_MODEL = "gemini-3.5-flash-lite";
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let t_primary_start: number = 0;
     try {
       await reserveProviderRequest();
+      t_primary_start = performance.now();
       const response = await ai.models.generateContent({
         model,
         contents: userPrompt,
@@ -171,17 +175,25 @@ DECISION METADATA & CONTEXT:
           responseMimeType: "application/json",
         },
       });
+      console.log(`[AI LATENCY] ${model} (primary): ${Math.round(performance.now() - t_primary_start)}ms (status: success)`);
 
+      const t_validation_start = performance.now();
       const content = response.text;
       if (!content || content.trim() === "") {
+        console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_validation_start)}ms (status: failed)`);
         throw new Error("AI returned empty response content.");
       }
 
       const parsedJson = JSON.parse(content);
       const report = AuvoraReportSchema.parse(parsedJson);
+      console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_validation_start)}ms (status: success)`);
 
       return report;
     } catch (err: unknown) {
+      if (t_primary_start > 0 && !(err instanceof GlobalProviderQuotaExhaustedError) && !(err instanceof GlobalProviderGuardError) && !(err instanceof Error && err.message === "AI returned empty response content.") && !(err instanceof Error && err.name === "ZodError")) {
+        console.log(`[AI LATENCY] ${model} (primary): ${Math.round(performance.now() - t_primary_start)}ms (status: failed)`);
+      }
+      
       if (err instanceof GlobalProviderQuotaExhaustedError || err instanceof GlobalProviderGuardError) {
         throw err;
       }
@@ -253,6 +265,7 @@ function zodToJsonSchemaCustom(schema: any): any {
   }
 }
 
+  let t_fallback_start: number = 0;
   if (needsFallback) {
     try {
       console.warn("Attempting fallback model:", FALLBACK_MODEL);
@@ -264,6 +277,7 @@ function zodToJsonSchemaCustom(schema: any): any {
       }
 
       await reserveProviderRequest();
+      t_fallback_start = performance.now();
       const fallbackResponse = await ai.models.generateContent({
         model: FALLBACK_MODEL,
         contents: userPrompt,
@@ -274,9 +288,12 @@ function zodToJsonSchemaCustom(schema: any): any {
           responseJsonSchema: jsonSchema as any,
         },
       });
+      console.log(`[AI LATENCY] ${FALLBACK_MODEL} (fallback): ${Math.round(performance.now() - t_fallback_start)}ms (status: success)`);
 
+      const t_fb_validation_start = performance.now();
       const fallbackContent = fallbackResponse.text;
       if (!fallbackContent || fallbackContent.trim() === "") {
+        console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_fb_validation_start)}ms (status: failed)`);
         throw new Error("AI returned empty response content.");
       }
 
@@ -288,10 +305,14 @@ function zodToJsonSchemaCustom(schema: any): any {
 
       const fallbackParsedJson = JSON.parse(cleanedContent);
       const fallbackReport = AuvoraReportSchema.parse(fallbackParsedJson);
+      console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_fb_validation_start)}ms (status: success)`);
 
       console.warn("Fallback model succeeded.");
       return fallbackReport;
     } catch (fallbackErr: unknown) {
+      if (t_fallback_start > 0 && !(fallbackErr instanceof GlobalProviderQuotaExhaustedError) && !(fallbackErr instanceof GlobalProviderGuardError) && !(fallbackErr instanceof Error && fallbackErr.message === "AI returned empty response content.") && !(fallbackErr instanceof Error && fallbackErr.name === "ZodError")) {
+        console.log(`[AI LATENCY] ${FALLBACK_MODEL} (fallback): ${Math.round(performance.now() - t_fallback_start)}ms (status: failed)`);
+      }
       if (fallbackErr instanceof GlobalProviderQuotaExhaustedError || fallbackErr instanceof GlobalProviderGuardError) {
         throw fallbackErr;
       }

@@ -9,6 +9,9 @@ export async function POST(
   _request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  const t_total_start = performance.now();
+  const t_auth_load_start = performance.now();
+  
   const { id: decisionId } = await context.params;
   let reservedSlot = false;
   let userId = "";
@@ -21,6 +24,8 @@ export async function POST(
     } = await supabase.auth.getUser();
 
     if (!user) {
+      console.log(`[AI LATENCY] auth-loading: ${Math.round(performance.now() - t_auth_load_start)}ms (status: failed)`);
+      console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: failed)`);
       return NextResponse.json(
         { error: "Unauthenticated. Please log in." },
         { status: 401 }
@@ -32,14 +37,18 @@ export async function POST(
     const decision = await getDecisionById(decisionId);
 
     if (!decision || decision.user_id !== user.id) {
+      console.log(`[AI LATENCY] auth-loading: ${Math.round(performance.now() - t_auth_load_start)}ms (status: failed)`);
+      console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: failed)`);
       return NextResponse.json(
         { error: "Decision not found or unauthorized." },
         { status: 404 }
       );
     }
+    console.log(`[AI LATENCY] auth-loading: ${Math.round(performance.now() - t_auth_load_start)}ms (status: success)`);
 
     // 3. Prevent duplicate concurrent requests if already analyzing
     if (decision.status === "analyzing") {
+      console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: failed)`);
       return NextResponse.json(
         { error: "Decision is currently being analyzed." },
         { status: 409 }
@@ -47,8 +56,11 @@ export async function POST(
     }
 
     // 4. Reserve analysis slot (monthly quota check)
+    const t_quota_res_start = performance.now();
     const reservation = await reserveAnalysisSlot(user.id);
     if (!reservation.allowed) {
+      console.log(`[AI LATENCY] user-quota-reservation: ${Math.round(performance.now() - t_quota_res_start)}ms (status: failed)`);
+      console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: failed)`);
       return NextResponse.json(
         {
           error:
@@ -62,6 +74,7 @@ export async function POST(
         { status: 429 }
       );
     }
+    console.log(`[AI LATENCY] user-quota-reservation: ${Math.round(performance.now() - t_quota_res_start)}ms (status: success)`);
     reservedSlot = true;
 
     // 5. Update status to 'analyzing'
@@ -71,6 +84,7 @@ export async function POST(
     const normalizedContext = normalizeDecisionContext(decision);
     const reportData = await runAuvoraAnalysis(normalizedContext);
 
+    const t_persistence_start = performance.now();
     // 7. Check for existing report
     const { data: existingReport } = await supabase
       .from("decision_reports")
@@ -120,6 +134,8 @@ export async function POST(
         reservedSlot = false;
       }
       await updateDecision(decisionId, { status: "draft" });
+      console.log(`[AI LATENCY] report-persistence: ${Math.round(performance.now() - t_persistence_start)}ms (status: failed)`);
+      console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: failed)`);
       return NextResponse.json(
         { error: "Failed to persist analysis report." },
         { status: 500 }
@@ -128,6 +144,8 @@ export async function POST(
 
     // 8. Mark decision status as completed
     await updateDecision(decisionId, { status: "completed" });
+    console.log(`[AI LATENCY] report-persistence: ${Math.round(performance.now() - t_persistence_start)}ms (status: success)`);
+    console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: success)`);
 
     return NextResponse.json(
       {
@@ -191,6 +209,7 @@ export async function POST(
       errorMessage = "Auvora's AI analysis is temporarily unavailable. Please try again later.";
       statusCode = 503;
     }
+    console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: failed)`);
 
     return NextResponse.json(
       { error: errorMessage },
