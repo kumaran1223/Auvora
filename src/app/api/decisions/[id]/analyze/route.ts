@@ -17,14 +17,11 @@ export async function POST(
   let userId = "";
 
   try {
-    // 1 & 2. Authenticate user & load decision concurrently
+    // 1. Authenticate user sequentially
     const supabase = await createClient();
-    const [authResponse, decision] = await Promise.all([
-      supabase.auth.getUser(),
-      getDecisionById(decisionId),
-    ]);
-    
-    const user = authResponse.data.user;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       console.log(`[AI LATENCY] auth-loading: ${Math.round(performance.now() - t_auth_load_start)}ms (status: failed)`);
@@ -35,6 +32,9 @@ export async function POST(
       );
     }
     userId = user.id;
+
+    // 2. Load decision sequentially and verify ownership
+    const decision = await getDecisionById(decisionId);
 
     if (!decision || decision.user_id !== user.id) {
       console.log(`[AI LATENCY] auth-loading: ${Math.round(performance.now() - t_auth_load_start)}ms (status: failed)`);
