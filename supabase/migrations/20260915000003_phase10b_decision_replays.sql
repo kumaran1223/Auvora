@@ -62,3 +62,4 @@ DROP POLICY IF EXISTS "Users can delete own decision replays" ON public.decision
 CREATE POLICY "Users can delete own decision replays"
   ON public.decision_replays FOR DELETE
   USING (auth.uid() = user_id);
+
