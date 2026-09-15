@@ -8,6 +8,11 @@ import type {
   DecisionOutcome,
 } from "@/types/database";
 
+export interface DecisionWithMeta extends Decision {
+  risk_score?: number | null;
+  outcome?: DecisionOutcome | null;
+}
+
 /**
  * Retrieve all decisions belonging to the authenticated user.
  */
@@ -23,6 +28,50 @@ export async function getUserDecisions(): Promise<Decision[]> {
   }
 
   return (data as Decision[]) || [];
+}
+
+/**
+ * Retrieve decisions with metadata (reports and outcomes) for dashboard.
+ */
+export async function getUserDecisionsWithMeta(): Promise<DecisionWithMeta[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const [decisionsRes, reportsRes, outcomesRes] = await Promise.all([
+    supabase
+      .from("decisions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase.from("decision_reports").select("decision_id, risk_score").eq("user_id", user.id),
+    supabase.from("decision_outcomes").select("*").eq("user_id", user.id),
+  ]);
+
+  if (decisionsRes.error) {
+    throw new Error("Failed to fetch decisions metadata.");
+  }
+
+  const decisions = (decisionsRes.data as Decision[]) || [];
+  const reports = (reportsRes.data as { decision_id: string; risk_score: number | null }[]) || [];
+  const outcomes = (outcomesRes.data as DecisionOutcome[]) || [];
+
+  const reportMap = new Map<string, number | null>();
+  reports.forEach((r) => reportMap.set(r.decision_id, r.risk_score));
+
+  const outcomeMap = new Map<string, DecisionOutcome>();
+  outcomes.forEach((o) => outcomeMap.set(o.decision_id, o));
+
+  return decisions.map((d) => ({
+    ...d,
+    risk_score: reportMap.get(d.id) ?? null,
+    outcome: outcomeMap.get(d.id) ?? null,
+  }));
 }
 
 /**
@@ -176,3 +225,77 @@ export async function getDecisionOutcome(
   return (data as DecisionOutcome) || null;
 }
 
+/**
+ * Save or update (upsert) the decision outcome for a decision.
+ */
+export async function saveDecisionOutcome(
+  decisionId: string,
+  input: {
+    outcome_status: "successful" | "partially_successful" | "unsuccessful" | "cancelled";
+    what_happened: string;
+    what_surprised_you?: string;
+  }
+): Promise<DecisionOutcome> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Authentication required.");
+  }
+
+  // Verify ownership of the target decision
+  const decision = await getDecisionById(decisionId);
+  if (!decision || decision.user_id !== user.id) {
+    throw new Error("Decision not found or unauthorized.");
+  }
+
+  const payload = {
+    decision_id: decisionId,
+    user_id: user.id,
+    outcome_status: input.outcome_status,
+    actual_outcome: {
+      what_happened: input.what_happened,
+      what_surprised_you: input.what_surprised_you || "",
+    },
+    outcome_notes: input.what_happened,
+    recorded_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: existingOutcome } = await supabase
+    .from("decision_outcomes")
+    .select("id")
+    .eq("decision_id", decisionId)
+    .maybeSingle();
+
+  let savedData: DecisionOutcome | null = null;
+  let saveError = null;
+
+  if (existingOutcome) {
+    const { data, error } = await supabase
+      .from("decision_outcomes")
+      .update(payload)
+      .eq("id", existingOutcome.id)
+      .select("*")
+      .single();
+    savedData = data as DecisionOutcome;
+    saveError = error;
+  } else {
+    const { data, error } = await supabase
+      .from("decision_outcomes")
+      .insert(payload)
+      .select("*")
+      .single();
+    savedData = data as DecisionOutcome;
+    saveError = error;
+  }
+
+  if (saveError || !savedData) {
+    console.error("Save outcome DB error:", saveError);
+    throw new Error("Failed to save decision outcome.");
+  }
+
+  return savedData;
+}

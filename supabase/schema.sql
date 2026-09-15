@@ -263,7 +263,8 @@ CREATE TABLE IF NOT EXISTS public.decision_outcomes (
   outcome_notes TEXT,
   recorded_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT decision_outcomes_decision_id_key UNIQUE (decision_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_decision_outcomes_decision_id ON public.decision_outcomes(decision_id);
