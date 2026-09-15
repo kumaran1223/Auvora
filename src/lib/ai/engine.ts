@@ -152,6 +152,7 @@ DECISION METADATA & CONTEXT:
         config: {
           systemInstruction: AUVORA_SYSTEM_PROMPT,
           responseMimeType: "application/json",
+          responseSchema: AuvoraReportSchema,
         },
       });
 
@@ -160,7 +161,13 @@ DECISION METADATA & CONTEXT:
         throw new Error("AI returned empty response content.");
       }
 
-      const fallbackParsedJson = JSON.parse(fallbackContent);
+      let cleanedContent = fallbackContent.trim();
+      const match = cleanedContent.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+      if (match && match[1]) {
+        cleanedContent = match[1].trim();
+      }
+
+      const fallbackParsedJson = JSON.parse(cleanedContent);
       const fallbackReport = AuvoraReportSchema.parse(fallbackParsedJson);
 
       console.warn("Fallback model succeeded.");
