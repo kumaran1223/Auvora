@@ -55,6 +55,27 @@ function isTransientGeminiError(err: unknown): boolean {
   );
 }
 
+function isDailyQuotaExhaustionError(err: unknown): boolean {
+  if (!err) return false;
+  const str = String(err).toLowerCase();
+  const msg = err instanceof Error ? err.message.toLowerCase() : "";
+  const status = (err as { status?: string | number })?.status;
+  const code = (err as { code?: string | number })?.code;
+
+  return (
+    status === 429 ||
+    status === "RESOURCE_EXHAUSTED" ||
+    code === 429 ||
+    code === "RESOURCE_EXHAUSTED" ||
+    str.includes("429") ||
+    str.includes("resource_exhausted") ||
+    str.includes("free_tier_requests") ||
+    msg.includes("429") ||
+    msg.includes("resource_exhausted") ||
+    msg.includes("free_tier_requests")
+  );
+}
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function runAuvoraAnalysis(
@@ -102,6 +123,12 @@ DECISION METADATA & CONTEXT:
     } catch (err: unknown) {
       lastError = err;
 
+      const isQuotaExhausted = isDailyQuotaExhaustionError(err);
+      if (isQuotaExhausted) {
+        console.warn("Primary model daily quota exhausted. Triggering fallback.");
+        break;
+      }
+
       const isTransient = isTransientGeminiError(err);
       if (isTransient && attempt < maxAttempts) {
         const baseDelay = attempt === 1 ? 2000 : 5000;
@@ -114,8 +141,11 @@ DECISION METADATA & CONTEXT:
     }
   }
 
-  if (isTransientGeminiError(lastError)) {
+  const needsFallback = isTransientGeminiError(lastError) || isDailyQuotaExhaustionError(lastError);
+
+  if (needsFallback) {
     try {
+      console.warn("Attempting fallback model:", FALLBACK_MODEL);
       const fallbackResponse = await ai.models.generateContent({
         model: FALLBACK_MODEL,
         contents: userPrompt,
@@ -133,8 +163,10 @@ DECISION METADATA & CONTEXT:
       const fallbackParsedJson = JSON.parse(fallbackContent);
       const fallbackReport = AuvoraReportSchema.parse(fallbackParsedJson);
 
+      console.warn("Fallback model succeeded.");
       return fallbackReport;
     } catch (fallbackErr: unknown) {
+      console.error("Fallback model failed.");
       lastError = fallbackErr;
     }
   }
