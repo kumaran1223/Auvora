@@ -9,10 +9,23 @@ interface RazorpayCheckoutButtonProps {
   isCurrentPlan: boolean;
 }
 
+export interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_subscription_id: string;
+  razorpay_signature: string;
+}
+
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Razorpay: any;
+    Razorpay: new (options: {
+      key: string;
+      subscription_id: string;
+      name: string;
+      description?: string;
+      theme?: { color: string };
+      handler: (response: RazorpayResponse) => Promise<void>;
+      modal?: { ondismiss: () => void };
+    }) => { open: () => void };
   }
 }
 
@@ -85,8 +98,7 @@ export function RazorpayCheckoutButton({
         name: "Auvora Decision Intelligence",
         description: `Auvora ${plan.toUpperCase()} Monthly Subscription (Test Mode)`,
         theme: { color: "#09090b" },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           setLoading(true);
           try {
             // Verify payment signature on server

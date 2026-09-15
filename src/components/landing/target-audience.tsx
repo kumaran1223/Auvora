@@ -2,27 +2,27 @@ export function TargetAudience() {
   const audiences = [
     {
       role: "Founders",
-      question: "&ldquo;Should we raise capital now or extend runway?&rdquo;",
+      question: "“Should we raise capital now or extend runway?”",
       desc: "Stress-test fundraising timing, valuation assumptions, and dilution risks.",
     },
     {
       role: "Business Owners",
-      question: "&ldquo;Should we open a second location this quarter?&rdquo;",
+      question: "“Should we open a second location this quarter?”",
       desc: "Expose cash flow vulnerabilities and operational headcount dependencies.",
     },
     {
       role: "Product Leaders",
-      question: "&ldquo;Should we pivot our core product focus?&rdquo;",
+      question: "“Should we pivot our core product focus?”",
       desc: "Map feature dependencies, churn risks, and customer migration challenges.",
     },
     {
       role: "Hiring Managers",
-      question: "&ldquo;Should we hire senior executive talent now?&rdquo;",
+      question: "“Should we hire senior executive talent now?”",
       desc: "Examine payroll fixed-cost burdens and revenue ramp assumptions.",
     },
     {
       role: "Growth Teams",
-      question: "&ldquo;Should we expand sales into a new territory?&rdquo;",
+      question: "“Should we expand sales into a new territory?”",
       desc: "Uncover CAC assumptions, local regulatory hurdles, and payback timelines.",
     },
   ];
@@ -52,10 +52,9 @@ export function TargetAudience() {
                 <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
                   {a.role}
                 </span>
-                <h3
-                  className="text-sm font-semibold text-white leading-snug"
-                  dangerouslySetInnerHTML={{ __html: a.question }}
-                />
+                <h3 className="text-sm font-semibold text-white leading-snug">
+                  {a.question}
+                </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed pt-1">{a.desc}</p>
               </div>
             </div>

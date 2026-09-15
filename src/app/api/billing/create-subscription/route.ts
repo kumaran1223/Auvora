@@ -78,8 +78,7 @@ export async function POST(request: Request) {
     }
 
     // Create subscription on Razorpay (Test Mode)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const subscription = await (razorpay.subscriptions as any).create({
+    const subscription = await razorpay.subscriptions.create({
       plan_id: razorpayPlanId,
       total_count: 12,
       quantity: 1,

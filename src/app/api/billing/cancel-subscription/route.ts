@@ -34,8 +34,7 @@ export async function POST() {
     if (razorpay) {
       try {
         // Cancel subscription at period end (cancel_at_cycle_end: 1)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (razorpay.subscriptions as any).cancel(
+        await razorpay.subscriptions.cancel(
           activeSub.razorpay_subscription_id,
           1
         );

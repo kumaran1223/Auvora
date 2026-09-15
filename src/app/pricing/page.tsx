@@ -12,8 +12,12 @@ export default async function PricingPage() {
   } = await supabase.auth.getUser();
 
   let userPlan = "free";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let activeSubRecord: any = null;
+  let activeSubRecord: {
+    id: string;
+    status: string;
+    plan: string;
+    cancel_at_period_end: boolean;
+  } | null = null;
 
   if (user) {
     const { data: profile } = await supabase

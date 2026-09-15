@@ -62,8 +62,7 @@ export async function POST(request: Request) {
 
     if (razorpay) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const razorpaySub = await (razorpay.subscriptions as any).fetch(
+        const razorpaySub = await razorpay.subscriptions.fetch(
           razorpay_subscription_id
         );
         if (razorpaySub?.current_start) {

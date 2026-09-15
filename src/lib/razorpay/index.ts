@@ -1,7 +1,29 @@
 import crypto from "crypto";
 import Razorpay from "razorpay";
 
-export function getRazorpayClient(): Razorpay | null {
+export interface RazorpaySubscriptionResponse {
+  id: string;
+  status: string;
+  plan_id: string;
+  current_start?: number;
+  current_end?: number;
+}
+
+export type ExtendedRazorpay = Omit<Razorpay, "subscriptions"> & {
+  subscriptions: {
+    create(options: {
+      plan_id: string;
+      total_count: number;
+      quantity?: number;
+      customer_notify?: number;
+      notes?: Record<string, string>;
+    }): Promise<RazorpaySubscriptionResponse>;
+    fetch(subscriptionId: string): Promise<RazorpaySubscriptionResponse>;
+    cancel(subscriptionId: string, cancelAtCycleEnd: number): Promise<RazorpaySubscriptionResponse>;
+  };
+};
+
+export function getRazorpayClient(): ExtendedRazorpay | null {
   const keyId = process.env["RAZORPAY_KEY_ID"];
   const keySecret = process.env["RAZORPAY_KEY_SECRET"];
 
@@ -12,7 +34,7 @@ export function getRazorpayClient(): Razorpay | null {
   return new Razorpay({
     key_id: keyId,
     key_secret: keySecret,
-  });
+  }) as unknown as ExtendedRazorpay;
 }
 
 export function getRazorpayPlanId(plan: "pro" | "business"): string | null {
