@@ -43,3 +43,4 @@ DROP POLICY IF EXISTS "Users can delete own decision pattern reports" ON public.
 CREATE POLICY "Users can delete own decision pattern reports"
   ON public.decision_pattern_reports FOR DELETE
   USING (auth.uid() = user_id);
+

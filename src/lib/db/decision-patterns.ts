@@ -284,7 +284,7 @@ export async function savePatternReport(
 
 /**
  * Validate and canonicalize AI-generated pattern report output against historical evidence.
- * Enforces server ground truth for decision titles, IDs, counts, and strongest pattern match.
+ * Enforces server ground truth for decision titles, IDs, counts, confidence levels, and strongest pattern match.
  */
 export function validateAndCanonicalizePatternReport(
   reportData: AuvoraPatternReportData,
@@ -295,51 +295,70 @@ export function validateAndCanonicalizePatternReport(
     decisionMap.set(ev.decision.id, ev.decision.title);
   });
 
-  const boundedPatterns = reportData.patterns.slice(0, 5);
+  const totalEligibleCount = evidenceList.length;
+  const boundedPatterns = (reportData.patterns || []).slice(0, 5);
 
-  const canonicalPatterns = boundedPatterns.map((pattern) => {
-    const seenSupportingIds = new Set<string>();
-    const validSupporting: Array<{ decision_id: string; title: string; evidence: string }> = [];
+  const canonicalPatterns = boundedPatterns
+    .map((pattern) => {
+      const seenSupportingIds = new Set<string>();
+      const validSupporting: Array<{ decision_id: string; title: string; evidence: string }> = [];
 
-    pattern.supporting_decisions.forEach((item) => {
-      const canonicalTitle = decisionMap.get(item.decision_id);
-      if (canonicalTitle && !seenSupportingIds.has(item.decision_id)) {
-        seenSupportingIds.add(item.decision_id);
-        validSupporting.push({
-          decision_id: item.decision_id,
-          title: canonicalTitle,
-          evidence: item.evidence || "Observed in historical decision outcome.",
-        });
+      (pattern.supporting_decisions || []).forEach((item) => {
+        const canonicalTitle = decisionMap.get(item.decision_id);
+        if (canonicalTitle && !seenSupportingIds.has(item.decision_id)) {
+          seenSupportingIds.add(item.decision_id);
+          validSupporting.push({
+            decision_id: item.decision_id,
+            title: canonicalTitle,
+            evidence: item.evidence || "Observed in historical decision outcome.",
+          });
+        }
+      });
+
+      const seenCounterIds = new Set<string>();
+      const validCounterexamples: Array<{ decision_id: string; title: string; evidence: string }> = [];
+
+      (pattern.counterexamples || []).forEach((item) => {
+        const canonicalTitle = decisionMap.get(item.decision_id);
+        if (
+          canonicalTitle &&
+          !seenSupportingIds.has(item.decision_id) &&
+          !seenCounterIds.has(item.decision_id)
+        ) {
+          seenCounterIds.add(item.decision_id);
+          validCounterexamples.push({
+            decision_id: item.decision_id,
+            title: canonicalTitle,
+            evidence: item.evidence || "Observed as a counterexample in decision outcome.",
+          });
+        }
+      });
+
+      // Section 11: Confidence level cap based on total dataset size (3-4 decisions cap strong at emerging)
+      let confidence = pattern.confidence;
+      if (totalEligibleCount < 5 && confidence === "strong") {
+        confidence = "emerging";
       }
-    });
 
-    const seenCounterIds = new Set<string>();
-    const validCounterexamples: Array<{ decision_id: string; title: string; evidence: string }> = [];
+      return {
+        ...pattern,
+        confidence,
+        evidence_count: validSupporting.length,
+        total_decisions: totalEligibleCount,
+        supporting_decisions: validSupporting,
+        counterexamples: validCounterexamples,
+      };
+    })
+    .filter((pattern) => pattern.evidence_count > 0);
 
-    pattern.counterexamples.forEach((item) => {
-      const canonicalTitle = decisionMap.get(item.decision_id);
-      if (
-        canonicalTitle &&
-        !seenSupportingIds.has(item.decision_id) &&
-        !seenCounterIds.has(item.decision_id)
-      ) {
-        seenCounterIds.add(item.decision_id);
-        validCounterexamples.push({
-          decision_id: item.decision_id,
-          title: canonicalTitle,
-          evidence: item.evidence || "Observed as a counterexample in decision outcome.",
-        });
-      }
-    });
-
+  if (canonicalPatterns.length === 0) {
     return {
-      ...pattern,
-      evidence_count: validSupporting.length,
-      total_decisions: evidenceList.length,
-      supporting_decisions: validSupporting,
-      counterexamples: validCounterexamples,
+      overall_summary: reportData.overall_summary,
+      strongest_pattern: null,
+      recommended_change: null,
+      patterns: [],
     };
-  });
+  }
 
   let canonicalStrongest: string | null = null;
   if (reportData.strongest_pattern) {
@@ -349,12 +368,17 @@ export function validateAndCanonicalizePatternReport(
     }
   }
 
+  if (!canonicalStrongest && canonicalPatterns.length > 0) {
+    canonicalStrongest = canonicalPatterns[0]?.title ?? null;
+  }
+
   return {
     ...reportData,
     patterns: canonicalPatterns,
     strongest_pattern: canonicalStrongest,
   };
 }
+
 
 
 
