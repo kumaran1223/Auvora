@@ -39,8 +39,7 @@ export async function POST(request: Request) {
     // 3. Parse JSON payload AFTER signature verification
     const payload = JSON.parse(rawBody);
     const eventType = payload.event;
-    const eventId = payload.account_id ? `${payload.event}_${payload.created_at}_${payload.payload?.subscription?.entity?.id}` : `evt_${payload.created_at}_${Math.random()}`;
-    const actualEventId = payload.event_id || eventId;
+    const actualEventId = payload.event_id || `evt_${payload.created_at}_${Math.random()}`;
 
     const supabase = getAdminSupabaseClient();
     if (!supabase) {
@@ -78,48 +77,89 @@ export async function POST(request: Request) {
         ? new Date(subscriptionEntity.current_end * 1000).toISOString()
         : null;
 
-      // Match Auvora plan from Razorpay plan ID
+      // Safe unknown subscription lookup
+      const { data: existingSub } = await supabase
+        .from("subscriptions")
+        .select("id, updated_at, status, razorpay_plan_id, plan")
+        .eq("razorpay_subscription_id", razorpaySubId)
+        .maybeSingle();
+
+      if (!existingSub) {
+        console.warn(`Webhook received for unknown subscription ID: ${razorpaySubId}`);
+        await supabase.from("webhook_events").insert({
+          event_id: actualEventId,
+          event_type: eventType || "unknown",
+          payload,
+        });
+        return NextResponse.json(
+          { success: true, message: "Ignored unknown subscription ID." },
+          { status: 200 }
+        );
+      }
+
+      // Out-of-order timestamp verification: ignore events older than the current record's updated_at
+      const eventCreatedAt = payload.created_at
+        ? new Date(payload.created_at * 1000)
+        : new Date();
+      const lastUpdatedAt = new Date(existingSub.updated_at);
+
+      if (eventCreatedAt < lastUpdatedAt) {
+        console.warn(
+          `Out-of-order webhook event ${actualEventId} ignored for sub ${razorpaySubId}`
+        );
+        await supabase.from("webhook_events").insert({
+          event_id: actualEventId,
+          event_type: eventType || "unknown",
+          payload,
+        });
+        return NextResponse.json(
+          { success: true, message: "Out-of-order webhook ignored." },
+          { status: 200 }
+        );
+      }
+
+      // Plan ID verification: check if event plan matches configured Auvora plan
       const auvoraPlan = getAuvoraPlanFromRazorpayId(razorpayPlanId);
+      if (razorpayPlanId !== existingSub.razorpay_plan_id && !auvoraPlan) {
+        console.warn(
+          `Inconsistent Plan ID ${razorpayPlanId} received for subscription ${razorpaySubId}`
+        );
+      }
+
+      const updatePayload: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+      };
+      if (currentStart) updatePayload["current_period_start"] = currentStart;
+      if (currentEnd) updatePayload["current_period_end"] = currentEnd;
+      if (auvoraPlan) updatePayload["plan"] = auvoraPlan;
 
       if (
-        eventType === "subscription.authenticated" ||
         eventType === "subscription.activated" ||
         eventType === "subscription.charged"
       ) {
-        // Update subscription status to active
-        const updatePayload: Record<string, unknown> = {
-          status: "active",
-          updated_at: new Date().toISOString(),
-        };
-        if (currentStart) updatePayload["current_period_start"] = currentStart;
-        if (currentEnd) updatePayload["current_period_end"] = currentEnd;
-        if (auvoraPlan) updatePayload["plan"] = auvoraPlan;
-
-        await supabase
-          .from("subscriptions")
-          .update(updatePayload)
-          .eq("razorpay_subscription_id", razorpaySubId);
+        updatePayload["status"] = "active";
+      } else if (eventType === "subscription.authenticated") {
+        updatePayload["status"] = "authenticated";
+      } else if (eventType === "subscription.pending") {
+        updatePayload["status"] = "pending";
       } else if (
         eventType === "subscription.cancelled" ||
         eventType === "subscription.completed" ||
         eventType === "subscription.halted"
       ) {
-        const newStatus =
+        updatePayload["status"] =
           eventType === "subscription.cancelled"
             ? "cancelled"
             : eventType === "subscription.completed"
             ? "completed"
             : "halted";
-
-        await supabase
-          .from("subscriptions")
-          .update({
-            status: newStatus,
-            cancelled_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq("razorpay_subscription_id", razorpaySubId);
+        updatePayload["cancelled_at"] = new Date().toISOString();
       }
+
+      await supabase
+        .from("subscriptions")
+        .update(updatePayload)
+        .eq("id", existingSub.id);
     }
 
     // 6. Record processed webhook event for idempotency
@@ -141,4 +181,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

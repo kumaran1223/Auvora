@@ -58,11 +58,15 @@ AS $$
 DECLARE
   v_active_plan TEXT;
 BEGIN
-  -- Determine the highest active subscription plan for the user
+  -- Determine the active paid subscription plan for the user:
+  -- Only status = 'active' or (status = 'cancelled' with cancel_at_period_end = true AND period unexpired) grants paid entitlement.
   SELECT plan INTO v_active_plan
   FROM public.subscriptions
   WHERE user_id = NEW.user_id
-    AND status IN ('active', 'authenticated')
+    AND (
+      status = 'active'
+      OR (status = 'cancelled' AND cancel_at_period_end = TRUE AND (current_period_end IS NULL OR current_period_end > NOW()))
+    )
   ORDER BY created_at DESC
   LIMIT 1;
 
@@ -72,7 +76,7 @@ BEGIN
     SET plan = v_active_plan
     WHERE id = NEW.user_id;
   ELSE
-    -- If no active subscription exists, revert user to 'free'
+    -- If no active paid subscription exists, revert user to 'free'
     UPDATE public.profiles
     SET plan = 'free'
     WHERE id = NEW.user_id;
@@ -87,4 +91,3 @@ CREATE TRIGGER on_subscription_status_change
   AFTER INSERT OR UPDATE ON public.subscriptions
   FOR EACH ROW
   EXECUTE FUNCTION public.sync_profile_plan_from_subscription();
-

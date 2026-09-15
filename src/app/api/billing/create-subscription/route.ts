@@ -39,22 +39,42 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if user already has an active or authenticated subscription
+    // Check if user already has an active or created subscription
     const { data: existingSub } = await supabase
       .from("subscriptions")
-      .select("id, status, plan")
+      .select("id, status, plan, razorpay_subscription_id")
       .eq("user_id", user.id)
-      .in("status", ["active", "authenticated"])
+      .in("status", ["active", "authenticated", "created"])
+      .order("created_at", { ascending: false })
       .maybeSingle();
 
     if (existingSub) {
-      return NextResponse.json(
-        {
-          error: `You already have an active ${existingSub.plan.toUpperCase()} subscription.`,
-          existingSubscription: true,
-        },
-        { status: 409 }
-      );
+      if (existingSub.status === "active" || existingSub.status === "authenticated") {
+        return NextResponse.json(
+          {
+            error: `You already have an active ${existingSub.plan.toUpperCase()} subscription.`,
+            existingSubscription: true,
+          },
+          { status: 409 }
+        );
+      }
+
+      // If existing subscription is in 'created' state for the same requested plan, reuse it
+      if (existingSub.status === "created" && existingSub.plan === plan) {
+        return NextResponse.json(
+          {
+            success: true,
+            subscriptionId: existingSub.razorpay_subscription_id,
+            keyId:
+              process.env["NEXT_PUBLIC_RAZORPAY_KEY_ID"] ||
+              process.env["RAZORPAY_KEY_ID"] ||
+              "",
+            plan: existingSub.plan,
+            reused: true,
+          },
+          { status: 200 }
+        );
+      }
     }
 
     // Create subscription on Razorpay (Test Mode)

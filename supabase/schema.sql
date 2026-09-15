@@ -491,11 +491,15 @@ AS $$
 DECLARE
   v_active_plan TEXT;
 BEGIN
-  -- Determine the highest active subscription plan for the user
+  -- Determine the active paid subscription plan for the user:
+  -- Only status = 'active' or (status = 'cancelled' with cancel_at_period_end = true AND period unexpired) grants paid entitlement.
   SELECT plan INTO v_active_plan
   FROM public.subscriptions
   WHERE user_id = NEW.user_id
-    AND status IN ('active', 'authenticated')
+    AND (
+      status = 'active'
+      OR (status = 'cancelled' AND cancel_at_period_end = TRUE AND (current_period_end IS NULL OR current_period_end > NOW()))
+    )
   ORDER BY created_at DESC
   LIMIT 1;
 
