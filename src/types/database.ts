@@ -171,3 +171,47 @@ export interface DecisionReplay {
   updated_at: string;
 }
 
+export interface DecisionPattern {
+  title: string;
+  pattern_type:
+    | "assumption"
+    | "evidence"
+    | "risk"
+    | "blind_spot"
+    | "timeline"
+    | "financial"
+    | "operational"
+    | "strategic"
+    | "stakeholder"
+    | "outcome";
+  description: string;
+  confidence: "early_signal" | "emerging" | "strong";
+  impact: "low" | "medium" | "high" | "critical";
+  evidence_count: number;
+  total_decisions: number;
+  supporting_decisions: Array<{
+    decision_id: string;
+    title: string;
+    evidence: string;
+  }>;
+  counterexamples: Array<{
+    decision_id: string;
+    title: string;
+    evidence: string;
+  }>;
+  recommendation: string;
+}
+
+export interface DecisionPatternReport {
+  id: string;
+  user_id: string;
+  decision_count: number;
+  overall_summary: string;
+  strongest_pattern: string | null;
+  recommended_change: string | null;
+  patterns: DecisionPattern[];
+  created_at: string;
+  updated_at: string;
+}
+
+

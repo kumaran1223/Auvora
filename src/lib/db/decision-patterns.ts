@@ -1,5 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Decision, DecisionOutcome, DecisionReport, DecisionReplay } from "@/types/database";
+import type {
+  Decision,
+  DecisionOutcome,
+  DecisionReport,
+  DecisionReplay,
+  DecisionPatternReport,
+} from "@/types/database";
+import type { AuvoraPatternReportData } from "@/lib/ai/schemas";
 
 export type EvidenceProvenance = "ORIGINAL_AUVORA" | "USER_REPORTED" | "REPLAY_INFERENCE";
 
@@ -219,3 +226,135 @@ export async function getHistoricalDecisionEvidence(): Promise<DecisionPatternsH
     decisions: evidenceList,
   };
 }
+
+/**
+ * Fetch the latest decision pattern report for a specific user.
+ */
+export async function getLatestPatternReport(
+  userId: string
+): Promise<DecisionPatternReport | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("decision_pattern_reports")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching latest pattern report:", error);
+    return null;
+  }
+
+  return data as DecisionPatternReport | null;
+}
+
+/**
+ * Save or update (upsert) the decision pattern report for a user.
+ */
+export async function savePatternReport(
+  userId: string,
+  decisionCount: number,
+  reportData: AuvoraPatternReportData
+): Promise<DecisionPatternReport> {
+  const supabase = await createClient();
+
+  const payload = {
+    user_id: userId,
+    decision_count: decisionCount,
+    overall_summary: reportData.overall_summary,
+    strongest_pattern: reportData.strongest_pattern,
+    recommended_change: reportData.recommended_change,
+    patterns: reportData.patterns as unknown as DecisionPatternReport["patterns"],
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data, error } = await supabase
+    .from("decision_pattern_reports")
+    .upsert(payload, { onConflict: "user_id" })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    console.error("Error saving decision pattern report:", error);
+    throw new Error(`Failed to save decision pattern report: ${error?.message || "Unknown error"}`);
+  }
+
+  return data as DecisionPatternReport;
+}
+
+/**
+ * Validate and canonicalize AI-generated pattern report output against historical evidence.
+ * Enforces server ground truth for decision titles, IDs, counts, and strongest pattern match.
+ */
+export function validateAndCanonicalizePatternReport(
+  reportData: AuvoraPatternReportData,
+  evidenceList: HistoricalDecisionEvidence[]
+): AuvoraPatternReportData {
+  const decisionMap = new Map<string, string>();
+  evidenceList.forEach((ev) => {
+    decisionMap.set(ev.decision.id, ev.decision.title);
+  });
+
+  const boundedPatterns = reportData.patterns.slice(0, 5);
+
+  const canonicalPatterns = boundedPatterns.map((pattern) => {
+    const seenSupportingIds = new Set<string>();
+    const validSupporting: Array<{ decision_id: string; title: string; evidence: string }> = [];
+
+    pattern.supporting_decisions.forEach((item) => {
+      const canonicalTitle = decisionMap.get(item.decision_id);
+      if (canonicalTitle && !seenSupportingIds.has(item.decision_id)) {
+        seenSupportingIds.add(item.decision_id);
+        validSupporting.push({
+          decision_id: item.decision_id,
+          title: canonicalTitle,
+          evidence: item.evidence || "Observed in historical decision outcome.",
+        });
+      }
+    });
+
+    const seenCounterIds = new Set<string>();
+    const validCounterexamples: Array<{ decision_id: string; title: string; evidence: string }> = [];
+
+    pattern.counterexamples.forEach((item) => {
+      const canonicalTitle = decisionMap.get(item.decision_id);
+      if (
+        canonicalTitle &&
+        !seenSupportingIds.has(item.decision_id) &&
+        !seenCounterIds.has(item.decision_id)
+      ) {
+        seenCounterIds.add(item.decision_id);
+        validCounterexamples.push({
+          decision_id: item.decision_id,
+          title: canonicalTitle,
+          evidence: item.evidence || "Observed as a counterexample in decision outcome.",
+        });
+      }
+    });
+
+    return {
+      ...pattern,
+      evidence_count: validSupporting.length,
+      total_decisions: evidenceList.length,
+      supporting_decisions: validSupporting,
+      counterexamples: validCounterexamples,
+    };
+  });
+
+  let canonicalStrongest: string | null = null;
+  if (reportData.strongest_pattern) {
+    const matchingPattern = canonicalPatterns.find((p) => p.title === reportData.strongest_pattern);
+    if (matchingPattern) {
+      canonicalStrongest = matchingPattern.title;
+    }
+  }
+
+  return {
+    ...reportData,
+    patterns: canonicalPatterns,
+    strongest_pattern: canonicalStrongest,
+  };
+}
+
+
+

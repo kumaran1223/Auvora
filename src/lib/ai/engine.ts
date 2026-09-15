@@ -5,9 +5,19 @@ import {
   type AuvoraReportData,
   AuvoraReplaySchema,
   type AuvoraReplayData,
+  AuvoraPatternReportSchema,
+  type AuvoraPatternReportData,
 } from "./schemas";
-import { AUVORA_SYSTEM_PROMPT, AUVORA_REPLAY_SYSTEM_PROMPT } from "./prompts";
-import type { NormalizedDecisionContext, NormalizedReplayContext } from "./types";
+import {
+  AUVORA_SYSTEM_PROMPT,
+  AUVORA_REPLAY_SYSTEM_PROMPT,
+  AUVORA_PATTERN_SYSTEM_PROMPT,
+} from "./prompts";
+import type {
+  NormalizedDecisionContext,
+  NormalizedReplayContext,
+  NormalizedPatternInput,
+} from "./types";
 
 export async function runAuvoraAnalysis(
   context: NormalizedDecisionContext
@@ -125,5 +135,53 @@ Please audit prediction alignment for the following decision:
     throw new Error("AI Replay Execution Failed with an unknown error.");
   }
 }
+
+export async function runAuvoraPatternAnalysis(
+  input: NormalizedPatternInput
+): Promise<AuvoraPatternReportData> {
+  const apiKey = process.env["OPENAI_API_KEY"];
+  const model = process.env["OPENAI_MODEL"] || "gpt-5.6-luna";
+
+  if (!apiKey || apiKey.trim() === "") {
+    throw new Error("OpenAI API key is not configured on the server.");
+  }
+
+  const openai = new OpenAI({ apiKey });
+
+  const userPrompt = `
+Please analyze historical decision patterns across the following dataset of ${input.total_eligible_decisions} decisions:
+
+HISTORICAL DECISION DATASET:
+${JSON.stringify(input, null, 2)}
+`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model,
+      messages: [
+        { role: "system", content: AUVORA_PATTERN_SYSTEM_PROMPT },
+        { role: "user", content: userPrompt },
+      ],
+      response_format: zodResponseFormat(AuvoraPatternReportSchema, "auvora_pattern_report"),
+    });
+
+    const content = response.choices[0]?.message.content;
+
+    if (!content) {
+      throw new Error("AI returned empty pattern report content.");
+    }
+
+    const parsedJson = JSON.parse(content);
+    const patternReport = AuvoraPatternReportSchema.parse(parsedJson);
+
+    return patternReport;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      throw new Error(`AI Pattern Analysis Execution Failed: ${err.message}`);
+    }
+    throw new Error("AI Pattern Analysis Execution Failed with an unknown error.");
+  }
+}
+
 
 

@@ -143,4 +143,68 @@ export const AuvoraReplaySchema = z.object({
 
 export type AuvoraReplayData = z.infer<typeof AuvoraReplaySchema>;
 
+// Phase 10C.2: Decision Pattern Engine Schemas
+
+export const PatternTypeEnum = z.enum([
+  "assumption",
+  "evidence",
+  "risk",
+  "blind_spot",
+  "timeline",
+  "financial",
+  "operational",
+  "strategic",
+  "stakeholder",
+  "outcome",
+]);
+
+export const PatternConfidenceEnum = z.enum([
+  "early_signal",
+  "emerging",
+  "strong",
+]);
+
+export const PatternImpactEnum = z.enum([
+  "low",
+  "medium",
+  "high",
+  "critical",
+]);
+
+export const SupportingDecisionSchema = z.object({
+  decision_id: z.string(),
+  title: z.string(),
+  evidence: z.string(),
+});
+
+export const CounterexampleSchema = z.object({
+  decision_id: z.string(),
+  title: z.string(),
+  evidence: z.string(),
+});
+
+export const DecisionPatternSchema = z.object({
+  title: z.string(),
+  pattern_type: PatternTypeEnum,
+  description: z.string(),
+  confidence: PatternConfidenceEnum,
+  impact: PatternImpactEnum,
+  evidence_count: z.number().int().min(1),
+  total_decisions: z.number().int().min(3),
+  supporting_decisions: z.array(SupportingDecisionSchema),
+  counterexamples: z.array(CounterexampleSchema),
+  recommendation: z.string(),
+});
+
+export const AuvoraPatternReportSchema = z.object({
+  overall_summary: z.string(),
+  strongest_pattern: z.string().nullable(),
+  recommended_change: z.string().nullable(),
+  patterns: z.array(DecisionPatternSchema).max(5),
+});
+
+export type AuvoraPatternReportData = z.infer<typeof AuvoraPatternReportSchema>;
+export type DecisionPatternData = z.infer<typeof DecisionPatternSchema>;
+
+
 
