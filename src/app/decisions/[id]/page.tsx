@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getDecisionById } from "@/lib/db/decisions";
+import { getDecisionById, getDecisionReport } from "@/lib/db/decisions";
 import { ArchiveButton } from "@/components/decisions/archive-button";
 import { DeleteModal } from "@/components/decisions/delete-modal";
+import { StressTestButton } from "@/components/decisions/stress-test-button";
 
 interface DecisionDetailPageProps {
   params: Promise<{ id: string }>;
@@ -26,6 +27,8 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
   if (!decision) {
     notFound();
   }
+
+  const report = await getDecisionReport(id);
 
   const statusColors: Record<string, string> = {
     draft: "border-amber-500/30 bg-amber-500/10 text-amber-400",
@@ -72,28 +75,50 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
           </div>
         </div>
 
-        {/* Stress Test Action Banner */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h2 className="text-sm font-semibold text-white">AI Stress-Test Analysis</h2>
-              <p className="text-xs text-zinc-400">
-                Uncover assumptions, blind spots, evidence gaps, and scenario outcomes.
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                disabled
-                className="rounded-md bg-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-500 cursor-not-allowed opacity-60"
-              >
-                Stress-test with Auvora
-              </button>
-              <span className="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-400 uppercase tracking-wide">
-                Coming next
-              </span>
-            </div>
-          </div>
+        {/* Stress Test AI Action Section */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+          <StressTestButton decisionId={decision.id} decisionStatus={decision.status} />
         </div>
+
+        {/* Existing Persisted Report Preview (Developer View) */}
+        {report && (
+          <div className="rounded-xl border border-emerald-900/40 bg-zinc-900/90 p-5 space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <h3 className="font-bold text-emerald-400 uppercase tracking-wider text-xs">
+                Saved Stress-Test Report (Supabase)
+              </h3>
+              {report.risk_score != null && (
+                <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                  Risk Score: {report.risk_score}/100
+                </span>
+              )}
+            </div>
+
+            {report.summary && typeof report.summary === "object" && "overview" in report.summary && (
+              <div className="space-y-1">
+                <h4 className="font-semibold text-zinc-200">Overview</h4>
+                <p className="text-zinc-300 leading-relaxed">
+                  {String((report.summary as { overview: string }).overview)}
+                </p>
+              </div>
+            )}
+
+            {report.final_stress_test &&
+              typeof report.final_stress_test === "object" &&
+              "recommendation" in report.final_stress_test && (
+                <div className="space-y-1">
+                  <h4 className="font-semibold text-zinc-200">Recommendation</h4>
+                  <p className="text-zinc-300">
+                    <strong className="uppercase tracking-wider text-amber-400 font-bold">
+                      {String((report.final_stress_test as { recommendation: string }).recommendation)}
+                    </strong>
+                    {" — "}
+                    {String((report.final_stress_test as { reasoning: string }).reasoning || "")}
+                  </p>
+                </div>
+              )}
+          </div>
+        )}
 
         {/* Core Decision Details */}
         <div className="space-y-6">
@@ -158,4 +183,3 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
     </main>
   );
 }
-
