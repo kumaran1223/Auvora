@@ -33,20 +33,25 @@ export class GlobalProviderGuardError extends Error {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let adminSupabaseClient: any = null;
 function getAdminSupabaseClient() {
+  if (adminSupabaseClient) return adminSupabaseClient;
+
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"];
   const secretKey = process.env["SUPABASE_SECRET_KEY"];
 
   if (!url || !secretKey) {
     return null;
   }
-  return createClient(url, secretKey, {
+  adminSupabaseClient = createClient(url, secretKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
     },
   });
+  return adminSupabaseClient;
 }
 
 async function reserveProviderRequest(provider: string = "gemini"): Promise<void> {

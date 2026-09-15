@@ -17,11 +17,14 @@ export async function POST(
   let userId = "";
 
   try {
-    // 1. Authenticate user
+    // 1 & 2. Authenticate user & load decision concurrently
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const [authResponse, decision] = await Promise.all([
+      supabase.auth.getUser(),
+      getDecisionById(decisionId),
+    ]);
+    
+    const user = authResponse.data.user;
 
     if (!user) {
       console.log(`[AI LATENCY] auth-loading: ${Math.round(performance.now() - t_auth_load_start)}ms (status: failed)`);
@@ -32,9 +35,6 @@ export async function POST(
       );
     }
     userId = user.id;
-
-    // 2. Load decision and verify ownership
-    const decision = await getDecisionById(decisionId);
 
     if (!decision || decision.user_id !== user.id) {
       console.log(`[AI LATENCY] auth-loading: ${Math.round(performance.now() - t_auth_load_start)}ms (status: failed)`);
@@ -82,15 +82,19 @@ export async function POST(
 
     // 6. Normalize context & run AI analysis
     const normalizedContext = normalizeDecisionContext(decision);
-    const reportData = await runAuvoraAnalysis(normalizedContext);
-
-    const t_persistence_start = performance.now();
-    // 7. Check for existing report
-    const { data: existingReport } = await supabase
+    
+    // 7a. Initiate check for existing report concurrently with AI generation
+    const existingReportPromise = supabase
       .from("decision_reports")
       .select("id")
       .eq("decision_id", decisionId)
       .maybeSingle();
+
+    const reportData = await runAuvoraAnalysis(normalizedContext);
+
+    const t_persistence_start = performance.now();
+    // 7b. Resolve existing report check
+    const { data: existingReport } = await existingReportPromise;
 
     const reportPayload = {
       decision_id: decisionId,
