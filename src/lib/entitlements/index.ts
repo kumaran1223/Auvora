@@ -1,0 +1,152 @@
+import { createClient } from "@/lib/supabase/server";
+import {
+  PlanConfig,
+  PlanType,
+  UserUsageSummary,
+  ReserveAnalysisResult,
+  ReleaseAnalysisResult,
+} from "./types";
+
+export const PLANS: Record<PlanType, PlanConfig> = {
+  free: {
+    id: "free",
+    name: "Free",
+    price: "$0",
+    monthlyLimit: 3,
+    description: "Essential decision stress-testing for early founders.",
+    features: [
+      "3 AI stress-test analyses per month",
+      "Assumption & evidence gap discovery",
+      "Second-order consequence mapping",
+      "Scenario & alternative comparison",
+      "Standard support",
+    ],
+  },
+  pro: {
+    id: "pro",
+    name: "Pro",
+    price: "$19/mo",
+    monthlyLimit: 30,
+    description: "Deep decision intelligence for active business owners.",
+    features: [
+      "30 AI stress-test analyses per month",
+      "Comprehensive risk & blind spot audit",
+      "Kill question & assumption risk mapping",
+      "Unlimited decision record storage",
+      "Priority AI analysis execution",
+    ],
+  },
+  business: {
+    id: "business",
+    name: "Business",
+    price: "$79/mo",
+    monthlyLimit: 100,
+    description: "High-volume decision intelligence for growing teams.",
+    features: [
+      "100 AI stress-test analyses per month",
+      "Multi-stakeholder impact matrix",
+      "Advanced risk mitigation strategies",
+      "Dedicated high-speed AI processing",
+      "Premium founder support",
+    ],
+  },
+};
+
+export function getPlanConfig(planType: string | null | undefined): PlanConfig {
+  const normalized = (planType?.toLowerCase() || "free") as PlanType;
+  return PLANS[normalized] || PLANS.free;
+}
+
+export async function getUserUsageSummary(userId: string): Promise<UserUsageSummary> {
+  const supabase = await createClient();
+
+  // 1. Fetch user profile plan
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", userId)
+    .single();
+
+  const planType = (profile?.plan?.toLowerCase() || "free") as PlanType;
+  const config = getPlanConfig(planType);
+
+  // 2. Determine current UTC period start (1st day of current month)
+  const now = new Date();
+  const currentPeriodStart =
+    new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
+      .toISOString()
+      .split("T")[0] || "";
+
+  // 3. Fetch current monthly usage record
+  const { data: usageRecord } = await supabase
+    .from("decision_usage")
+    .select("analysis_count")
+    .eq("user_id", userId)
+    .eq("period_start", currentPeriodStart)
+    .maybeSingle();
+
+  const usedCount = usageRecord?.analysis_count || 0;
+  const remainingCount = Math.max(0, config.monthlyLimit - usedCount);
+  const percentageUsed = Math.min(
+    100,
+    Math.round((usedCount / config.monthlyLimit) * 100)
+  );
+
+  // Calculate reset date (1st day of next month)
+  const nextMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)
+  );
+  const resetDate = nextMonth.toISOString().split("T")[0] || "";
+
+  return {
+    userId,
+    plan: planType,
+    planName: config.name,
+    monthlyLimit: config.monthlyLimit,
+    usedCount,
+    remainingCount,
+    percentageUsed,
+    resetDate,
+    canAnalyze: remainingCount > 0,
+  };
+}
+
+export async function reserveAnalysisSlot(
+  userId: string
+): Promise<ReserveAnalysisResult> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc("reserve_decision_analysis", {
+    p_user_id: userId,
+  });
+
+  if (error) {
+    console.error("RPC reserve_decision_analysis error:", error);
+    return {
+      allowed: false,
+      current_count: 0,
+      limit: 0,
+      plan: "free",
+      error: "Unable to process usage reservation.",
+    };
+  }
+
+  return data as ReserveAnalysisResult;
+}
+
+export async function releaseAnalysisSlot(
+  userId: string
+): Promise<ReleaseAnalysisResult> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc("release_decision_analysis", {
+    p_user_id: userId,
+  });
+
+  if (error) {
+    console.error("RPC release_decision_analysis error:", error);
+    return { released: false, current_count: 0 };
+  }
+
+  return data as ReleaseAnalysisResult;
+}

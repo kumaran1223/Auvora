@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LimitModal } from "@/components/decisions/limit-modal";
 
 interface ReanalyzeDialogProps {
   decisionId: string;
@@ -17,6 +18,11 @@ export function ReanalyzeDialog({
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitInfo, setLimitInfo] = useState<{ planName: string; limit: number }>({
+    planName: "Free",
+    limit: 3,
+  });
   const router = useRouter();
 
   const runAnalysis = async () => {
@@ -32,6 +38,17 @@ export function ReanalyzeDialog({
       });
 
       const data = await res.json();
+
+      if (res.status === 429 || data.limitReached) {
+        setLoading(false);
+        setIsOpen(false);
+        setLimitInfo({
+          planName: data.plan ? data.plan.toUpperCase() : "Free",
+          limit: data.limit || 3,
+        });
+        setShowLimitModal(true);
+        return;
+      }
 
       if (!res.ok || !data.success) {
         setError(data.error || "Failed to analyze decision.");
@@ -110,7 +127,13 @@ export function ReanalyzeDialog({
           </div>
         </div>
       )}
+
+      <LimitModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        planName={limitInfo.planName}
+        limit={limitInfo.limit}
+      />
     </>
   );
 }
-

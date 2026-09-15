@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AuvoraReportData } from "@/lib/ai/schemas";
+import { LimitModal } from "@/components/decisions/limit-modal";
 
 interface StressTestButtonProps {
   decisionId: string;
@@ -13,6 +14,11 @@ export function StressTestButton({ decisionId, decisionStatus }: StressTestButto
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<AuvoraReportData | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitInfo, setLimitInfo] = useState<{ planName: string; limit: number }>({
+    planName: "Free",
+    limit: 3,
+  });
   const router = useRouter();
 
   const handleStressTest = async () => {
@@ -28,6 +34,16 @@ export function StressTestButton({ decisionId, decisionStatus }: StressTestButto
       });
 
       const data = await res.json();
+
+      if (res.status === 429 || data.limitReached) {
+        setLoading(false);
+        setLimitInfo({
+          planName: data.plan ? data.plan.toUpperCase() : "Free",
+          limit: data.limit || 3,
+        });
+        setShowLimitModal(true);
+        return;
+      }
 
       if (!res.ok || !data.success) {
         setError(data.error || "Failed to analyze decision.");
@@ -116,7 +132,13 @@ export function StressTestButton({ decisionId, decisionStatus }: StressTestButto
           </div>
         </div>
       )}
+
+      <LimitModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        planName={limitInfo.planName}
+        limit={limitInfo.limit}
+      />
     </div>
   );
 }
-

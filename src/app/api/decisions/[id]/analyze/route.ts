@@ -3,12 +3,15 @@ import { createClient } from "@/lib/supabase/server";
 import { getDecisionById, updateDecision } from "@/lib/db/decisions";
 import { normalizeDecisionContext } from "@/lib/ai/types";
 import { runAuvoraAnalysis } from "@/lib/ai/engine";
+import { reserveAnalysisSlot, releaseAnalysisSlot } from "@/lib/entitlements";
 
 export async function POST(
   _request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id: decisionId } = await context.params;
+  let reservedSlot = false;
+  let userId = "";
 
   try {
     // 1. Authenticate user
@@ -23,6 +26,7 @@ export async function POST(
         { status: 401 }
       );
     }
+    userId = user.id;
 
     // 2. Load decision and verify ownership
     const decision = await getDecisionById(decisionId);
@@ -42,14 +46,32 @@ export async function POST(
       );
     }
 
-    // 4. Update status to 'analyzing'
+    // 4. Reserve analysis slot (monthly quota check)
+    const reservation = await reserveAnalysisSlot(user.id);
+    if (!reservation.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            reservation.error ||
+            "Monthly analysis limit reached. Please upgrade your plan.",
+          limitReached: true,
+          currentCount: reservation.current_count,
+          limit: reservation.limit,
+          plan: reservation.plan,
+        },
+        { status: 429 }
+      );
+    }
+    reservedSlot = true;
+
+    // 5. Update status to 'analyzing'
     await updateDecision(decisionId, { status: "analyzing" });
 
-    // 5. Normalize context & run AI analysis
+    // 6. Normalize context & run AI analysis
     const normalizedContext = normalizeDecisionContext(decision);
     const reportData = await runAuvoraAnalysis(normalizedContext);
 
-    // 6. Check for existing report
+    // 7. Check for existing report
     const { data: existingReport } = await supabase
       .from("decision_reports")
       .select("id")
@@ -92,7 +114,11 @@ export async function POST(
     }
 
     if (saveError) {
-      // Rollback status to draft on DB save failure
+      // Rollback usage reservation & status to draft on DB save failure
+      if (reservedSlot && userId) {
+        await releaseAnalysisSlot(userId);
+        reservedSlot = false;
+      }
       await updateDecision(decisionId, { status: "draft" });
       return NextResponse.json(
         { error: "Failed to persist analysis report." },
@@ -100,7 +126,7 @@ export async function POST(
       );
     }
 
-    // 7. Mark decision status as completed
+    // 8. Mark decision status as completed
     await updateDecision(decisionId, { status: "completed" });
 
     return NextResponse.json(
@@ -111,7 +137,15 @@ export async function POST(
       { status: 200 }
     );
   } catch {
-    // Failure rollback: restore decision to 'draft'
+    // Failure rollback: release reserved usage slot & restore decision status to 'draft'
+    if (reservedSlot && userId) {
+      try {
+        await releaseAnalysisSlot(userId);
+      } catch {
+        // Ignore secondary release errors
+      }
+    }
+
     try {
       await updateDecision(decisionId, { status: "draft" });
     } catch {
@@ -124,4 +158,3 @@ export async function POST(
     );
   }
 }
-

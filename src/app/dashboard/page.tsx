@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserDecisions } from "@/lib/db/decisions";
+import { getUserUsageSummary } from "@/lib/entitlements";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { UsageCard } from "@/components/dashboard/usage-card";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -15,7 +17,10 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const allDecisions = await getUserDecisions();
+  const [allDecisions, usage] = await Promise.all([
+    getUserDecisions(),
+    getUserUsageSummary(user.id),
+  ]);
 
   // Filter active (non-archived) and archived decisions
   const activeDecisions = allDecisions.filter((d) => d.status !== "archived");
@@ -73,6 +78,9 @@ export default async function DashboardPage() {
             + New Decision
           </Link>
         </div>
+
+        {/* Usage Entitlements Summary Card */}
+        <UsageCard usage={usage} />
 
         {/* Summary Metrics Grid */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
