@@ -48,7 +48,22 @@ export default function SignupPage() {
       });
 
       if (signUpError) {
-        setError("Unable to create your account. Please check your details and try again.");
+        const errorMessage = signUpError.message?.toLowerCase() || "";
+        
+        if (signUpError.status === 429 || errorMessage.includes("rate limit")) {
+          setError("Too many signup attempts. Please wait a few minutes and try again.");
+        } else if (
+          errorMessage.includes("already registered") ||
+          errorMessage.includes("already exists") ||
+          signUpError.status === 409
+        ) {
+          setError("An account may already exist with this email. Try signing in instead.");
+        } else if (errorMessage.includes("invalid email") || errorMessage.includes("email address")) {
+          setError("Please enter a valid email address.");
+        } else {
+          setError("We couldn't create your account right now. Please try again later.");
+        }
+        
         setLoading(false);
         return;
       }
@@ -56,7 +71,7 @@ export default function SignupPage() {
       router.push("/onboarding");
       router.refresh();
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("We couldn't create your account right now. Please try again later.");
       setLoading(false);
     }
   };
