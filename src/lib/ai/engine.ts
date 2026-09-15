@@ -1,5 +1,4 @@
 import { GoogleGenAI } from "@google/genai";
-import { zodToJsonSchema } from "zod-to-json-schema";
 import {
   AuvoraReportSchema,
   type AuvoraReportData,
@@ -144,11 +143,60 @@ DECISION METADATA & CONTEXT:
 
   const needsFallback = isTransientGeminiError(lastError) || isDailyQuotaExhaustionError(lastError);
 
+// Custom adapter to convert Zod 4 schemas to JSON Schema for Gemini structured output
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function zodToJsonSchemaCustom(schema: any): any {
+  if (!schema || !schema._def) return {};
+  const def = schema._def;
+  switch (def.type) {
+    case 'string':
+      return { type: 'string' };
+    case 'number':
+      return { type: 'number' };
+    case 'boolean':
+      return { type: 'boolean' };
+    case 'array':
+      return { type: 'array', items: zodToJsonSchemaCustom(def.element) };
+    case 'enum':
+      return { type: 'string', enum: Object.keys(def.entries) };
+    case 'object': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const properties: any = {};
+      const required: string[] = [];
+      for (const [key, propSchema] of Object.entries(def.shape)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const propDef = (propSchema as any)._def;
+        if (propDef && propDef.type === 'optional') {
+          properties[key] = zodToJsonSchemaCustom(propDef.innerType);
+        } else {
+          properties[key] = zodToJsonSchemaCustom(propSchema);
+          required.push(key);
+        }
+      }
+      return {
+        type: 'object',
+        properties,
+        required: required.length > 0 ? required : undefined,
+        additionalProperties: false,
+      };
+    }
+    case 'optional':
+    case 'nullable':
+      return zodToJsonSchemaCustom(def.innerType);
+    default:
+      return {};
+  }
+}
+
   if (needsFallback) {
     try {
       console.warn("Attempting fallback model:", FALLBACK_MODEL);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const jsonSchema = zodToJsonSchema(AuvoraReportSchema as any, { target: "jsonSchema7" });
+      const jsonSchema = zodToJsonSchemaCustom(AuvoraReportSchema);
+
+      if (jsonSchema.type !== "object" || !jsonSchema.properties || !jsonSchema.properties.summary) {
+        console.error("Generated JSON Schema is malformed. Root type:", jsonSchema.type, "Properties:", jsonSchema.properties ? Object.keys(jsonSchema.properties) : "None");
+        throw new Error("Failed to generate a valid JSON Schema for Gemini fallback.");
+      }
 
       const fallbackResponse = await ai.models.generateContent({
         model: FALLBACK_MODEL,
