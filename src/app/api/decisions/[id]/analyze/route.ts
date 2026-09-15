@@ -136,7 +136,36 @@ export async function POST(
       },
       { status: 200 }
     );
-  } catch {
+  } catch (err: unknown) {
+    if (
+      err &&
+      typeof err === "object" &&
+      ("issues" in err || (err as { name?: string }).name === "ZodError")
+    ) {
+      const zodErr = err as {
+        name?: string;
+        issues?: Array<{ path?: (string | number)[]; code?: string; message?: string }>;
+      };
+      console.error("[Analysis Error] ZodValidationFailure:", {
+        name: zodErr.name || "ZodError",
+        issues: zodErr.issues?.map((issue) => ({
+          path: issue.path,
+          code: issue.code,
+          message: issue.message,
+        })),
+      });
+    } else if (err instanceof Error) {
+      console.error("[Analysis Error] Exception:", {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+      });
+    } else {
+      console.error("[Analysis Error] UnknownType:", {
+        error: String(err),
+      });
+    }
+
     // Failure rollback: release reserved usage slot & restore decision status to 'draft'
     if (reservedSlot && userId) {
       try {
