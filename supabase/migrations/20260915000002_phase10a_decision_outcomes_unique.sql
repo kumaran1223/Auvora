@@ -6,3 +6,4 @@ ALTER TABLE public.decision_outcomes
 
 ALTER TABLE public.decision_outcomes
   ADD CONSTRAINT decision_outcomes_decision_id_key UNIQUE (decision_id);
+

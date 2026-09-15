@@ -48,9 +48,10 @@ export async function getUserDecisionsWithMeta(): Promise<DecisionWithMeta[]> {
       .from("decisions")
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(200),
     supabase.from("decision_reports").select("decision_id, risk_score").eq("user_id", user.id),
-    supabase.from("decision_outcomes").select("*").eq("user_id", user.id),
+    supabase.from("decision_outcomes").select("id, decision_id, user_id, outcome_status, actual_outcome, outcome_notes, recorded_at, created_at, updated_at").eq("user_id", user.id),
   ]);
 
   if (decisionsRes.error) {
@@ -86,7 +87,7 @@ export async function getDecisionById(decisionId: string): Promise<Decision | nu
     .maybeSingle();
 
   if (error) {
-    throw new Error("Failed to fetch decision.");
+    return null;
   }
 
   return (data as Decision) || null;
@@ -290,6 +291,18 @@ export async function saveDecisionOutcome(
       .single();
     savedData = data as DecisionOutcome;
     saveError = error;
+
+    // Fallback: handle potential Postgres 23505 unique constraint race condition
+    if (saveError && (saveError as { code?: string }).code === "23505") {
+      const { data: retryData, error: retryError } = await supabase
+        .from("decision_outcomes")
+        .update(payload)
+        .eq("decision_id", decisionId)
+        .select("*")
+        .single();
+      savedData = retryData as DecisionOutcome;
+      saveError = retryError;
+    }
   }
 
   if (saveError || !savedData) {

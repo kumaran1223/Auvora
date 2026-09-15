@@ -2,11 +2,20 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getDecisionById, saveDecisionOutcome } from "@/lib/db/decisions";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id: decisionId } = await context.params;
+
+  if (!decisionId || !UUID_REGEX.test(decisionId)) {
+    return NextResponse.json(
+      { error: "Invalid decision ID format." },
+      { status: 400 }
+    );
+  }
 
   try {
     const supabase = await createClient();
@@ -55,6 +64,13 @@ export async function POST(
       );
     }
 
+    if (what_surprised_you && typeof what_surprised_you === "string" && what_surprised_you.length > 5000) {
+      return NextResponse.json(
+        { error: "Surprise notes are too long (maximum 5,000 characters)." },
+        { status: 400 }
+      );
+    }
+
     const outcomeRecord = await saveDecisionOutcome(decisionId, {
       outcome_status,
       what_happened: what_happened.trim(),
@@ -77,3 +93,5 @@ export async function POST(
     );
   }
 }
+
+

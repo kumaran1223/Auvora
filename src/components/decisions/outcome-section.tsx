@@ -141,3 +141,4 @@ export function OutcomeSection({ decisionId, outcome }: OutcomeSectionProps) {
     </section>
   );
 }
+

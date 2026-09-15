@@ -97,7 +97,7 @@ export function OutcomeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg space-y-5 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto space-y-5 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
         <div className="space-y-1">
           <h3 className="text-xl font-bold text-white">
             {existingOutcome ? "Update Decision Outcome" : "Record Decision Outcome"}
@@ -205,3 +205,4 @@ export function OutcomeModal({
     </div>
   );
 }
+

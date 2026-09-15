@@ -310,3 +310,4 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
     </div>
   );
 }
+
