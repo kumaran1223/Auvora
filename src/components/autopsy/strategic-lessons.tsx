@@ -44,3 +44,4 @@ export function StrategicLessons({ lessonsLearned }: StrategicLessonsProps) {
     </div>
   );
 }
+

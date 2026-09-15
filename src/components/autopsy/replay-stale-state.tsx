@@ -27,3 +27,4 @@ export function ReplayStaleState({ onRunReplayClick, isLoading }: ReplayStaleSta
     </div>
   );
 }
+

@@ -24,3 +24,4 @@ export function AutopsyVerdict({ overallVerdict, keyTakeaway }: AutopsyVerdictPr
     </div>
   );
 }
+
