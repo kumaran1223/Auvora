@@ -4,7 +4,20 @@ import { createClient } from "@/lib/supabase/server";
 import { getDecisionById, getDecisionReport } from "@/lib/db/decisions";
 import { ArchiveButton } from "@/components/decisions/archive-button";
 import { DeleteModal } from "@/components/decisions/delete-modal";
-import { StressTestButton } from "@/components/decisions/stress-test-button";
+import { ReanalyzeDialog } from "@/components/decisions/reanalyze-dialog";
+import { ReportNavigation } from "@/components/report/report-navigation";
+import { ExecutiveStressTest } from "@/components/report/executive-stress-test";
+import { AssumptionRiskMap } from "@/components/report/assumption-risk-map";
+import { EvidenceGaps } from "@/components/report/evidence-gaps";
+import { BlindSpots } from "@/components/report/blind-spots";
+import { StakeholderAnalysis } from "@/components/report/stakeholder-analysis";
+import { RiskAnalysis } from "@/components/report/risk-analysis";
+import { ConsequenceChains } from "@/components/report/consequence-chains";
+import { ScenarioAnalysis } from "@/components/report/scenario-analysis";
+import { AlternativePaths } from "@/components/report/alternative-paths";
+import { KillQuestions } from "@/components/report/kill-questions";
+import { FinalStressTest } from "@/components/report/final-stress-test";
+import type { AuvoraReportData } from "@/lib/ai/schemas";
 
 interface DecisionDetailPageProps {
   params: Promise<{ id: string }>;
@@ -28,7 +41,7 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
     notFound();
   }
 
-  const report = await getDecisionReport(id);
+  const rawReport = await getDecisionReport(id);
 
   const statusColors: Record<string, string> = {
     draft: "border-amber-500/30 bg-amber-500/10 text-amber-400",
@@ -37,148 +50,160 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
     archived: "border-zinc-700 bg-zinc-800 text-zinc-400",
   };
 
-  return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 md:p-12">
-      <div className="mx-auto max-w-3xl space-y-8">
-        {/* Navigation & Actions Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-6">
-          <div className="space-y-1">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center text-xs font-medium text-zinc-400 hover:text-white"
-            >
-              ← Back to Dashboard
-            </Link>
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold tracking-tight text-white">{decision.title}</h1>
-              <span
-                className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${
-                  statusColors[decision.status] || statusColors["draft"]
-                }`}
-              >
-                {decision.status}
-              </span>
-            </div>
-          </div>
+  // Safe parsing of Supabase JSONB fields into typed AuvoraReportData
+  let parsedReport: AuvoraReportData | null = null;
+  if (rawReport) {
+    try {
+      const summaryObj = (rawReport.summary as { overview?: string; key_points?: string[] }) || {};
+      const consequencesObj = (rawReport.consequences as { chains?: unknown[]; risks?: unknown[] }) || {};
+      const finalTestObj = (rawReport.final_stress_test as Record<string, unknown>) || {};
 
+      parsedReport = {
+        summary: {
+          overview: summaryObj.overview || "No summary overview provided.",
+          key_points: Array.isArray(summaryObj.key_points) ? summaryObj.key_points : [],
+        },
+        risk_score: Number(rawReport.risk_score) || 50,
+        assumptions: Array.isArray(rawReport.assumptions) ? (rawReport.assumptions as AuvoraReportData["assumptions"]) : [],
+        evidence_gaps: Array.isArray(rawReport.evidence_gaps) ? (rawReport.evidence_gaps as AuvoraReportData["evidence_gaps"]) : [],
+        blind_spots: Array.isArray(rawReport.blind_spots) ? (rawReport.blind_spots as AuvoraReportData["blind_spots"]) : [],
+        stakeholders: Array.isArray(rawReport.stakeholders) ? (rawReport.stakeholders as AuvoraReportData["stakeholders"]) : [],
+        risks: Array.isArray(consequencesObj.risks) ? (consequencesObj.risks as AuvoraReportData["risks"]) : [],
+        consequences: Array.isArray(consequencesObj.chains) ? (consequencesObj.chains as AuvoraReportData["consequences"]) : [],
+        scenarios: Array.isArray(rawReport.scenarios) ? (rawReport.scenarios as AuvoraReportData["scenarios"]) : [],
+        alternatives: Array.isArray(rawReport.alternatives) ? (rawReport.alternatives as AuvoraReportData["alternatives"]) : [],
+        kill_questions: Array.isArray(finalTestObj["kill_questions"]) ? (finalTestObj["kill_questions"] as string[]) : [],
+        final_stress_test: {
+          overall_risk: (finalTestObj["overall_risk"] as AuvoraReportData["final_stress_test"]["overall_risk"]) || "medium",
+          decision_strength: (finalTestObj["decision_strength"] as AuvoraReportData["final_stress_test"]["decision_strength"]) || "moderate",
+          confidence: Number(finalTestObj["confidence"]) || 70,
+          recommendation: (finalTestObj["recommendation"] as AuvoraReportData["final_stress_test"]["recommendation"]) || "proceed_with_conditions",
+          reasoning: (finalTestObj["reasoning"] as string) || "Proceed cautiously.",
+          top_3_actions_before_commitment: Array.isArray(finalTestObj["top_3_actions_before_commitment"])
+            ? (finalTestObj["top_3_actions_before_commitment"] as string[])
+            : [],
+          biggest_assumption: (finalTestObj["biggest_assumption"] as string) || "N/A",
+          biggest_evidence_gap: (finalTestObj["biggest_evidence_gap"] as string) || "N/A",
+          biggest_blind_spot: (finalTestObj["biggest_blind_spot"] as string) || "N/A",
+          decision_trigger: (finalTestObj["decision_trigger"] as string) || "N/A",
+        },
+      };
+    } catch {
+      parsedReport = null;
+    }
+  }
+
+  return (
+    <main className="min-h-screen bg-zinc-950 text-zinc-100 pb-16">
+      {/* Top Navbar */}
+      <div className="border-b border-zinc-800 bg-zinc-900/60 p-4 md:px-12">
+        <div className="mx-auto flex max-w-5xl items-center justify-between">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center text-xs font-semibold text-zinc-400 hover:text-white"
+          >
+            ← Back to Dashboard
+          </Link>
           <div className="flex items-center space-x-2">
             <Link
               href={`/decisions/${decision.id}/edit`}
-              className="rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-700"
+              className="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-700"
             >
               Edit
             </Link>
-
             <ArchiveButton decisionId={decision.id} currentStatus={decision.status} />
-
             <DeleteModal decisionId={decision.id} decisionTitle={decision.title} />
           </div>
         </div>
+      </div>
 
-        {/* Stress Test AI Action Section */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-          <StressTestButton decisionId={decision.id} decisionStatus={decision.status} />
-        </div>
-
-        {/* Existing Persisted Report Preview (Developer View) */}
-        {report && (
-          <div className="rounded-xl border border-emerald-900/40 bg-zinc-900/90 p-5 space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="font-bold text-emerald-400 uppercase tracking-wider text-xs">
-                Saved Stress-Test Report (Supabase)
-              </h3>
-              {report.risk_score != null && (
-                <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
-                  Risk Score: {report.risk_score}/100
+      {/* Decision Header */}
+      <div className="border-b border-zinc-800 bg-zinc-900/30 p-6 md:p-12">
+        <div className="mx-auto max-w-5xl space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-3">
+                <h1 className="text-3xl font-bold tracking-tight text-white">{decision.title}</h1>
+                <span
+                  className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${
+                    statusColors[decision.status] || statusColors["draft"]
+                  }`}
+                >
+                  {decision.status}
                 </span>
-              )}
-            </div>
-
-            {report.summary && typeof report.summary === "object" && "overview" in report.summary && (
-              <div className="space-y-1">
-                <h4 className="font-semibold text-zinc-200">Overview</h4>
-                <p className="text-zinc-300 leading-relaxed">
-                  {String((report.summary as { overview: string }).overview)}
-                </p>
-              </div>
-            )}
-
-            {report.final_stress_test &&
-              typeof report.final_stress_test === "object" &&
-              "recommendation" in report.final_stress_test && (
-                <div className="space-y-1">
-                  <h4 className="font-semibold text-zinc-200">Recommendation</h4>
-                  <p className="text-zinc-300">
-                    <strong className="uppercase tracking-wider text-amber-400 font-bold">
-                      {String((report.final_stress_test as { recommendation: string }).recommendation)}
-                    </strong>
-                    {" — "}
-                    {String((report.final_stress_test as { reasoning: string }).reasoning || "")}
-                  </p>
-                </div>
-              )}
-          </div>
-        )}
-
-        {/* Core Decision Details */}
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-              Description / What you are considering
-            </h2>
-            <div className="whitespace-pre-wrap rounded-lg border border-zinc-850 bg-zinc-900/40 p-4 text-sm text-zinc-200">
-              {decision.description}
-            </div>
-          </div>
-
-          {decision.success_definition && (
-            <div className="space-y-2">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Success Definition
-              </h2>
-              <div className="whitespace-pre-wrap rounded-lg border border-zinc-850 bg-zinc-900/40 p-4 text-sm text-zinc-200">
-                {decision.success_definition}
               </div>
             </div>
-          )}
-
-          {/* Metadata Grid */}
-          <div className="grid grid-cols-2 gap-4 rounded-xl border border-zinc-850 bg-zinc-900/30 p-5 sm:grid-cols-4">
-            <div>
-              <span className="block text-[11px] font-medium text-zinc-500 uppercase">Industry</span>
-              <span className="text-xs font-semibold text-zinc-200">
-                {decision.industry || "—"}
-              </span>
-            </div>
 
             <div>
-              <span className="block text-[11px] font-medium text-zinc-500 uppercase">Company Size</span>
-              <span className="text-xs font-semibold text-zinc-200">
-                {decision.company_size || "—"}
-              </span>
-            </div>
-
-            <div>
-              <span className="block text-[11px] font-medium text-zinc-500 uppercase">Budget</span>
-              <span className="text-xs font-semibold text-zinc-200">
-                {decision.budget != null ? decision.budget.toLocaleString() : "—"}
-              </span>
-            </div>
-
-            <div>
-              <span className="block text-[11px] font-medium text-zinc-500 uppercase">Timeline</span>
-              <span className="text-xs font-semibold text-zinc-200">
-                {decision.timeline || "—"}
-              </span>
+              <ReanalyzeDialog decisionId={decision.id} hasExistingReport={Boolean(parsedReport)} />
             </div>
           </div>
 
-          {/* Dates footer */}
-          <div className="flex justify-between text-[11px] text-zinc-500 pt-2 border-t border-zinc-900">
+          {/* Decision Description */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">
+            <span className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
+              Decision Scope / Context
+            </span>
+            {decision.description}
+          </div>
+
+          {/* Metadata Bar */}
+          <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400">
+            {decision.industry && <span>Industry: <strong className="text-zinc-200">{decision.industry}</strong></span>}
+            {decision.company_size && <span>Size: <strong className="text-zinc-200">{decision.company_size}</strong></span>}
+            {decision.budget != null && <span>Budget: <strong className="text-zinc-200">{decision.budget.toLocaleString()}</strong></span>}
+            {decision.timeline && <span>Time Horizon: <strong className="text-zinc-200">{decision.timeline}</strong></span>}
             <span>Created: {new Date(decision.created_at).toLocaleDateString()}</span>
-            <span>Last Updated: {new Date(decision.updated_at).toLocaleDateString()}</span>
           </div>
         </div>
+      </div>
+
+      {/* Sticky Report Navigation (if report exists) */}
+      {parsedReport && <ReportNavigation />}
+
+      {/* Report Content / Loading / Empty State Area */}
+      <div className="mx-auto max-w-5xl px-6 pt-8 space-y-16">
+        {decision.status === "analyzing" ? (
+          /* Loading State */
+          <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-blue-500/30 bg-blue-950/20 p-8 text-center space-y-4">
+            <div className="flex items-center space-x-3 text-blue-400">
+              <svg className="animate-spin h-6 w-6 text-blue-400" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              <h3 className="text-lg font-bold text-white">Stress-testing your decision...</h3>
+            </div>
+            <p className="max-w-md text-xs text-zinc-300 leading-relaxed">
+              Auvora is examining assumptions, evidence gaps, blind spots, risks, second-order consequences, and possible outcomes.
+            </p>
+          </div>
+        ) : !parsedReport ? (
+          /* Empty State */
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/20 p-8 text-center space-y-5">
+            <div className="space-y-2 max-w-lg">
+              <h3 className="text-xl font-bold text-white">Put this decision under the microscope.</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Auvora will challenge the assumptions, evidence, risks, consequences, and alternatives behind this decision.
+              </p>
+            </div>
+            <ReanalyzeDialog decisionId={decision.id} hasExistingReport={false} />
+          </div>
+        ) : (
+          /* Report Experience (11 Sections) */
+          <>
+            <ExecutiveStressTest report={parsedReport} />
+            <AssumptionRiskMap report={parsedReport} />
+            <EvidenceGaps report={parsedReport} />
+            <BlindSpots report={parsedReport} />
+            <StakeholderAnalysis report={parsedReport} />
+            <RiskAnalysis report={parsedReport} />
+            <ConsequenceChains report={parsedReport} />
+            <ScenarioAnalysis report={parsedReport} />
+            <AlternativePaths report={parsedReport} />
+            <KillQuestions report={parsedReport} />
+            <FinalStressTest report={parsedReport} />
+          </>
+        )}
       </div>
     </main>
   );
