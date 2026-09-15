@@ -34,6 +34,29 @@ function getGeminiClient(): { ai: GoogleGenAI; model: string } {
   return { ai, model };
 }
 
+function isTransientGeminiError(err: unknown): boolean {
+  if (!err) return false;
+  const str = String(err).toLowerCase();
+  const msg = err instanceof Error ? err.message.toLowerCase() : "";
+  const status = (err as { status?: string | number })?.status;
+  const code = (err as { code?: string | number })?.code;
+
+  return (
+    status === 503 ||
+    status === "UNAVAILABLE" ||
+    code === 503 ||
+    code === "UNAVAILABLE" ||
+    str.includes("503") ||
+    str.includes("unavailable") ||
+    str.includes("high demand") ||
+    msg.includes("503") ||
+    msg.includes("unavailable") ||
+    msg.includes("high demand")
+  );
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export async function runAuvoraAnalysis(
   context: NormalizedDecisionContext
 ): Promise<AuvoraReportData> {
@@ -52,31 +75,48 @@ DECISION METADATA & CONTEXT:
 - Success Definition: ${context.decision.success_definition ?? "Not specified"}
 `;
 
-  try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: userPrompt,
-      config: {
-        systemInstruction: AUVORA_SYSTEM_PROMPT,
-        responseMimeType: "application/json",
-      },
-    });
+  const maxAttempts = 3;
+  let lastError: unknown = null;
 
-    const content = response.text;
-    if (!content || content.trim() === "") {
-      throw new Error("AI returned empty response content.");
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: userPrompt,
+        config: {
+          systemInstruction: AUVORA_SYSTEM_PROMPT,
+          responseMimeType: "application/json",
+        },
+      });
+
+      const content = response.text;
+      if (!content || content.trim() === "") {
+        throw new Error("AI returned empty response content.");
+      }
+
+      const parsedJson = JSON.parse(content);
+      const report = AuvoraReportSchema.parse(parsedJson);
+
+      return report;
+    } catch (err: unknown) {
+      lastError = err;
+
+      const isTransient = isTransientGeminiError(err);
+      if (isTransient && attempt < maxAttempts) {
+        const baseDelay = attempt === 1 ? 2000 : 5000;
+        const jitter = Math.floor(Math.random() * (attempt === 1 ? 500 : 1000));
+        await sleep(baseDelay + jitter);
+        continue;
+      }
+
+      break;
     }
-
-    const parsedJson = JSON.parse(content);
-    const report = AuvoraReportSchema.parse(parsedJson);
-
-    return report;
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw new Error(`AI Analysis Execution Failed: ${err.message}`);
-    }
-    throw new Error("AI Analysis Execution Failed with an unknown error.");
   }
+
+  if (lastError instanceof Error) {
+    throw new Error(`AI Analysis Execution Failed: ${lastError.message}`);
+  }
+  throw new Error("AI Analysis Execution Failed with an unknown error.");
 }
 
 export async function runAuvoraReplay(
