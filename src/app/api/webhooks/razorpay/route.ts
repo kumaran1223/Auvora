@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyWebhookSignature, getAuvoraPlanFromRazorpayId } from "@/lib/razorpay";
 
-// Use service role client for webhooks to bypass RLS restrictions safely on server
+// Use admin client for webhooks to bypass RLS restrictions safely on server
 function getAdminSupabaseClient() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"];
-  const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+  const secretKey = process.env["SUPABASE_SECRET_KEY"];
 
-  if (!url || !serviceKey) {
+  if (!url || !secretKey) {
     return null;
   }
 
-  return createClient(url, serviceKey);
+  return createClient(url, secretKey);
 }
 
 export async function POST(request: Request) {
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
     const supabase = getAdminSupabaseClient();
     if (!supabase) {
-      console.error("Webhook processing failed: SUPABASE_SERVICE_ROLE_KEY not configured.");
+      console.error("Webhook processing failed: SUPABASE_SECRET_KEY not configured.");
       return NextResponse.json(
         { error: "Server database configuration missing." },
         { status: 500 }

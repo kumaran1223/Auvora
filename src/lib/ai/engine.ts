@@ -1,5 +1,4 @@
-import OpenAI from "openai";
-import { zodResponseFormat } from "openai/helpers/zod";
+import { GoogleGenAI } from "@google/genai";
 import {
   AuvoraReportSchema,
   type AuvoraReportData,
@@ -19,17 +18,26 @@ import type {
   NormalizedPatternInput,
 } from "./types";
 
+function getGeminiClient(): { ai: GoogleGenAI; model: string } {
+  const apiKey = process.env["GEMINI_API_KEY"];
+  if (!apiKey || apiKey.trim() === "") {
+    throw new Error("Gemini API key is not configured on the server.");
+  }
+
+  const rawModel = (process.env["GEMINI_MODEL"] || "gemini-2.5-flash").trim();
+  let model = rawModel;
+  if (rawModel.toLowerCase().includes("flash")) {
+    model = "gemini-2.5-flash";
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+  return { ai, model };
+}
+
 export async function runAuvoraAnalysis(
   context: NormalizedDecisionContext
 ): Promise<AuvoraReportData> {
-  const apiKey = process.env["OPENAI_API_KEY"];
-  const model = process.env["OPENAI_MODEL"] || "gpt-5.6-luna";
-
-  if (!apiKey || apiKey.trim() === "") {
-    throw new Error("OpenAI API key is not configured on the server.");
-  }
-
-  const openai = new OpenAI({ apiKey });
+  const { ai, model } = getGeminiClient();
 
   const userPrompt = `
 Please stress-test the following business decision using the Auvora Analysis Framework:
@@ -45,18 +53,17 @@ DECISION METADATA & CONTEXT:
 `;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await ai.models.generateContent({
       model,
-      messages: [
-        { role: "system", content: AUVORA_SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      response_format: zodResponseFormat(AuvoraReportSchema, "auvora_report"),
+      contents: userPrompt,
+      config: {
+        systemInstruction: AUVORA_SYSTEM_PROMPT,
+        responseMimeType: "application/json",
+      },
     });
 
-    const content = response.choices[0]?.message.content;
-
-    if (!content) {
+    const content = response.text;
+    if (!content || content.trim() === "") {
       throw new Error("AI returned empty response content.");
     }
 
@@ -75,14 +82,7 @@ DECISION METADATA & CONTEXT:
 export async function runAuvoraReplay(
   context: NormalizedReplayContext
 ): Promise<AuvoraReplayData> {
-  const apiKey = process.env["OPENAI_API_KEY"];
-  const model = process.env["OPENAI_MODEL"] || "gpt-5.6-luna";
-
-  if (!apiKey || apiKey.trim() === "") {
-    throw new Error("OpenAI API key is not configured on the server.");
-  }
-
-  const openai = new OpenAI({ apiKey });
+  const { ai, model } = getGeminiClient();
 
   const userPrompt = `
 Please audit prediction alignment for the following decision:
@@ -109,18 +109,17 @@ Please audit prediction alignment for the following decision:
 `;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await ai.models.generateContent({
       model,
-      messages: [
-        { role: "system", content: AUVORA_REPLAY_SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      response_format: zodResponseFormat(AuvoraReplaySchema, "auvora_replay"),
+      contents: userPrompt,
+      config: {
+        systemInstruction: AUVORA_REPLAY_SYSTEM_PROMPT,
+        responseMimeType: "application/json",
+      },
     });
 
-    const content = response.choices[0]?.message.content;
-
-    if (!content) {
+    const content = response.text;
+    if (!content || content.trim() === "") {
       throw new Error("AI returned empty replay response content.");
     }
 
@@ -139,14 +138,7 @@ Please audit prediction alignment for the following decision:
 export async function runAuvoraPatternAnalysis(
   input: NormalizedPatternInput
 ): Promise<AuvoraPatternReportData> {
-  const apiKey = process.env["OPENAI_API_KEY"];
-  const model = process.env["OPENAI_MODEL"] || "gpt-5.6-luna";
-
-  if (!apiKey || apiKey.trim() === "") {
-    throw new Error("OpenAI API key is not configured on the server.");
-  }
-
-  const openai = new OpenAI({ apiKey });
+  const { ai, model } = getGeminiClient();
 
   const userPrompt = `
 Please analyze historical decision patterns across the following dataset of ${input.total_eligible_decisions} decisions:
@@ -156,18 +148,17 @@ ${JSON.stringify(input, null, 2)}
 `;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await ai.models.generateContent({
       model,
-      messages: [
-        { role: "system", content: AUVORA_PATTERN_SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      response_format: zodResponseFormat(AuvoraPatternReportSchema, "auvora_pattern_report"),
+      contents: userPrompt,
+      config: {
+        systemInstruction: AUVORA_PATTERN_SYSTEM_PROMPT,
+        responseMimeType: "application/json",
+      },
     });
 
-    const content = response.choices[0]?.message.content;
-
-    if (!content) {
+    const content = response.text;
+    if (!content || content.trim() === "") {
       throw new Error("AI returned empty pattern report content.");
     }
 
@@ -182,6 +173,3 @@ ${JSON.stringify(input, null, 2)}
     throw new Error("AI Pattern Analysis Execution Failed with an unknown error.");
   }
 }
-
-
-
