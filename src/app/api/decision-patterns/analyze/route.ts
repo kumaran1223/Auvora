@@ -126,10 +126,15 @@ export async function POST() {
     }
 
     const isGlobalQuotaExhausted = error instanceof Error && error.name === "GlobalProviderQuotaExhaustedError";
-    const errorMessage = isGlobalQuotaExhausted
-      ? error.message
-      : "Failed to generate decision pattern report. Please try again.";
-    const statusCode = isGlobalQuotaExhausted ? 503 : 500;
+    const isGlobalGuardError = error instanceof Error && error.name === "GlobalProviderGuardError";
+    
+    let errorMessage = error instanceof Error ? error.message : "Failed to generate decision pattern report. Please try again.";
+    let statusCode = 500;
+    
+    if (isGlobalQuotaExhausted || isGlobalGuardError) {
+      errorMessage = "Auvora's AI analysis is temporarily unavailable. Please try again later.";
+      statusCode = 503;
+    }
 
     return NextResponse.json(
       { error: errorMessage },

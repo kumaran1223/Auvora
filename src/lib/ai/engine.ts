@@ -17,7 +17,7 @@ import type {
   NormalizedReplayContext,
   NormalizedPatternInput,
 } from "./types";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 export class GlobalProviderQuotaExhaustedError extends Error {
   constructor(message = "Auvora's AI analysis is temporarily unavailable. Please try again later.") {
@@ -26,24 +26,54 @@ export class GlobalProviderQuotaExhaustedError extends Error {
   }
 }
 
+export class GlobalProviderGuardError extends Error {
+  constructor(message = "Unable to safely reserve a provider request.") {
+    super(message);
+    this.name = "GlobalProviderGuardError";
+  }
+}
+
+function getAdminSupabaseClient() {
+  const url = process.env["NEXT_PUBLIC_SUPABASE_URL"];
+  const secretKey = process.env["SUPABASE_SECRET_KEY"];
+
+  if (!url || !secretKey) {
+    return null;
+  }
+  return createClient(url, secretKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
 async function reserveProviderRequest(provider: string = "gemini"): Promise<void> {
   const limitStr = process.env["AUVORA_GEMINI_DAILY_REQUEST_LIMIT"];
   const limit = limitStr ? parseInt(limitStr, 10) : 500;
   
   if (isNaN(limit) || limit <= 0) {
-    throw new GlobalProviderQuotaExhaustedError();
+    throw new GlobalProviderGuardError("Invalid AUVORA_GEMINI_DAILY_REQUEST_LIMIT configuration.");
   }
 
-  const supabase = await createClient();
+  const supabase = getAdminSupabaseClient();
+  if (!supabase) {
+    console.error("Global AI guard failed: SUPABASE_SECRET_KEY not configured.");
+    throw new GlobalProviderGuardError();
+  }
+
   const { data, error } = await supabase.rpc("reserve_ai_provider_request", {
     p_provider: provider,
     p_daily_limit: limit
   });
 
-  if (error || data !== true) {
-    if (error) {
-       console.error("Global AI guard error (masked from client).");
-    }
+  if (error) {
+    console.error("Global AI guard error (masked from client):", error.message);
+    throw new GlobalProviderGuardError();
+  }
+
+  if (data === false) {
     throw new GlobalProviderQuotaExhaustedError();
   }
 }
@@ -152,7 +182,7 @@ DECISION METADATA & CONTEXT:
 
       return report;
     } catch (err: unknown) {
-      if (err instanceof GlobalProviderQuotaExhaustedError) {
+      if (err instanceof GlobalProviderQuotaExhaustedError || err instanceof GlobalProviderGuardError) {
         throw err;
       }
       
@@ -262,7 +292,7 @@ function zodToJsonSchemaCustom(schema: any): any {
       console.warn("Fallback model succeeded.");
       return fallbackReport;
     } catch (fallbackErr: unknown) {
-      if (fallbackErr instanceof GlobalProviderQuotaExhaustedError) {
+      if (fallbackErr instanceof GlobalProviderQuotaExhaustedError || fallbackErr instanceof GlobalProviderGuardError) {
         throw fallbackErr;
       }
       console.error("Fallback model failed.");
@@ -326,7 +356,7 @@ Please audit prediction alignment for the following decision:
 
     return replay;
   } catch (err: unknown) {
-    if (err instanceof GlobalProviderQuotaExhaustedError) {
+    if (err instanceof GlobalProviderQuotaExhaustedError || err instanceof GlobalProviderGuardError) {
       throw err;
     }
     if (err instanceof Error) {
@@ -369,7 +399,7 @@ ${JSON.stringify(input, null, 2)}
 
     return patternReport;
   } catch (err: unknown) {
-    if (err instanceof GlobalProviderQuotaExhaustedError) {
+    if (err instanceof GlobalProviderQuotaExhaustedError || err instanceof GlobalProviderGuardError) {
       throw err;
     }
     if (err instanceof Error) {

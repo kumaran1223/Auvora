@@ -182,10 +182,15 @@ export async function POST(
     }
 
     const isGlobalQuotaExhausted = err instanceof Error && err.name === "GlobalProviderQuotaExhaustedError";
-    const errorMessage = isGlobalQuotaExhausted
-      ? err.message
-      : "AI analysis failed. Please verify configuration and try again.";
-    const statusCode = isGlobalQuotaExhausted ? 503 : 500;
+    const isGlobalGuardError = err instanceof Error && err.name === "GlobalProviderGuardError";
+    
+    let errorMessage = "AI analysis failed. Please verify configuration and try again.";
+    let statusCode = 500;
+    
+    if (isGlobalQuotaExhausted || isGlobalGuardError) {
+      errorMessage = "Auvora's AI analysis is temporarily unavailable. Please try again later.";
+      statusCode = 503;
+    }
 
     return NextResponse.json(
       { error: errorMessage },
