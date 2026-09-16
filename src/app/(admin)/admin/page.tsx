@@ -32,6 +32,7 @@ export default async function AdminOverviewPage() {
     activeProResult,
     activeBizResult,
     pendingCancelsResult,
+    latestWebhookResult,
   ] = await Promise.allSettled([
     adminClient.from("profiles").select("id", { count: "exact", head: true }),
     adminClient.from("decisions").select("id", { count: "exact", head: true }),
@@ -50,6 +51,7 @@ export default async function AdminOverviewPage() {
     adminClient.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active").eq("plan", "pro"),
     adminClient.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active").eq("plan", "business"),
     adminClient.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active").eq("cancel_at_period_end", true),
+    adminClient.from("webhook_events").select("created_at").order("created_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,6 +105,44 @@ export default async function AdminOverviewPage() {
   let geminiRemaining: number | "Unavailable" = "Unavailable";
   if (typeof geminiRequests === "number" && typeof geminiLimit === "number") {
     geminiRemaining = Math.max(0, geminiLimit - geminiRequests);
+  }
+
+  // System Health & Config Indicators
+  const dbReachable = totalUsersResult.status === "fulfilled" && !totalUsersResult.value.error;
+  const dbStatus = dbReachable ? "Reachable" : "Unavailable";
+  const dbStatusColor = dbReachable ? "text-emerald-400" : "text-red-400";
+
+  const aiConfigured = !!process.env["GEMINI_API_KEY"];
+  const aiStatus = aiConfigured ? "Configured" : "Missing";
+  const aiStatusColor = aiConfigured ? "text-emerald-400" : "text-amber-400";
+
+  const billingConfigured = 
+    !!process.env["RAZORPAY_KEY_ID"] && 
+    !!process.env["RAZORPAY_KEY_SECRET"] && 
+    !!process.env["RAZORPAY_WEBHOOK_SECRET"] && 
+    !!process.env["RAZORPAY_PRO_PLAN_ID"] && 
+    !!process.env["RAZORPAY_BUSINESS_PLAN_ID"];
+  const billingStatus = billingConfigured ? "Configured" : "Incomplete";
+  const billingStatusColor = billingConfigured ? "text-emerald-400" : "text-amber-400";
+
+  let webhookActivityStr = "Unavailable";
+  let webhookActivityColor = "text-zinc-500";
+
+  if (latestWebhookResult.status === "fulfilled") {
+    if (latestWebhookResult.value.error) {
+      webhookActivityStr = "Unavailable";
+      webhookActivityColor = "text-red-400";
+    } else if (latestWebhookResult.value.data && latestWebhookResult.value.data.created_at) {
+      const date = new Date(latestWebhookResult.value.data.created_at);
+      webhookActivityStr = date.toLocaleString();
+      webhookActivityColor = "text-zinc-100";
+    } else {
+      webhookActivityStr = "No Activity";
+      webhookActivityColor = "text-zinc-500";
+    }
+  } else {
+    webhookActivityStr = "Unavailable";
+    webhookActivityColor = "text-red-400";
   }
 
   return (
@@ -240,6 +280,46 @@ export default async function AdminOverviewPage() {
             <div className="flex justify-between items-center">
               <span className="text-sm text-zinc-400">Remaining</span>
               <span className="text-sm font-medium text-zinc-100">{geminiRemaining}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 pt-8 border-t border-zinc-800/50">
+        <div className="flex items-center space-x-3 mb-6">
+          <svg className="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <h2 className="text-xl font-medium text-zinc-100">System Configuration & Health</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">Database</h3>
+            <div className={`mt-2 text-lg font-semibold ${dbStatusColor}`}>
+              {dbStatus}
+            </div>
+          </div>
+          
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">AI Engine</h3>
+            <div className={`mt-2 text-lg font-semibold ${aiStatusColor}`}>
+              {aiStatus}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">Billing Integration</h3>
+            <div className={`mt-2 text-lg font-semibold ${billingStatusColor}`}>
+              {billingStatus}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">Latest Webhook Activity</h3>
+            <div className={`mt-2 text-sm font-medium ${webhookActivityColor}`}>
+              {webhookActivityStr}
             </div>
           </div>
         </div>
