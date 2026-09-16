@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 
 export function getAdminSupabaseClient() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"];
@@ -9,5 +10,35 @@ export function getAdminSupabaseClient() {
   }
 
   return createClient(url, secretKey);
+}
+
+export async function isAdmin(): Promise<boolean> {
+  try {
+    const supabase = await createServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user || !user.id) {
+      return false;
+    }
+
+    const adminClient = getAdminSupabaseClient();
+    if (!adminClient) {
+      return false;
+    }
+
+    const { data, error } = await adminClient
+      .from("admin_users")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+
+    if (error || !data) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
