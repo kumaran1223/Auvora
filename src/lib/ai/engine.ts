@@ -277,10 +277,12 @@ DECISION METADATA & CONTEXT:
     throw new Error("Failed to generate a valid JSON Schema for Gemini.");
   }
 
+  // Reserve global provider slot exactly ONCE per logical AI operation
+  await reserveProviderRequest();
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     let t_primary_start: number = 0;
     try {
-      await reserveProviderRequest();
       t_primary_start = performance.now();
       const response = await ai.models.generateContent({
         model,
@@ -348,7 +350,6 @@ DECISION METADATA & CONTEXT:
     try {
       console.warn("Attempting fallback model:", FALLBACK_MODEL);
 
-      await reserveProviderRequest();
       t_fallback_start = performance.now();
       const fallbackResponse = await ai.models.generateContent({
         model: FALLBACK_MODEL,
