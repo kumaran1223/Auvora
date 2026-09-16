@@ -150,15 +150,53 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 function zodToJsonSchemaCustom(schema: any): any {
   if (!schema || !schema._def) return {};
   const def = schema._def;
+
+  let minLength, maxLength, minItems, maxItems;
+  if (Array.isArray(def.checks)) {
+    for (const checkObj of def.checks) {
+      const zdef = checkObj._zod?.def;
+      if (!zdef) continue;
+
+      if (zdef.check === 'min_length') {
+        if (def.type === 'string') minLength = zdef.minimum;
+        if (def.type === 'array') minItems = zdef.minimum;
+      }
+      if (zdef.check === 'max_length') {
+        if (def.type === 'string') maxLength = zdef.maximum;
+        if (def.type === 'array') maxItems = zdef.maximum;
+      }
+      if (zdef.check === 'length_equals') {
+        if (def.type === 'string') {
+          minLength = zdef.length;
+          maxLength = zdef.length;
+        }
+        if (def.type === 'array') {
+          minItems = zdef.length;
+          maxItems = zdef.length;
+        }
+      }
+    }
+  }
+
   switch (def.type) {
-    case 'string':
-      return { type: 'string' };
+    case 'string': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = { type: 'string' };
+      if (minLength !== undefined) res.minLength = minLength;
+      if (maxLength !== undefined) res.maxLength = maxLength;
+      return res;
+    }
     case 'number':
       return { type: 'number' };
     case 'boolean':
       return { type: 'boolean' };
-    case 'array':
-      return { type: 'array', items: zodToJsonSchemaCustom(def.element) };
+    case 'array': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = { type: 'array', items: zodToJsonSchemaCustom(def.element) };
+      if (minItems !== undefined) res.minItems = minItems;
+      if (maxItems !== undefined) res.maxItems = maxItems;
+      return res;
+    }
     case 'enum':
       return { type: 'string', enum: Object.keys(def.entries) };
     case 'object': {
