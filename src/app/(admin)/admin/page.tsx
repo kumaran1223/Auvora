@@ -28,6 +28,10 @@ export default async function AdminOverviewPage() {
     proPlanResult,
     businessPlanResult,
     geminiUsageResult,
+    activeSubsResult,
+    activeProResult,
+    activeBizResult,
+    pendingCancelsResult,
   ] = await Promise.allSettled([
     adminClient.from("profiles").select("id", { count: "exact", head: true }),
     adminClient.from("decisions").select("id", { count: "exact", head: true }),
@@ -42,6 +46,10 @@ export default async function AdminOverviewPage() {
       .eq("provider", "gemini")
       .eq("usage_date", today)
       .maybeSingle(),
+    adminClient.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+    adminClient.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active").eq("plan", "pro"),
+    adminClient.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active").eq("plan", "business"),
+    adminClient.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active").eq("cancel_at_period_end", true),
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,6 +68,16 @@ export default async function AdminOverviewPage() {
   const freeUsers = extractCount(freePlanResult);
   const proUsers = extractCount(proPlanResult);
   const businessUsers = extractCount(businessPlanResult);
+
+  const activeSubs = extractCount(activeSubsResult);
+  const activePro = extractCount(activeProResult);
+  const activeBiz = extractCount(activeBizResult);
+  const pendingCancels = extractCount(pendingCancelsResult);
+
+  let estimatedMrr: number | "Unavailable" = "Unavailable";
+  if (typeof activePro === "number" && typeof activeBiz === "number") {
+    estimatedMrr = (activePro * 19) + (activeBiz * 79);
+  }
 
   let geminiRequests: number | "Unavailable" = "Unavailable";
   if (geminiUsageResult.status === "fulfilled") {
@@ -123,7 +141,63 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="mt-8 pt-8 border-t border-zinc-800/50">
+        <div className="flex items-center space-x-3 mb-6">
+          <svg className="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 className="text-xl font-medium text-zinc-100">Billing Overview</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">Active Subscriptions</h3>
+            <div className="mt-2 text-2xl font-semibold text-zinc-100">
+              {activeSubs}
+            </div>
+          </div>
+          
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">Pro Subscribers</h3>
+            <div className="mt-2 text-2xl font-semibold text-zinc-100">
+              {activePro}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">Business Subscribers</h3>
+            <div className="mt-2 text-2xl font-semibold text-zinc-100">
+              {activeBiz}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5 flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-zinc-400">Estimated MRR</h3>
+              <div className="mt-2 text-2xl font-semibold text-zinc-100">
+                {estimatedMrr !== "Unavailable" ? `$${estimatedMrr}` : "Unavailable"}
+              </div>
+            </div>
+            <p className="mt-4 text-[10px] text-zinc-500 leading-tight">
+              Based on active subscriptions at current plan prices. May include test-mode data.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-5">
+            <h3 className="text-sm font-medium text-zinc-400">Pending Cancellations</h3>
+            <div className="mt-2 text-2xl font-semibold text-zinc-100">
+              {pendingCancels}
+            </div>
+            <p className="mt-2 text-[10px] text-zinc-500 leading-tight">
+              Active, but set to cancel at period end.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/20 p-6">
           <div className="flex items-center space-x-3 mb-6">
             <svg className="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
