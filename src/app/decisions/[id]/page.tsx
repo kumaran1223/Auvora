@@ -197,7 +197,6 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
                 Auvora will challenge the assumptions, evidence, risks, consequences, and alternatives behind this decision.
               </p>
             </div>
-            <ReanalyzeDialog decisionId={decision.id} hasExistingReport={false} />
           </div>
         ) : (
           /* Report Experience (11 Sections) */

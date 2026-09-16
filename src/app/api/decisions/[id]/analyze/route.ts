@@ -219,6 +219,8 @@ export async function POST(
 
     const isGlobalQuotaExhausted = err instanceof Error && err.name === "GlobalProviderQuotaExhaustedError";
     const isGlobalGuardError = err instanceof Error && err.name === "GlobalProviderGuardError";
+    const isAiExecutionFailure = err instanceof Error && err.message.includes("AI Analysis Execution Failed");
+    const isTimeout = err instanceof Error && err.message.toLowerCase().includes("timeout");
     
     let errorMessage = "AI analysis failed. Please verify configuration and try again.";
     let statusCode = 500;
@@ -226,6 +228,9 @@ export async function POST(
     if (isGlobalQuotaExhausted || isGlobalGuardError) {
       errorMessage = "Auvora's AI analysis is temporarily unavailable. Please try again later.";
       statusCode = 503;
+    } else if (isAiExecutionFailure) {
+      errorMessage = "Auvora couldn't complete the stress-test right now. Please try again in a moment.";
+      statusCode = isTimeout ? 504 : 503;
     }
     console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: failed)`);
 

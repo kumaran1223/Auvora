@@ -145,86 +145,6 @@ function isDailyQuotaExhaustionError(err: unknown): boolean {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function runAuvoraAnalysis(
-  context: NormalizedDecisionContext
-): Promise<AuvoraReportData> {
-  const { ai, model } = getGeminiClient();
-
-  const userPrompt = `
-Please stress-test the following business decision using the Auvora Analysis Framework:
-
-DECISION METADATA & CONTEXT:
-- Title: ${context.decision.title}
-- Description: ${context.decision.description}
-- Industry: ${context.decision.industry ?? "Not specified"}
-- Company Size: ${context.decision.company_size ?? "Not specified"}
-- Budget: ${context.decision.budget != null ? context.decision.budget : "Not specified"}
-- Time Horizon: ${context.decision.timeline ?? "Not specified"}
-- Success Definition: ${context.decision.success_definition ?? "Not specified"}
-`;
-
-  const maxAttempts = 3;
-  let lastError: unknown = null;
-  const FALLBACK_MODEL = "gemini-3.5-flash-lite";
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    let t_primary_start: number = 0;
-    try {
-      await reserveProviderRequest();
-      t_primary_start = performance.now();
-      const response = await ai.models.generateContent({
-        model,
-        contents: userPrompt,
-        config: {
-          systemInstruction: AUVORA_SYSTEM_PROMPT,
-          responseMimeType: "application/json",
-        },
-      });
-      console.log(`[AI LATENCY] ${model} (primary): ${Math.round(performance.now() - t_primary_start)}ms (status: success)`);
-
-      const t_validation_start = performance.now();
-      const content = response.text;
-      if (!content || content.trim() === "") {
-        console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_validation_start)}ms (status: failed)`);
-        throw new Error("AI returned empty response content.");
-      }
-
-      const parsedJson = JSON.parse(content);
-      const report = AuvoraReportSchema.parse(parsedJson);
-      console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_validation_start)}ms (status: success)`);
-
-      return report;
-    } catch (err: unknown) {
-      if (t_primary_start > 0 && !(err instanceof GlobalProviderQuotaExhaustedError) && !(err instanceof GlobalProviderGuardError) && !(err instanceof Error && err.message === "AI returned empty response content.") && !(err instanceof Error && err.name === "ZodError")) {
-        console.log(`[AI LATENCY] ${model} (primary): ${Math.round(performance.now() - t_primary_start)}ms (status: failed)`);
-      }
-      
-      if (err instanceof GlobalProviderQuotaExhaustedError || err instanceof GlobalProviderGuardError) {
-        throw err;
-      }
-      
-      lastError = err;
-
-      const isQuotaExhausted = isDailyQuotaExhaustionError(err);
-      if (isQuotaExhausted) {
-        console.warn("Primary model daily quota exhausted. Triggering fallback.");
-        break;
-      }
-
-      const isTransient = isTransientGeminiError(err);
-      if (isTransient && attempt < maxAttempts) {
-        const baseDelay = attempt === 1 ? 2000 : 5000;
-        const jitter = Math.floor(Math.random() * (attempt === 1 ? 500 : 1000));
-        await sleep(baseDelay + jitter);
-        continue;
-      }
-
-      break;
-    }
-  }
-
-  const needsFallback = isTransientGeminiError(lastError) || isDailyQuotaExhaustionError(lastError);
-
 // Custom adapter to convert Zod 4 schemas to JSON Schema for Gemini structured output
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function zodToJsonSchemaCustom(schema: any): any {
@@ -270,16 +190,103 @@ function zodToJsonSchemaCustom(schema: any): any {
   }
 }
 
+export async function runAuvoraAnalysis(
+  context: NormalizedDecisionContext
+): Promise<AuvoraReportData> {
+  const { ai, model } = getGeminiClient();
+
+  const userPrompt = `
+Please stress-test the following business decision using the Auvora Analysis Framework:
+
+DECISION METADATA & CONTEXT:
+- Title: ${context.decision.title}
+- Description: ${context.decision.description}
+- Industry: ${context.decision.industry ?? "Not specified"}
+- Company Size: ${context.decision.company_size ?? "Not specified"}
+- Budget: ${context.decision.budget != null ? context.decision.budget : "Not specified"}
+- Time Horizon: ${context.decision.timeline ?? "Not specified"}
+- Success Definition: ${context.decision.success_definition ?? "Not specified"}
+`;
+
+  const maxAttempts = 3;
+  let lastError: unknown = null;
+  const FALLBACK_MODEL = "gemini-3.5-flash-lite";
+
+  const jsonSchema = zodToJsonSchemaCustom(AuvoraReportSchema);
+  if (jsonSchema.type !== "object" || !jsonSchema.properties || !jsonSchema.properties.summary) {
+    console.error("Generated JSON Schema is malformed.");
+    throw new Error("Failed to generate a valid JSON Schema for Gemini.");
+  }
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let t_primary_start: number = 0;
+    try {
+      await reserveProviderRequest();
+      t_primary_start = performance.now();
+      const response = await ai.models.generateContent({
+        model,
+        contents: userPrompt,
+        config: {
+          systemInstruction: AUVORA_SYSTEM_PROMPT,
+          responseMimeType: "application/json",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          responseSchema: jsonSchema as any,
+        },
+      });
+      console.log(`[AI LATENCY] ${model} (primary): ${Math.round(performance.now() - t_primary_start)}ms (status: success)`);
+
+      const t_validation_start = performance.now();
+      const content = response.text;
+      
+      console.log(`[DEBUG AI RESPONSE] Model: ${model} (Primary)`);
+      console.log(`[DEBUG AI RESPONSE] Length: ${content?.length ?? 0}`);
+      try { if (content) console.log(`[DEBUG AI RESPONSE] Keys:`, Object.keys(JSON.parse(content))); } catch (e) { console.log(`[DEBUG AI RESPONSE] Invalid JSON:`, String(e)); }
+
+      if (!content || content.trim() === "") {
+        console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_validation_start)}ms (status: failed)`);
+        throw new Error("AI returned empty response content.");
+      }
+
+      const parsedJson = JSON.parse(content);
+      const report = AuvoraReportSchema.parse(parsedJson);
+      console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_validation_start)}ms (status: success)`);
+
+      return report;
+    } catch (err: unknown) {
+      if (t_primary_start > 0 && !(err instanceof GlobalProviderQuotaExhaustedError) && !(err instanceof GlobalProviderGuardError) && !(err instanceof Error && err.message === "AI returned empty response content.") && !(err instanceof Error && err.name === "ZodError")) {
+        console.log(`[AI LATENCY] ${model} (primary): ${Math.round(performance.now() - t_primary_start)}ms (status: failed)`);
+      }
+      
+      if (err instanceof GlobalProviderQuotaExhaustedError || err instanceof GlobalProviderGuardError) {
+        throw err;
+      }
+      
+      lastError = err;
+
+      const isQuotaExhausted = isDailyQuotaExhaustionError(err);
+      if (isQuotaExhausted) {
+        console.warn("Primary model daily quota exhausted. Triggering fallback.");
+        break;
+      }
+
+      const isTransient = isTransientGeminiError(err);
+      if (isTransient && attempt < maxAttempts) {
+        const baseDelay = attempt === 1 ? 2000 : 5000;
+        const jitter = Math.floor(Math.random() * (attempt === 1 ? 500 : 1000));
+        await sleep(baseDelay + jitter);
+        continue;
+      }
+
+      break;
+    }
+  }
+
+  const needsFallback = isTransientGeminiError(lastError) || isDailyQuotaExhaustionError(lastError);
+
   let t_fallback_start: number = 0;
   if (needsFallback) {
     try {
       console.warn("Attempting fallback model:", FALLBACK_MODEL);
-      const jsonSchema = zodToJsonSchemaCustom(AuvoraReportSchema);
-
-      if (jsonSchema.type !== "object" || !jsonSchema.properties || !jsonSchema.properties.summary) {
-        console.error("Generated JSON Schema is malformed. Root type:", jsonSchema.type, "Properties:", jsonSchema.properties ? Object.keys(jsonSchema.properties) : "None");
-        throw new Error("Failed to generate a valid JSON Schema for Gemini fallback.");
-      }
 
       await reserveProviderRequest();
       t_fallback_start = performance.now();
@@ -290,13 +297,18 @@ function zodToJsonSchemaCustom(schema: any): any {
           systemInstruction: AUVORA_SYSTEM_PROMPT,
           responseMimeType: "application/json",
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          responseJsonSchema: jsonSchema as any,
+          responseSchema: jsonSchema as any,
         },
       });
       console.log(`[AI LATENCY] ${FALLBACK_MODEL} (fallback): ${Math.round(performance.now() - t_fallback_start)}ms (status: success)`);
 
       const t_fb_validation_start = performance.now();
       const fallbackContent = fallbackResponse.text;
+      
+      console.log(`[DEBUG AI RESPONSE] Model: ${FALLBACK_MODEL} (Fallback)`);
+      console.log(`[DEBUG AI RESPONSE] Length: ${fallbackContent?.length ?? 0}`);
+      try { if (fallbackContent) console.log(`[DEBUG AI RESPONSE] Keys:`, Object.keys(JSON.parse(fallbackContent))); } catch (e) { console.log(`[DEBUG AI RESPONSE] Invalid JSON:`, String(e)); }
+
       if (!fallbackContent || fallbackContent.trim() === "") {
         console.log(`[AI LATENCY] report-validation: ${Math.round(performance.now() - t_fb_validation_start)}ms (status: failed)`);
         throw new Error("AI returned empty response content.");

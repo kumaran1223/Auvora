@@ -53,6 +53,7 @@ export function ReanalyzeDialog({
       if (!res.ok || !data.success) {
         setError(data.error || "Failed to analyze decision.");
         setLoading(false);
+        setIsOpen(false);
         return;
       }
 
@@ -65,6 +66,7 @@ export function ReanalyzeDialog({
     } catch {
       setError("An unexpected error occurred during analysis.");
       setLoading(false);
+      setIsOpen(false);
     }
   };
 
@@ -78,17 +80,24 @@ export function ReanalyzeDialog({
 
   return (
     <>
-      <button
-        onClick={handleButtonClick}
-        disabled={loading}
-        className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
-      >
-        {loading
-          ? "Stress-testing..."
-          : hasExistingReport
-          ? "Stress-test again"
-          : "Stress-test with Auvora"}
-      </button>
+      <div className="flex flex-col items-start sm:items-end gap-2">
+        <button
+          onClick={handleButtonClick}
+          disabled={loading}
+          className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
+        >
+          {loading
+            ? "Stress-testing your decision..."
+            : hasExistingReport
+            ? "Stress-test again"
+            : "Stress-test with Auvora"}
+        </button>
+        {error && (
+          <div className="rounded border border-red-900/50 bg-red-950/40 px-3 py-1.5 text-sm text-red-400 max-w-xs text-left animate-in fade-in slide-in-from-top-1">
+            {error}
+          </div>
+        )}
+      </div>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
@@ -99,12 +108,6 @@ export function ReanalyzeDialog({
                 Running the AI stress-test again will update your existing report with a new analysis based on your current decision parameters.
               </p>
             </div>
-
-            {error && (
-              <div className="rounded border border-red-900/50 bg-red-950/40 p-2 text-sm text-red-400">
-                {error}
-              </div>
-            )}
 
             <div className="flex justify-end space-x-3 pt-2">
               <button
