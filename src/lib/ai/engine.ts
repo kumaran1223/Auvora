@@ -145,58 +145,26 @@ function isDailyQuotaExhaustionError(err: unknown): boolean {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Custom adapter to convert Zod 4 schemas to JSON Schema for Gemini structured output
+// Custom adapter to convert Zod 4 schemas to Gemini-compatible JSON Schema.
+// Gemini's responseSchema supports only a restricted JSON Schema subset.
+// Constraints such as maxLength, minLength, maxItems, and minItems are NOT
+// supported by Gemini Structured Output and must NOT be emitted here.
+// All length/count limits are enforced exclusively by AuvoraReportSchema.parse()
+// after generation.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function zodToJsonSchemaCustom(schema: any): any {
   if (!schema || !schema._def) return {};
   const def = schema._def;
 
-  let minLength, maxLength, minItems, maxItems;
-  if (Array.isArray(def.checks)) {
-    for (const checkObj of def.checks) {
-      const zdef = checkObj._zod?.def;
-      if (!zdef) continue;
-
-      if (zdef.check === 'min_length') {
-        if (def.type === 'string') minLength = zdef.minimum;
-        if (def.type === 'array') minItems = zdef.minimum;
-      }
-      if (zdef.check === 'max_length') {
-        if (def.type === 'string') maxLength = zdef.maximum;
-        if (def.type === 'array') maxItems = zdef.maximum;
-      }
-      if (zdef.check === 'length_equals') {
-        if (def.type === 'string') {
-          minLength = zdef.length;
-          maxLength = zdef.length;
-        }
-        if (def.type === 'array') {
-          minItems = zdef.length;
-          maxItems = zdef.length;
-        }
-      }
-    }
-  }
-
   switch (def.type) {
-    case 'string': {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const res: any = { type: 'string' };
-      if (minLength !== undefined) res.minLength = minLength;
-      if (maxLength !== undefined) res.maxLength = maxLength;
-      return res;
-    }
+    case 'string':
+      return { type: 'string' };
     case 'number':
       return { type: 'number' };
     case 'boolean':
       return { type: 'boolean' };
-    case 'array': {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const res: any = { type: 'array', items: zodToJsonSchemaCustom(def.element) };
-      if (minItems !== undefined) res.minItems = minItems;
-      if (maxItems !== undefined) res.maxItems = maxItems;
-      return res;
-    }
+    case 'array':
+      return { type: 'array', items: zodToJsonSchemaCustom(def.element) };
     case 'enum':
       return { type: 'string', enum: Object.keys(def.entries) };
     case 'object': {
@@ -225,6 +193,59 @@ function zodToJsonSchemaCustom(schema: any): any {
       return zodToJsonSchemaCustom(def.innerType);
     default:
       return {};
+  }
+}
+
+// Safe Gemini error classifier — logs only structural, non-sensitive information.
+// Does NOT log API keys, prompts, schemas, user content, or full responses.
+function logGeminiError(model: string, err: unknown): void {
+  try {
+    const e = err as Record<string, unknown>;
+    const status = (e["status"] ?? e["code"] ?? e["httpStatus"] ?? undefined) as string | number | undefined;
+    const rawMessage = err instanceof Error ? err.message : String(err);
+    const message = rawMessage.slice(0, 200);
+
+    let category: string = "other";
+    if (
+      status === 401 || status === 403 ||
+      String(status) === "UNAUTHENTICATED" || String(status) === "PERMISSION_DENIED" ||
+      message.toLowerCase().includes("api key") || message.toLowerCase().includes("unauthenticated")
+    ) {
+      category = "authentication";
+    } else if (
+      status === 400 ||
+      String(status) === "INVALID_ARGUMENT" ||
+      message.toLowerCase().includes("invalid") || message.toLowerCase().includes("400")
+    ) {
+      category = "invalid_request";
+    } else if (
+      status === 429 ||
+      String(status) === "RESOURCE_EXHAUSTED" ||
+      message.toLowerCase().includes("429") || message.toLowerCase().includes("resource_exhausted") ||
+      message.toLowerCase().includes("quota")
+    ) {
+      // NOTE: isDailyQuotaExhaustionError() treats all 429 as daily quota — this includes
+      // temporary RPM rate limits. This limitation is known and not changed here.
+      category = "rate_limit_or_daily_quota";
+    } else if (
+      status === 503 ||
+      String(status) === "UNAVAILABLE" ||
+      message.toLowerCase().includes("503") || message.toLowerCase().includes("unavailable")
+    ) {
+      category = "transient";
+    }
+
+    const retryable = category === "transient" || category === "rate_limit_or_daily_quota";
+
+    console.error("[AI GEMINI ERROR]", JSON.stringify({
+      model,
+      status: status ?? "unknown",
+      category,
+      retryable,
+      message,
+    }));
+  } catch {
+    // Never let diagnostic logging crash the request flow
   }
 }
 
@@ -293,12 +314,13 @@ DECISION METADATA & CONTEXT:
     } catch (err: unknown) {
       if (t_primary_start > 0 && !(err instanceof GlobalProviderQuotaExhaustedError) && !(err instanceof GlobalProviderGuardError) && !(err instanceof Error && err.message === "AI returned empty response content.") && !(err instanceof Error && err.name === "ZodError")) {
         console.log(`[AI LATENCY] ${model} (primary): ${Math.round(performance.now() - t_primary_start)}ms (status: failed)`);
+        logGeminiError(model, err);
       }
-      
+
       if (err instanceof GlobalProviderQuotaExhaustedError || err instanceof GlobalProviderGuardError) {
         throw err;
       }
-      
+
       lastError = err;
 
       const isQuotaExhausted = isDailyQuotaExhaustionError(err);
@@ -367,6 +389,7 @@ DECISION METADATA & CONTEXT:
     } catch (fallbackErr: unknown) {
       if (t_fallback_start > 0 && !(fallbackErr instanceof GlobalProviderQuotaExhaustedError) && !(fallbackErr instanceof GlobalProviderGuardError) && !(fallbackErr instanceof Error && fallbackErr.message === "AI returned empty response content.") && !(fallbackErr instanceof Error && fallbackErr.name === "ZodError")) {
         console.log(`[AI LATENCY] ${FALLBACK_MODEL} (fallback): ${Math.round(performance.now() - t_fallback_start)}ms (status: failed)`);
+        logGeminiError(FALLBACK_MODEL, fallbackErr);
       }
       if (fallbackErr instanceof GlobalProviderQuotaExhaustedError || fallbackErr instanceof GlobalProviderGuardError) {
         throw fallbackErr;
