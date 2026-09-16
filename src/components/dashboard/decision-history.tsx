@@ -101,7 +101,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
   return (
     <div className="space-y-6">
       {/* Controls Bar: Search, Filters, Sort */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
         {/* Search Bar */}
         <div className="relative flex-1">
           <svg
@@ -125,7 +125,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
               setCurrentPage(1);
             }}
             placeholder="Search decisions by title or keywords..."
-            className="w-full rounded-md border border-zinc-700 bg-zinc-950 pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+            className="w-full rounded-md border border-zinc-700 bg-zinc-950 pl-9 pr-4 py-2 text-sm text-white placeholder-zinc-500 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
           />
         </div>
 
@@ -138,7 +138,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
               setStatusFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-medium text-zinc-200 focus:border-zinc-500 focus:outline-none"
+            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm font-medium text-zinc-200 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
           >
             <option value="all">All Statuses</option>
             <option value="draft">Draft</option>
@@ -154,7 +154,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
               setOutcomeFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-medium text-zinc-200 focus:border-zinc-500 focus:outline-none"
+            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm font-medium text-zinc-200 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
           >
             <option value="all">All Outcomes</option>
             <option value="needs_outcome">Needs Outcome</option>
@@ -171,7 +171,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
               setSortBy(e.target.value as "newest" | "oldest" | "updated");
               setCurrentPage(1);
             }}
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-medium text-zinc-200 focus:border-zinc-500 focus:outline-none"
+            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm font-medium text-zinc-200 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -182,24 +182,24 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
 
       {/* Decision List */}
       {decisions.length === 0 ? (
-        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 p-8 text-center space-y-4">
+        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 p-8 text-center space-y-4 animate-fade-in-up">
           <div className="space-y-2 max-w-md">
             <h4 className="text-xl font-bold text-white">No decisions stress-tested yet</h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">
+            <p className="text-base text-zinc-400 leading-relaxed">
               Auvora challenges your assumptions, exposes evidence gaps, and maps second-order consequences before you commit capital.
             </p>
           </div>
           <Link
             href="/decisions/new"
-            className="inline-flex items-center justify-center rounded-md bg-white px-5 py-2.5 text-xs font-bold text-zinc-950 transition hover:bg-zinc-200"
+            className="inline-flex items-center justify-center rounded-md bg-white px-5 py-2.5 text-sm font-bold text-zinc-950 transition-all duration-200 hover:bg-zinc-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
           >
             + Stress-test your first decision
           </Link>
         </div>
       ) : paginatedDecisions.length === 0 ? (
-        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/20 p-8 text-center space-y-3">
+        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/20 p-8 text-center space-y-3 animate-fade-in-up">
           <h4 className="text-lg font-semibold text-white">No matching decisions found</h4>
-          <p className="text-xs text-zinc-400 max-w-sm">
+          <p className="text-sm text-zinc-400 max-w-sm">
             Try adjusting your search terms or filters to find what you&apos;re looking for.
           </p>
           {(searchTerm || statusFilter !== "all" || outcomeFilter !== "all") && (
@@ -210,7 +210,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
                 setOutcomeFilter("all");
                 setCurrentPage(1);
               }}
-              className="text-xs font-semibold text-amber-400 hover:underline"
+              className="text-sm font-semibold text-amber-400 transition-colors duration-200 hover:text-amber-300 hover:underline focus:outline-none focus:ring-2 focus:ring-amber-500/50 rounded-sm motion-reduce:transition-none"
             >
               Clear filters & reset view
             </button>
@@ -218,7 +218,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
         </div>
       ) : (
         <div className="divide-y divide-zinc-800/60 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40">
-          {paginatedDecisions.map((decision) => {
+          {paginatedDecisions.map((decision, idx) => {
             const outcomeBadge = decision.outcome?.outcome_status
               ? outcomeColors[decision.outcome.outcome_status]
               : null;
@@ -227,7 +227,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
             return (
               <div
                 key={decision.id}
-                className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between transition hover:bg-zinc-900/80"
+                className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between transition-all duration-200 hover:bg-zinc-800/80 hover:shadow-lg motion-reduce:transition-none animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 60, 300)}ms` }}
               >
                 <div className="space-y-2 flex-1">
                   <div className="flex flex-wrap items-center gap-2.5">
@@ -269,7 +269,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
                   </div>
 
                   {/* Metadata Tags */}
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-400">
                     {decision.industry && <span>Industry: <strong className="text-zinc-300">{decision.industry}</strong></span>}
                     {decision.timeline && <span>Horizon: <strong className="text-zinc-300">{decision.timeline}</strong></span>}
                     <span>Created: {new Date(decision.created_at).toLocaleDateString()}</span>
@@ -279,7 +279,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
                 <div className="flex items-center space-x-2 shrink-0">
                   <Link
                     href={`/decisions/${decision.id}`}
-                    className="rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-700"
+                    className="rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-sm font-semibold text-zinc-200 transition-all duration-200 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
                   >
                     Open Decision →
                   </Link>
@@ -292,7 +292,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
 
       {/* Pagination Bar */}
       {totalItems > 0 && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-800">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-zinc-400 pt-2 border-t border-zinc-800">
           <div>
             Showing <strong className="text-white font-bold">{startItem}</strong> to{" "}
             <strong className="text-white font-bold">{endItem}</strong> of{" "}
@@ -303,7 +303,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={activePage <= 1}
-              className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm font-medium text-zinc-300 transition-all duration-200 hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 disabled:opacity-40 disabled:pointer-events-none motion-reduce:transition-none motion-reduce:transform-none"
             >
               ← Previous
             </button>
@@ -315,7 +315,7 @@ export function DecisionHistory({ decisions }: DecisionHistoryProps) {
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={activePage >= totalPages}
-              className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm font-medium text-zinc-300 transition-all duration-200 hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 disabled:opacity-40 disabled:pointer-events-none motion-reduce:transition-none motion-reduce:transform-none"
             >
               Next →
             </button>

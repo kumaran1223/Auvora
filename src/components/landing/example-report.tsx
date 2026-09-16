@@ -1,21 +1,21 @@
 export function ExampleReport() {
   return (
     <section className="border-t border-zinc-800/80 bg-zinc-950 py-16 md:py-24">
-      <div className="mx-auto max-w-6xl px-4 md:px-8 space-y-12">
+      <div className="mx-auto max-w-[1400px] px-4 md:px-8 space-y-12">
         <div className="max-w-2xl space-y-3">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
             Interactive Product Preview
           </span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
             See what a decision looks like under the microscope.
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-lg text-zinc-400 leading-relaxed">
             Example stress-test report for: <strong className="text-white">&ldquo;Should we open our second restaurant location?&rdquo;</strong>
           </p>
         </div>
 
         {/* Demo Report UI Box */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 md:p-8 space-y-8 shadow-2xl relative">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-8 md:p-8 space-y-8 shadow-2xl relative">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-4">
             <div>
               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
@@ -41,9 +41,9 @@ export function ExampleReport() {
                   <span className="rounded bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400 uppercase">
                     Needs Verification
                   </span>
-                  <span className="text-xs text-zinc-400">Conf: <strong className="text-white">39%</strong></span>
+                  <span className="text-sm text-zinc-400">Conf: <strong className="text-white">39%</strong></span>
                 </div>
-                <p className="text-xs font-semibold text-white">
+                <p className="text-sm font-semibold text-white">
                   Cash flow survives first 6 months
                 </p>
                 <span className="inline-block text-[10px] font-bold text-red-400 uppercase">
@@ -51,14 +51,14 @@ export function ExampleReport() {
                 </span>
               </div>
 
-              <div className="rounded-xl border border-amber-500/30 bg-zinc-950/60 p-4 space-y-2">
+              <div className="rounded-xl border border-amber-500/30 bg-zinc-950/60 p-6 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-400 uppercase">
                     Assumed
                   </span>
-                  <span className="text-xs text-zinc-400">Conf: <strong className="text-white">48%</strong></span>
+                  <span className="text-sm text-zinc-400">Conf: <strong className="text-white">48%</strong></span>
                 </div>
-                <p className="text-xs font-semibold text-white">
+                <p className="text-sm font-semibold text-white">
                   New location gets enough foot traffic
                 </p>
                 <span className="inline-block text-[10px] font-bold text-amber-400 uppercase">
@@ -66,14 +66,14 @@ export function ExampleReport() {
                 </span>
               </div>
 
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 space-y-2">
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400 uppercase">
                     Known
                   </span>
-                  <span className="text-xs text-zinc-400">Conf: <strong className="text-white">81%</strong></span>
+                  <span className="text-sm text-zinc-400">Conf: <strong className="text-white">81%</strong></span>
                 </div>
-                <p className="text-xs font-semibold text-white">
+                <p className="text-sm font-semibold text-white">
                   Staff hiring will be manageable
                 </p>
                 <span className="inline-block text-[10px] font-bold text-zinc-400 uppercase">
@@ -85,8 +85,8 @@ export function ExampleReport() {
 
           {/* Evidence Gap & Blind Spot Row */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 space-y-2">
-              <span className="font-bold text-blue-400 uppercase tracking-wider text-[11px]">
+            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 space-y-2">
+              <span className="font-bold text-blue-400 uppercase tracking-wider text-xs">
                 Key Evidence Gap
               </span>
               <p className="font-semibold text-white">
@@ -97,8 +97,8 @@ export function ExampleReport() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 space-y-2">
-              <span className="font-bold text-red-400 uppercase tracking-wider text-[11px]">
+            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 space-y-2">
+              <span className="font-bold text-red-400 uppercase tracking-wider text-xs">
                 Critical Blind Spot
               </span>
               <p className="font-semibold text-white">
@@ -112,10 +112,10 @@ export function ExampleReport() {
 
           {/* Consequence Chain Flow */}
           <div className="rounded-xl border border-purple-500/30 bg-purple-950/10 p-5 space-y-3 text-xs">
-            <span className="font-bold text-purple-400 uppercase tracking-wider text-[11px]">
+            <span className="font-bold text-purple-400 uppercase tracking-wider text-xs">
               Second-Order Consequence Chain
             </span>
-            <div className="flex flex-wrap items-center gap-2 text-zinc-200 font-mono text-[11px]">
+            <div className="flex flex-wrap items-center gap-2 text-zinc-200 font-mono text-xs">
               <span className="rounded bg-zinc-800 px-2 py-1">Expansion</span>
               <span className="text-purple-400 font-bold">&rarr;</span>
               <span className="rounded bg-zinc-800 px-2 py-1">Higher fixed costs</span>

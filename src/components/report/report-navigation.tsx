@@ -51,7 +51,7 @@ export function ReportNavigation() {
 
   return (
     <nav className="sticky top-0 z-30 w-full border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-5xl items-center overflow-x-auto px-4 py-2.5 text-xs font-medium no-scrollbar space-x-1 sm:space-x-2">
+      <div className="mx-auto flex max-w-7xl items-center overflow-x-auto px-4 py-2.5 text-sm font-medium no-scrollbar space-x-1 sm:space-x-2">
         {NAV_ITEMS.map((item) => {
           const isActive = activeId === item.id;
           return (

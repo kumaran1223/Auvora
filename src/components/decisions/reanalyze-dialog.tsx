@@ -81,7 +81,7 @@ export function ReanalyzeDialog({
       <button
         onClick={handleButtonClick}
         disabled={loading}
-        className="rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
+        className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
       >
         {loading
           ? "Stress-testing..."
@@ -95,13 +95,13 @@ export function ReanalyzeDialog({
           <div className="w-full max-w-md space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl text-left">
             <div className="space-y-2">
               <h3 className="text-lg font-bold text-white">Re-run Auvora Stress-Test?</h3>
-              <p className="text-xs text-zinc-300">
+              <p className="text-sm text-zinc-300">
                 Running the AI stress-test again will update your existing report with a new analysis based on your current decision parameters.
               </p>
             </div>
 
             {error && (
-              <div className="rounded border border-red-900/50 bg-red-950/40 p-2 text-xs text-red-400">
+              <div className="rounded border border-red-900/50 bg-red-950/40 p-2 text-sm text-red-400">
                 {error}
               </div>
             )}
@@ -111,7 +111,7 @@ export function ReanalyzeDialog({
                 type="button"
                 onClick={() => setIsOpen(false)}
                 disabled={loading}
-                className="rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
+                className="rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-sm font-medium text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -119,7 +119,7 @@ export function ReanalyzeDialog({
                 type="button"
                 onClick={runAnalysis}
                 disabled={loading}
-                className="rounded-md bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50"
+                className="rounded-md bg-white px-3.5 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50"
               >
                 {loading ? "Analyzing..." : "Confirm & re-analyze"}
               </button>

@@ -108,17 +108,17 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
     <main className="min-h-screen bg-zinc-950 text-zinc-100 pb-16">
       {/* Top Navbar */}
       <div className="border-b border-zinc-800 bg-zinc-900/60 p-4 md:px-12">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link
             href="/dashboard"
-            className="inline-flex items-center text-xs font-semibold text-zinc-400 hover:text-white"
+            className="inline-flex items-center text-sm font-semibold text-zinc-400 hover:text-white"
           >
             ← Back to Dashboard
           </Link>
           <div className="flex items-center space-x-2">
             <Link
               href={`/decisions/${decision.id}/edit`}
-              className="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-700"
+              className="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700"
             >
               Edit
             </Link>
@@ -130,7 +130,7 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
 
       {/* Decision Header */}
       <div className="border-b border-zinc-800 bg-zinc-900/30 p-6 md:p-12">
-        <div className="mx-auto max-w-5xl space-y-4">
+        <div className="mx-auto max-w-7xl space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <div className="flex items-center space-x-3">
@@ -151,15 +151,15 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
           </div>
 
           {/* Decision Description */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">
-            <span className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-8 text-base text-zinc-300 whitespace-pre-wrap leading-relaxed">
+            <span className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">
               Decision Scope / Context
             </span>
             {decision.description}
           </div>
 
           {/* Metadata Bar */}
-          <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400">
             {decision.industry && <span>Industry: <strong className="text-zinc-200">{decision.industry}</strong></span>}
             {decision.company_size && <span>Size: <strong className="text-zinc-200">{decision.company_size}</strong></span>}
             {decision.budget != null && <span>Budget: <strong className="text-zinc-200">{decision.budget.toLocaleString()}</strong></span>}
@@ -173,7 +173,7 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
       {parsedReport && <ReportNavigation />}
 
       {/* Report Content / Loading / Empty State Area */}
-      <div className="mx-auto max-w-5xl px-6 pt-8 space-y-16">
+      <div className="mx-auto max-w-7xl px-6 pt-8 space-y-16">
         {decision.status === "analyzing" ? (
           /* Loading State */
           <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-blue-500/30 bg-blue-950/20 p-8 text-center space-y-4">
@@ -184,7 +184,7 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
               </svg>
               <h3 className="text-lg font-bold text-white">Stress-testing your decision...</h3>
             </div>
-            <p className="max-w-md text-xs text-zinc-300 leading-relaxed">
+            <p className="max-w-md text-sm text-zinc-300 leading-relaxed">
               Auvora is examining assumptions, evidence gaps, blind spots, risks, second-order consequences, and possible outcomes.
             </p>
           </div>
@@ -193,7 +193,7 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
           <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/20 p-8 text-center space-y-5">
             <div className="space-y-2 max-w-lg">
               <h3 className="text-xl font-bold text-white">Put this decision under the microscope.</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-sm text-zinc-400 leading-relaxed">
                 Auvora will challenge the assumptions, evidence, risks, consequences, and alternatives behind this decision.
               </p>
             </div>
@@ -201,19 +201,19 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
           </div>
         ) : (
           /* Report Experience (11 Sections) */
-          <>
-            <ExecutiveStressTest report={parsedReport} />
-            <AssumptionRiskMap report={parsedReport} />
-            <EvidenceGaps report={parsedReport} />
-            <BlindSpots report={parsedReport} />
-            <StakeholderAnalysis report={parsedReport} />
-            <RiskAnalysis report={parsedReport} />
-            <ConsequenceChains report={parsedReport} />
-            <ScenarioAnalysis report={parsedReport} />
-            <AlternativePaths report={parsedReport} />
-            <KillQuestions report={parsedReport} />
-            <FinalStressTest report={parsedReport} />
-          </>
+            <>
+              <div className="animate-fade-in-up" style={{ animationDelay: '0ms' }}><ExecutiveStressTest report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '60ms' }}><AssumptionRiskMap report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '120ms' }}><EvidenceGaps report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '180ms' }}><BlindSpots report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '240ms' }}><StakeholderAnalysis report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><RiskAnalysis report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><ConsequenceChains report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><ScenarioAnalysis report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><AlternativePaths report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><KillQuestions report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><FinalStressTest report={parsedReport} /></div>
+            </>
         )}
 
         {/* Outcome Section (Decision Reality Track) */}

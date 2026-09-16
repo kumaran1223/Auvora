@@ -28,7 +28,7 @@ export function UsageCard({ usage }: UsageCardProps) {
   });
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4">
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 animate-fade-in-up">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <div className="flex items-center space-x-3">
@@ -39,14 +39,14 @@ export function UsageCard({ usage }: UsageCardProps) {
               {planName} Plan
             </span>
           </div>
-          <p className="text-xs text-zinc-400">
+          <p className="text-base text-zinc-400">
             Resets on {formattedResetDate}
           </p>
         </div>
 
         <Link
           href="/pricing"
-          className="inline-flex items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-700 hover:text-white"
+          className="inline-flex items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-sm font-medium text-zinc-200 transition-all duration-200 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
         >
           {usage.plan === "business" ? "Manage Subscription" : "Upgrade Plan →"}
         </Link>
@@ -54,7 +54,7 @@ export function UsageCard({ usage }: UsageCardProps) {
 
       {/* Progress Bar & Stats */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center justify-between text-sm">
           <span className="font-medium text-zinc-300">
             <span className="text-white font-bold">{usedCount}</span> of{" "}
             <span className="text-white font-bold">{monthlyLimit}</span> used
@@ -73,9 +73,9 @@ export function UsageCard({ usage }: UsageCardProps) {
       </div>
 
       {percentageUsed >= 100 && (
-        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-center justify-between">
+        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-300 flex items-center justify-between">
           <span>You&apos;ve reached your monthly stress-test limit ({monthlyLimit}/{monthlyLimit}).</span>
-          <Link href="/pricing" className="underline font-semibold ml-2 hover:text-white">
+          <Link href="/pricing" className="underline font-semibold ml-2 transition-colors duration-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50 rounded-sm motion-reduce:transition-none">
             Upgrade to Pro →
           </Link>
         </div>

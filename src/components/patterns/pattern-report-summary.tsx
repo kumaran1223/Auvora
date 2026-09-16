@@ -15,12 +15,12 @@ export function PatternReportSummary({
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/80 p-6 space-y-5">
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-white">Decision Pattern Summary</h2>
-        <p className="text-xs text-zinc-400 font-mono">
+        <p className="text-sm text-zinc-400 font-mono">
           Across {decisionCount} completed decisions with recorded outcomes, Auvora observed:
         </p>
       </div>
 
-      <p className="text-sm text-zinc-200 leading-relaxed bg-zinc-950/60 p-4 rounded-lg border border-zinc-800/80">
+      <p className="text-sm text-zinc-200 leading-relaxed bg-zinc-950/60 p-6 rounded-lg border border-zinc-800/80">
         {overallSummary}
       </p>
 

@@ -27,8 +27,8 @@ export function BlindSpots({ report }: BlindSpotsProps) {
   return (
     <section id="blind-spots" className="scroll-mt-24 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">Blind Spots</h2>
-        <p className="text-xs text-zinc-400">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Blind Spots</h2>
+        <p className="text-base text-zinc-400">
           Factors that could materially affect the decision but may be easy to overlook.
         </p>
       </div>
@@ -51,17 +51,17 @@ export function BlindSpots({ report }: BlindSpotsProps) {
                   <span className={`rounded border px-2 py-0.5 text-[10px] uppercase tracking-wider ${severityStyles[spot.severity] || ""}`}>
                     {spot.severity}
                   </span>
-                  <h3 className="text-sm font-semibold text-white">
+                  <h3 className="text-base font-semibold text-white">
                     {spot.title}
                   </h3>
                 </div>
-                <span className="text-xs text-zinc-400 font-mono">
+                <span className="text-sm text-zinc-400 font-mono">
                   {isExpanded ? "−" : "+"}
                 </span>
               </button>
 
               {isExpanded && (
-                <div className="border-t border-zinc-800/80 bg-zinc-950/40 p-4 text-xs space-y-3">
+                <div className="border-t border-zinc-800/80 bg-zinc-950/40 p-6 text-sm space-y-3">
                   <p className="text-zinc-300 leading-relaxed">{spot.explanation}</p>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-2 border-t border-zinc-900">

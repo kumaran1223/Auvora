@@ -19,10 +19,10 @@ export function OutcomeTraceability({
   return (
     <div className="space-y-4 pt-2">
       <div className="space-y-1">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
           Decision Lifecycle & Traceability
         </h3>
-        <p className="text-xs text-zinc-400">
+        <p className="text-base text-zinc-400">
           Trace how Auvora baseline predictions compare against user-reported outcomes.
         </p>
       </div>
@@ -36,10 +36,10 @@ export function OutcomeTraceability({
               {formatDate(decisionCreatedDate)}
             </span>
           </div>
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
             Original Decision
           </h4>
-          <p className="text-[11px] text-zinc-400 leading-normal">
+          <p className="text-sm text-zinc-400 leading-normal">
             Business context, time horizon, and success criteria documented.
           </p>
         </div>
@@ -52,10 +52,10 @@ export function OutcomeTraceability({
               ORIGINAL AUVORA ANALYSIS
             </span>
           </div>
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
             Auvora Stress Test
           </h4>
-          <p className="text-[11px] text-zinc-400 leading-normal">
+          <p className="text-sm text-zinc-400 leading-normal">
             Assumptions, evidence gaps, risks, and blind spots surfaced.
           </p>
         </div>
@@ -68,10 +68,10 @@ export function OutcomeTraceability({
               USER REPORTED
             </span>
           </div>
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
             Real-World Outcome
           </h4>
-          <p className="text-[11px] text-zinc-300 leading-normal">
+          <p className="text-sm text-zinc-300 leading-normal">
             Outcome ({outcomeStatus}) and unexpected factors recorded by user.
           </p>
         </div>
@@ -84,10 +84,10 @@ export function OutcomeTraceability({
               REPLAY INFERENCE
             </span>
           </div>
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
             Decision Replay
           </h4>
-          <p className="text-[11px] text-zinc-300 leading-normal">
+          <p className="text-sm text-zinc-300 leading-normal">
             Prediction alignment and strategic lessons audited.
           </p>
         </div>

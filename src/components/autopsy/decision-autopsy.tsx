@@ -200,11 +200,11 @@ export function DecisionAutopsy({
           <div className="space-y-8">
             {/* Stale Warning Banner if outcome was edited */}
             {isStale && (
-              <ReplayStaleState onRunReplayClick={handleOpenConfirmDialog} isLoading={isLoading} />
+              <div className="animate-fade-in-up" style={{ animationDelay: '0ms' }}><ReplayStaleState onRunReplayClick={handleOpenConfirmDialog} isLoading={isLoading} /></div>
             )}
 
             {/* Header & Alignment Hero */}
-            <AutopsyHeader
+            <div className="animate-fade-in-up" style={{ animationDelay: '0ms' }}><AutopsyHeader
               decisionTitle={decisionTitle}
               alignmentScore={replay.alignment_score}
               outcomeStatus={outcome.outcome_status}
@@ -213,31 +213,31 @@ export function DecisionAutopsy({
               onRunReplayClick={handleOpenConfirmDialog}
               isLoading={isLoading}
               isStale={isStale}
-            />
+            /></div>
 
             {/* Overall Verdict */}
-            <AutopsyVerdict
+            <div className="animate-fade-in-up" style={{ animationDelay: '80ms' }}><AutopsyVerdict
               overallVerdict={replay.overall_verdict}
               keyTakeaway={replay.key_takeaway}
-            />
+            /></div>
 
             {/* Lifecycle & Traceability Timeline */}
-            <OutcomeTraceability
+            <div className="animate-fade-in-up" style={{ animationDelay: '120ms' }}><OutcomeTraceability
               decisionCreatedDate={decisionCreatedAt}
               outcomeRecordedDate={outcome.recorded_at || outcome.created_at}
               replayCreatedDate={replay.created_at}
               outcomeStatus={outcome.outcome_status}
-            />
+            /></div>
 
             {/* Where Auvora Was Right vs Where Reality Differed */}
-            <RightVsDiffered
+            <div className="animate-fade-in-up" style={{ animationDelay: '160ms' }}><RightVsDiffered
               assumptionResults={replay.assumption_results as Array<{ result: string }>}
               riskResults={replay.risk_results as Array<{ materialized: string }>}
               blindSpotResults={replay.blind_spot_results as Array<{ result: string }>}
-            />
+            /></div>
 
             {/* Assumption Audit */}
-            <AssumptionAudit
+            <div className="animate-fade-in-up" style={{ animationDelay: '200ms' }}><AssumptionAudit
               assumptionResults={
                 (replay.assumption_results as Array<{
                   original_statement: string;
@@ -245,10 +245,10 @@ export function DecisionAutopsy({
                   explanation: string;
                 }>) || []
               }
-            />
+            /></div>
 
             {/* Risk Audit */}
-            <RiskAudit
+            <div className="animate-fade-in-up" style={{ animationDelay: '240ms' }}><RiskAudit
               riskResults={
                 (replay.risk_results as Array<{
                   risk_title: string;
@@ -256,10 +256,10 @@ export function DecisionAutopsy({
                   explanation: string;
                 }>) || []
               }
-            />
+            /></div>
 
             {/* Blind Spot Audit */}
-            <BlindSpotAudit
+            <div className="animate-fade-in-up" style={{ animationDelay: '280ms' }}><BlindSpotAudit
               blindSpotResults={
                 (replay.blind_spot_results as Array<{
                   blind_spot_title: string;
@@ -267,16 +267,17 @@ export function DecisionAutopsy({
                   explanation: string;
                 }>) || []
               }
-            />
+            /></div>
 
             {/* Strategic Lessons & Take This Forward */}
-            <StrategicLessons lessonsLearned={(replay.lessons_learned as string[]) || []} />
+            <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><StrategicLessons lessonsLearned={(replay.lessons_learned as string[]) || []} /></div>
 
             {/* Real-World User Outcome */}
-            <AutopsyOutcome outcome={outcome} />
+            <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><AutopsyOutcome outcome={outcome} /></div>
           </div>
         )}
       </div>
     </section>
   );
 }
+

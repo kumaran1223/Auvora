@@ -45,7 +45,7 @@ export function CancelSubscriptionButton({ cancelAtPeriodEnd = false }: CancelSu
 
   if (cancelAtPeriodEnd) {
     return (
-      <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-300">
+      <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-300">
         Your subscription renewal is cancelled and will expire at the end of the current billing cycle.
       </div>
     );
@@ -56,16 +56,16 @@ export function CancelSubscriptionButton({ cancelAtPeriodEnd = false }: CancelSu
       <button
         onClick={handleCancel}
         disabled={loading}
-        className="rounded-lg border border-zinc-800 bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-zinc-400 transition hover:bg-zinc-800 hover:text-white disabled:opacity-50"
+        className="rounded-lg border border-zinc-800 bg-zinc-900 px-3.5 py-1.5 text-sm font-medium text-zinc-400 transition hover:bg-zinc-800 hover:text-white disabled:opacity-50"
       >
         {loading ? "Cancelling..." : "Cancel Subscription Renewal"}
       </button>
 
       {error && (
-        <div className="text-[11px] text-red-400">{error}</div>
+        <div className="text-xs text-red-400">{error}</div>
       )}
       {message && (
-        <div className="text-[11px] text-emerald-400">{message}</div>
+        <div className="text-xs text-emerald-400">{message}</div>
       )}
     </div>
   );

@@ -17,6 +17,13 @@ export type SubscriptionStatus =
   | "completed"
   | "expired";
 
+export interface OnboardingData {
+  goals: string[];
+  priorities: string[];
+  discovery_source: string;
+  upgrade_interest: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -25,6 +32,8 @@ export interface UserProfile {
   industry: string | null;
   company_size: string | null;
   plan: string;
+  onboarding_data?: OnboardingData | null;
+  onboarding_completed: boolean;
   created_at: string;
 }
 

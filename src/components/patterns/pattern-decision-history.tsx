@@ -37,7 +37,7 @@ export function PatternDecisionHistory({ decisions }: PatternDecisionHistoryProp
     <div className="space-y-4 pt-6 border-t border-zinc-800">
       <div className="space-y-1">
         <h3 className="text-base font-semibold text-white">Decisions included</h3>
-        <p className="text-xs text-zinc-400">
+        <p className="text-base text-zinc-400">
           The eligible completed decisions and recorded outcomes included in this analysis scope.
         </p>
       </div>
@@ -69,11 +69,11 @@ export function PatternDecisionHistory({ decisions }: PatternDecisionHistoryProp
           return (
             <div
               key={ev.decision.id}
-              className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 space-y-3 flex flex-col justify-between transition hover:border-zinc-700"
+              className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-3 flex flex-col justify-between transition hover:border-zinc-700"
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-mono text-zinc-400">{createdDate}</span>
+                  <span className="text-sm font-mono text-zinc-400">{createdDate}</span>
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${outcomeInfo.style}`}
@@ -93,7 +93,7 @@ export function PatternDecisionHistory({ decisions }: PatternDecisionHistoryProp
                 </h4>
               </div>
 
-              <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-xs">
+              <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-sm">
                 <span className="text-zinc-400 truncate max-w-[200px]">
                   {ev.decision.industry || "General"}
                 </span>

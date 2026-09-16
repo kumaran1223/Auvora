@@ -44,7 +44,7 @@ export function ReplayAgainDialog({
           <h3 id="replay-dialog-title" className="text-lg font-bold text-white">
             Run Decision Replay again?
           </h3>
-          <p className="text-sm text-zinc-300 leading-relaxed">
+          <p className="text-base text-zinc-300 leading-relaxed">
             Your latest outcome will be compared with the original Auvora stress test again. This
             will use <strong className="text-white font-semibold">one decision analysis</strong> from
             your current plan.

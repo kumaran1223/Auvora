@@ -37,7 +37,7 @@ export function FinalStressTest({ report }: FinalStressTestProps) {
         <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
           Final Stress Test Conclusion
         </h2>
-        <p className="text-xs text-zinc-400">
+        <p className="text-base text-zinc-400">
           Synthesis of overall strategic risk, decision viability, and immediate commitment criteria.
         </p>
       </div>
@@ -46,20 +46,20 @@ export function FinalStressTest({ report }: FinalStressTestProps) {
         {/* Recommendation Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-4">
           <div className="space-y-1">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
               Strategic Recommendation
             </span>
             <div className="flex items-center space-x-3">
               <span className={`rounded-md border px-3 py-1 text-sm font-bold uppercase tracking-wider ${rec.style}`}>
                 {rec.label}
               </span>
-              <span className="text-xs text-zinc-400">
+              <span className="text-sm text-zinc-400">
                 Decision Strength: <strong className="text-white capitalize">{final_stress_test.decision_strength}</strong>
               </span>
             </div>
           </div>
 
-          <div className="text-right text-xs text-zinc-400">
+          <div className="text-right text-sm text-zinc-400">
             <span>Analysis Confidence: </span>
             <strong className="text-white text-base">{final_stress_test.confidence}%</strong>
           </div>
@@ -82,7 +82,7 @@ export function FinalStressTest({ report }: FinalStressTestProps) {
               <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400">
                 Top 3 Actions Before Commitment
               </h3>
-              <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-200">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-zinc-200">
                 {final_stress_test.top_3_actions_before_commitment.map((act, i) => (
                   <li key={i} className="font-medium">
                     {act}
@@ -93,7 +93,7 @@ export function FinalStressTest({ report }: FinalStressTestProps) {
           )}
 
         {/* Key Highlights Grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-4 border-t border-zinc-800 text-xs">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-4 border-t border-zinc-800 text-sm">
           <div className="space-y-1">
             <span className="font-semibold text-amber-400">Biggest Assumption:</span>
             <p className="text-zinc-300">{final_stress_test.biggest_assumption}</p>

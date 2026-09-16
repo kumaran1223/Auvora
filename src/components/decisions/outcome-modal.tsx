@@ -102,13 +102,13 @@ export function OutcomeModal({
           <h3 className="text-xl font-bold text-white">
             {existingOutcome ? "Update Decision Outcome" : "Record Decision Outcome"}
           </h3>
-          <p className="text-xs text-zinc-400">
+          <p className="text-sm text-zinc-400">
             Document what actually happened after you made this decision to build your decision history.
           </p>
         </div>
 
         {error && (
-          <div className="rounded-md border border-red-900/50 bg-red-950/40 p-3 text-xs text-red-400">
+          <div className="rounded-md border border-red-900/50 bg-red-950/40 p-3 text-sm text-red-400">
             {error}
           </div>
         )}
@@ -116,7 +116,7 @@ export function OutcomeModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Outcome Status Selector */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-zinc-300">
+            <label className="block text-sm font-semibold text-zinc-300">
               Outcome Status <span className="text-rose-400">*</span>
             </label>
             <select
@@ -141,7 +141,7 @@ export function OutcomeModal({
 
           {/* What Actually Happened */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-zinc-300">
+            <label className="block text-sm font-semibold text-zinc-300">
               What actually happened? <span className="text-rose-400">*</span>
             </label>
             <textarea
@@ -150,14 +150,14 @@ export function OutcomeModal({
               onChange={(e) => setWhatHappened(e.target.value)}
               placeholder="Describe what actually happened after you made this decision..."
               maxLength={5000}
-              className="w-full rounded-md border border-zinc-700 bg-zinc-950 p-3 text-xs text-zinc-200 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+              className="w-full rounded-md border border-zinc-700 bg-zinc-950 p-3 text-sm text-zinc-200 placeholder-zinc-500 transition-colors duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
               required
             />
           </div>
 
           {/* What Surprised You */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-zinc-300">
+            <label className="block text-sm font-semibold text-zinc-300">
               What surprised you? <span className="text-zinc-500 font-normal">(Optional)</span>
             </label>
             <textarea
@@ -166,7 +166,7 @@ export function OutcomeModal({
               onChange={(e) => setWhatSurprisedYou(e.target.value)}
               placeholder="What happened differently from what you expected?"
               maxLength={5000}
-              className="w-full rounded-md border border-zinc-700 bg-zinc-950 p-3 text-xs text-zinc-200 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+              className="w-full rounded-md border border-zinc-700 bg-zinc-950 p-3 text-sm text-zinc-200 placeholder-zinc-500 transition-colors duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
             />
           </div>
 
@@ -176,14 +176,14 @@ export function OutcomeModal({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="rounded-md border border-zinc-700 bg-zinc-800 px-4 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
+              className="rounded-md border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:opacity-50"
             >
               {loading ? (
                 <span className="flex items-center space-x-2">

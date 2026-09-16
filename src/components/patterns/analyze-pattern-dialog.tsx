@@ -44,7 +44,7 @@ export function AnalyzePatternDialog({
           <h3 id="dialog-title" className="text-lg font-bold text-white">
             Analyze your decision history again?
           </h3>
-          <p className="text-sm text-zinc-300 leading-relaxed">
+          <p className="text-base text-zinc-300 leading-relaxed">
             Re-running the analysis will look across your latest decision history and use{" "}
             <strong className="text-white font-semibold">one decision analysis</strong> from your
             current plan.

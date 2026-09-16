@@ -24,8 +24,8 @@ export function AssumptionRiskMap({ report }: AssumptionRiskMapProps) {
   return (
     <section id="assumptions" className="scroll-mt-24 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">Assumption Risk Map</h2>
-        <p className="text-xs text-zinc-400">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Assumption Risk Map</h2>
+        <p className="text-base text-zinc-400">
           Every major decision depends on assumptions. Auvora identifies which ones could change the outcome.
         </p>
       </div>
@@ -54,7 +54,7 @@ export function AssumptionRiskMap({ report }: AssumptionRiskMapProps) {
                   {classInfo.label}
                 </span>
 
-                <div className="flex items-center space-x-2 text-[11px]">
+                <div className="flex items-center space-x-2 text-sm">
                   <span className="text-zinc-400">Confidence: <strong className="text-white">{item.confidence}%</strong></span>
                   <span className={`rounded border px-2 py-0.5 uppercase tracking-wide text-[10px] ${impactStyles[item.impact] || ""}`}>
                     {item.impact}
@@ -68,13 +68,13 @@ export function AssumptionRiskMap({ report }: AssumptionRiskMapProps) {
               </h3>
 
               {/* Why it matters */}
-              <div className="space-y-1 text-xs">
+              <div className="space-y-1 text-sm">
                 <span className="font-semibold text-zinc-400">Why it matters:</span>
                 <p className="text-zinc-300">{item.why_it_matters}</p>
               </div>
 
               {/* Verification Action */}
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-xs space-y-1">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-sm space-y-1">
                 <span className="font-semibold text-amber-400">Verify before committing:</span>
                 <p className="text-zinc-300">{item.verification_action}</p>
               </div>

@@ -47,7 +47,7 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
 
       {/* Decision Title */}
       <div className="space-y-1.5">
-        <label htmlFor="title" className="block text-xs font-semibold text-zinc-200">
+        <label htmlFor="title" className="block text-sm font-semibold text-zinc-200">
           Decision title <span className="text-red-400">*</span>
         </label>
         <input
@@ -62,7 +62,7 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
 
       {/* Description */}
       <div className="space-y-1.5">
-        <label htmlFor="description" className="block text-xs font-semibold text-zinc-200">
+        <label htmlFor="description" className="block text-sm font-semibold text-zinc-200">
           Description / What you are considering <span className="text-red-400">*</span>
         </label>
         <textarea
@@ -78,7 +78,7 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Industry */}
         <div className="space-y-1.5">
-          <label htmlFor="industry" className="block text-xs font-medium text-zinc-300">
+          <label htmlFor="industry" className="block text-sm font-medium text-zinc-300">
             Industry
           </label>
           <select
@@ -103,7 +103,7 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
 
         {/* Company Size */}
         <div className="space-y-1.5">
-          <label htmlFor="company_size" className="block text-xs font-medium text-zinc-300">
+          <label htmlFor="company_size" className="block text-sm font-medium text-zinc-300">
             Company size
           </label>
           <select
@@ -125,7 +125,7 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Estimated Budget */}
         <div className="space-y-1.5">
-          <label htmlFor="budget" className="block text-xs font-medium text-zinc-300">
+          <label htmlFor="budget" className="block text-sm font-medium text-zinc-300">
             Estimated budget
           </label>
           <input
@@ -140,7 +140,7 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
 
         {/* Time Horizon */}
         <div className="space-y-1.5">
-          <label htmlFor="timeline" className="block text-xs font-medium text-zinc-300">
+          <label htmlFor="timeline" className="block text-sm font-medium text-zinc-300">
             Time horizon
           </label>
           <select
@@ -161,7 +161,7 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
 
       {/* Success Definition */}
       <div className="space-y-1.5">
-        <label htmlFor="success_definition" className="block text-xs font-medium text-zinc-300">
+        <label htmlFor="success_definition" className="block text-sm font-medium text-zinc-300">
           What would make this decision successful?
         </label>
         <textarea
@@ -176,14 +176,14 @@ export function EditDecisionForm({ decision }: EditDecisionFormProps) {
       <div className="pt-4 flex items-center justify-end space-x-3">
         <Link
           href={`/decisions/${decision.id}`}
-          className="rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+          className="rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-300 transition-all duration-200 hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
+          className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-950 transition transition-all duration-200 hover:bg-zinc-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none motion-reduce:transform-none"
         >
           {loading ? "Updating..." : "Save changes"}
         </button>

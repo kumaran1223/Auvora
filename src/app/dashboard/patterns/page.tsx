@@ -26,7 +26,7 @@ export default async function DecisionPatternsPage() {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 md:p-12">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-7xl">
         <PatternsClient initialHistory={historyResult} initialReport={latestReport} />
       </div>
     </main>

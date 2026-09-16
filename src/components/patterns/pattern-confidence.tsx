@@ -39,7 +39,7 @@ export function PatternConfidence({ confidence }: PatternConfidenceProps) {
         <span className="h-1.5 w-1.5 rounded-full fill-current" />
         {config.label}
       </span>
-      <span className="ml-2 text-xs text-zinc-400 font-normal hidden sm:inline-block">
+      <span className="ml-2 text-sm text-zinc-400 font-normal hidden sm:inline-block">
         — {config.explanation}
       </span>
     </div>

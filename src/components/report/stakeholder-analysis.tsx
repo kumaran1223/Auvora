@@ -16,8 +16,8 @@ export function StakeholderAnalysis({ report }: StakeholderAnalysisProps) {
   return (
     <section id="stakeholders" className="scroll-mt-24 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">Who This Decision Affects</h2>
-        <p className="text-xs text-zinc-400">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Who This Decision Affects</h2>
+        <p className="text-base text-zinc-400">
           Key internal and external stakeholder groups, their concerns, and recommended mitigations.
         </p>
       </div>
@@ -30,15 +30,15 @@ export function StakeholderAnalysis({ report }: StakeholderAnalysisProps) {
           >
             <div className="flex items-center justify-between gap-2">
               <div>
-                <h3 className="text-sm font-semibold text-white">{sh.name}</h3>
-                <span className="text-[11px] font-mono text-zinc-400">{sh.role}</span>
+                <h3 className="text-base font-semibold text-white">{sh.name}</h3>
+                <span className="text-sm font-mono text-zinc-400">{sh.role}</span>
               </div>
               <span className={`rounded border px-2 py-0.5 text-[10px] uppercase tracking-wider ${influenceStyles[sh.influence] || ""}`}>
                 {sh.influence} Influence
               </span>
             </div>
 
-            <div className="space-y-2 text-xs pt-1 border-t border-zinc-850">
+            <div className="space-y-2 text-sm pt-1 border-t border-zinc-850">
               <div>
                 <span className="font-semibold text-zinc-400">Likely Reaction:</span>
                 <p className="text-zinc-300">{sh.likely_reaction}</p>

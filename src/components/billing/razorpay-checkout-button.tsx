@@ -144,7 +144,7 @@ export function RazorpayCheckoutButton({
     return (
       <button
         disabled
-        className="w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2.5 text-xs font-semibold text-zinc-400 cursor-default text-center"
+        className="w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2.5 text-sm font-semibold text-zinc-400 cursor-default text-center"
       >
         Active Plan
       </button>
@@ -156,7 +156,7 @@ export function RazorpayCheckoutButton({
       <button
         onClick={handleCheckout}
         disabled={loading}
-        className="w-full rounded-lg bg-white py-2.5 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 text-center disabled:opacity-50"
+        className="w-full rounded-lg bg-white py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 text-center disabled:opacity-50"
       >
         {loading ? (
           <span className="flex items-center justify-center space-x-2">
@@ -172,13 +172,13 @@ export function RazorpayCheckoutButton({
       </button>
 
       {error && (
-        <div className="rounded border border-red-900/50 bg-red-950/40 p-2 text-[11px] text-red-400 text-center">
+        <div className="rounded border border-red-900/50 bg-red-950/40 p-2 text-xs text-red-400 text-center">
           {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="rounded border border-emerald-900/50 bg-emerald-950/40 p-2 text-[11px] text-emerald-400 text-center">
+        <div className="rounded border border-emerald-900/50 bg-emerald-950/40 p-2 text-xs text-emerald-400 text-center">
           {successMsg}
         </div>
       )}

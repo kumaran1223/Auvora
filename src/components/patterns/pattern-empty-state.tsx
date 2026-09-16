@@ -20,7 +20,7 @@ export function PatternEmptyState({
 
         <div className="space-y-2">
           <h3 className="text-xl font-bold text-white">Not enough decision history yet.</h3>
-          <p className="text-sm text-zinc-400 leading-relaxed">
+          <p className="text-base text-zinc-400 leading-relaxed">
             Complete at least 3 decisions and record their real-world outcomes. Auvora will then
             look for recurring patterns across them.
           </p>
@@ -47,7 +47,7 @@ export function PatternEmptyState({
 
         <div className="space-y-2">
           <h3 className="text-xl font-bold text-white">Your decision history is ready.</h3>
-          <p className="text-sm text-zinc-400 leading-relaxed">
+          <p className="text-base text-zinc-400 leading-relaxed">
             You have <strong className="text-white font-semibold">{eligibleCount}</strong> completed
             decisions with recorded outcomes. Analyze them to see whether recurring patterns emerge.
           </p>
@@ -61,7 +61,7 @@ export function PatternEmptyState({
           >
             Analyze My Decisions
           </button>
-          <p className="text-xs text-zinc-400">
+          <p className="text-base text-zinc-400">
             This uses one decision analysis from your current plan.
           </p>
         </div>
@@ -78,13 +78,13 @@ export function PatternEmptyState({
 
       <div className="space-y-2">
         <h3 className="text-lg font-semibold text-white">No recurring patterns emerged yet.</h3>
-        <p className="text-sm text-zinc-400 leading-relaxed">
+        <p className="text-base text-zinc-400 leading-relaxed">
           Auvora did not find enough consistent evidence across your current decision history to
           identify a reliable recurring pattern.
         </p>
       </div>
 
-      <p className="text-xs text-zinc-400 max-w-md mx-auto pt-2">
+      <p className="text-sm text-zinc-400 max-w-md mx-auto pt-2">
         As you record more decision outcomes over time, recurring patterns will surface here automatically.
       </p>
     </div>

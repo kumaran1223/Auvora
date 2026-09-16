@@ -130,7 +130,7 @@ export function PatternsClient({ initialHistory, initialReport }: PatternsClient
                   ? "Monthly analysis limit reached"
                   : "Analysis could not be completed"}
               </h4>
-              <p className="text-xs text-rose-300 leading-relaxed">{errorInfo.message}</p>
+              <p className="text-sm text-rose-300 leading-relaxed">{errorInfo.message}</p>
             </div>
           </div>
 
@@ -138,7 +138,7 @@ export function PatternsClient({ initialHistory, initialReport }: PatternsClient
             <div className="pt-2">
               <Link
                 href="/pricing"
-                className="inline-flex items-center justify-center rounded-md bg-rose-500 px-4 py-1.5 text-xs font-semibold text-zinc-950 transition hover:bg-rose-400"
+                className="inline-flex items-center justify-center rounded-md bg-rose-500 px-4 py-1.5 text-sm font-semibold text-zinc-950 transition hover:bg-rose-400"
               >
                 View plans
               </Link>
@@ -187,7 +187,7 @@ export function PatternsClient({ initialHistory, initialReport }: PatternsClient
                   <h2 className="text-xl font-bold text-white tracking-tight">
                     Recurring Patterns
                   </h2>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-base text-zinc-400">
                     These patterns appeared across multiple decisions in your history. They describe
                     observed decision behavior, not personality traits.
                   </p>
@@ -208,8 +208,8 @@ export function PatternsClient({ initialHistory, initialReport }: PatternsClient
               <PatternDecisionHistory decisions={history.decisions} />
 
               {/* Trust & Provenance Disclaimer Note */}
-              <div className="rounded-lg border border-zinc-800/60 bg-zinc-950/40 p-4 text-center">
-                <p className="text-xs text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+              <div className="rounded-lg border border-zinc-800/60 bg-zinc-950/40 p-6 text-center">
+                <p className="text-sm text-zinc-400 max-w-2xl mx-auto leading-relaxed">
                   Patterns are based on the decision history and outcomes you provided. They are
                   observations of past decision processes, not predictions or psychological
                   assessments.

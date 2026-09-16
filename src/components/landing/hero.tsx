@@ -12,30 +12,30 @@ export function Hero({ isAuthenticated }: HeroProps) {
       <div className="mx-auto max-w-6xl px-4 md:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
           {/* Left Text Column */}
-          <div className="space-y-6 text-left lg:col-span-6">
-            <div className="inline-flex items-center space-x-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-400">
+          <div className="space-y-8 text-left lg:col-span-6">
+            <div className="inline-flex items-center space-x-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-sm font-semibold text-amber-400 animate-fade-in-up" style={{ animationDelay: '0ms' }}>
               <span>AI Decision-Intelligence for Business</span>
             </div>
 
-            <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl leading-tight">
+            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight animate-fade-in-up" style={{ animationDelay: '60ms' }}>
               Think it through. <br />
               <span className="text-zinc-400 font-normal">Before reality does.</span>
             </h1>
 
-            <p className="max-w-xl text-base text-zinc-300 md:text-lg leading-relaxed">
+            <p className="max-w-2xl text-lg text-zinc-300 md:text-xl leading-relaxed animate-fade-in-up" style={{ animationDelay: '120ms' }}>
               Auvora stress-tests important business decisions—exposing hidden assumptions, missing evidence, risks, and consequences before you commit capital.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 pt-4 animate-fade-in-up" style={{ animationDelay: '180ms' }}>
               <Link
                 href={ctaLink}
-                className="inline-flex items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+                className="inline-flex items-center justify-center rounded-md bg-white px-8 py-4 text-base font-bold text-zinc-950 transition-all duration-200 hover:bg-zinc-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
               >
                 Stress-test a decision
               </Link>
               <a
                 href="#how-it-works"
-                className="inline-flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 px-6 py-3 text-sm font-medium text-zinc-200 transition hover:bg-zinc-800"
+                className="inline-flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 px-8 py-4 text-base font-medium text-zinc-200 transition-all duration-200 hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
               >
                 See how it works
               </a>
@@ -44,7 +44,7 @@ export function Hero({ isAuthenticated }: HeroProps) {
 
           {/* Right Product Preview Mockup Column */}
           <div className="lg:col-span-6">
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 shadow-2xl space-y-4 text-xs relative">
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl space-y-6 relative animate-fade-in-up text-xs" style={{ animationDelay: '240ms' }}>
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">

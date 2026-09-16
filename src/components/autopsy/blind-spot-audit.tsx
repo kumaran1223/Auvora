@@ -34,7 +34,7 @@ export function BlindSpotAudit({ blindSpotResults }: BlindSpotAuditProps) {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-300">
           Blind Spot Audit
         </h3>
-        <p className="text-xs text-zinc-400">
+        <p className="text-base text-zinc-400">
           Did the blind spots Auvora identified appear in reality?
         </p>
       </div>
@@ -46,7 +46,7 @@ export function BlindSpotAudit({ blindSpotResults }: BlindSpotAuditProps) {
           return (
             <div key={idx} className="p-4 space-y-2">
               <div className="flex items-start justify-between gap-3">
-                <span className="text-xs font-semibold text-zinc-200 leading-snug">
+                <span className="text-sm font-semibold text-zinc-200 leading-snug">
                   {item.blind_spot_title}
                 </span>
                 <span
@@ -55,7 +55,7 @@ export function BlindSpotAudit({ blindSpotResults }: BlindSpotAuditProps) {
                   {badge.label}
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">{item.explanation}</p>
+              <p className="text-base text-zinc-400 leading-relaxed">{item.explanation}</p>
             </div>
           );
         })}

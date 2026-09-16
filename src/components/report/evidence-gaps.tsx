@@ -17,8 +17,8 @@ export function EvidenceGaps({ report }: EvidenceGapsProps) {
   return (
     <section id="evidence" className="scroll-mt-24 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">Evidence Gaps</h2>
-        <p className="text-xs text-zinc-400">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Evidence Gaps</h2>
+        <p className="text-base text-zinc-400">
           What Auvora thinks you should verify before committing.
         </p>
       </div>
@@ -30,7 +30,7 @@ export function EvidenceGaps({ report }: EvidenceGapsProps) {
             className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 space-y-3 transition hover:bg-zinc-900/80"
           >
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-base font-semibold text-white">
                 {gap.question}
               </h3>
               <span className={`rounded border px-2 py-0.5 text-[10px] uppercase tracking-wider ${impactStyles[gap.decision_impact] || ""}`}>
@@ -38,7 +38,7 @@ export function EvidenceGaps({ report }: EvidenceGapsProps) {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-xs pt-1">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm pt-1">
               <div className="space-y-1">
                 <span className="font-semibold text-zinc-400">Why it matters:</span>
                 <p className="text-zinc-300">{gap.why_it_matters}</p>

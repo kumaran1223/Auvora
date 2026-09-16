@@ -4,6 +4,7 @@ import { getDecisionById, updateDecision } from "@/lib/db/decisions";
 import { normalizeDecisionContext } from "@/lib/ai/types";
 import { runAuvoraAnalysis } from "@/lib/ai/engine";
 import { reserveAnalysisSlot, releaseAnalysisSlot } from "@/lib/entitlements";
+import { checkAiRateLimit } from "@/lib/security/rate-limit";
 
 export async function POST(
   _request: Request,
@@ -52,6 +53,19 @@ export async function POST(
       return NextResponse.json(
         { error: "Decision is currently being analyzed." },
         { status: 409 }
+      );
+    }
+
+    // 3.5. HTTP rate limit check (soft shield)
+    const rateLimit = checkAiRateLimit(user.id);
+    if (!rateLimit.allowed) {
+      console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: rate-limited)`);
+      return NextResponse.json(
+        { error: "Too many AI requests. Please try again shortly." },
+        { 
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter || 60) }
+        }
       );
     }
 

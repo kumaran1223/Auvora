@@ -46,21 +46,21 @@ export default async function PricingPage() {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 md:p-12">
-      <div className="mx-auto max-w-5xl space-y-12">
+      <div className="mx-auto max-w-7xl space-y-12">
         {/* Header Bar */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-6">
           <div className="space-y-1">
             <Link href="/" className="text-2xl font-bold tracking-tight text-white hover:opacity-90">
               Auvora
             </Link>
-            <p className="text-xs text-zinc-400">Think it through. Before reality does.</p>
+            <p className="text-sm text-zinc-400">Think it through. Before reality does.</p>
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="text-xs font-semibold text-zinc-300 hover:text-white"
+                  className="text-sm font-semibold text-zinc-300 hover:text-white"
                 >
                   ← Back to Dashboard
                 </Link>
@@ -70,13 +70,13 @@ export default async function PricingPage() {
               <>
                 <Link
                   href="/login"
-                  className="text-xs font-semibold text-zinc-300 hover:text-white"
+                  className="text-sm font-semibold text-zinc-300 hover:text-white"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/signup"
-                  className="rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-zinc-200"
+                  className="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200"
                 >
                   Get started
                 </Link>
@@ -86,7 +86,7 @@ export default async function PricingPage() {
         </header>
 
         {/* Hero Banner */}
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
+        <div className="text-center space-y-4 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0ms' }}>
           <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             Decision Intelligence Plans
           </h1>
@@ -96,12 +96,12 @@ export default async function PricingPage() {
         </div>
 
         {activeSubRecord && (
-          <div className="mx-auto max-w-xl rounded-xl border border-zinc-800 bg-zinc-900/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mx-auto max-w-xl rounded-xl border border-zinc-800 bg-zinc-900/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in-up" style={{ animationDelay: '60ms' }}>
             <div className="space-y-1 text-center sm:text-left">
               <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
                 Subscription Active (Razorpay Test Mode)
               </div>
-              <div className="text-xs text-zinc-300">
+              <div className="text-sm text-zinc-300">
                 You are currently subscribed to the <strong className="text-white capitalize">{activeSubRecord.plan}</strong> plan.
               </div>
             </div>
@@ -111,14 +111,15 @@ export default async function PricingPage() {
 
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {plansList.map((plan) => {
+          {plansList.map((plan, idx) => {
             const isCurrent = userPlan === plan.id;
             const isPopular = plan.id === "pro";
 
             return (
               <div
                 key={plan.id}
-                className={`relative flex flex-col justify-between rounded-2xl border p-6 space-y-6 transition ${
+                style={{ animationDelay: `${120 + idx * 60}ms` }}
+                className={`relative flex flex-col justify-between rounded-2xl border p-6 space-y-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none motion-reduce:transform-none animate-fade-in-up ${
                   isPopular
                     ? "border-zinc-500 bg-zinc-900/90 shadow-2xl ring-1 ring-zinc-500"
                     : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700"
@@ -144,20 +145,20 @@ export default async function PricingPage() {
                     <div className="flex items-baseline space-x-1">
                       <span className="text-3xl font-extrabold text-white">{plan.price}</span>
                     </div>
-                    <p className="text-xs text-zinc-400">{plan.description}</p>
+                    <p className="text-sm text-zinc-400">{plan.description}</p>
                   </div>
 
                   <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-3 text-center">
-                    <span className="text-xs font-semibold text-zinc-200">
+                    <span className="text-sm font-semibold text-zinc-200">
                       <strong className="text-white font-bold">{plan.monthlyLimit}</strong> analyses / month
                     </span>
                   </div>
 
                   <div className="space-y-2 pt-2">
-                    <div className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                    <div className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                       Included Capabilities:
                     </div>
-                    <ul className="space-y-2 text-xs text-zinc-400">
+                    <ul className="space-y-2 text-sm text-zinc-400">
                       {plan.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start space-x-2">
                           <svg
@@ -185,14 +186,14 @@ export default async function PricingPage() {
                     isCurrent ? (
                       <button
                         disabled
-                        className="w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2.5 text-xs font-semibold text-zinc-400 cursor-default text-center"
+                        className="w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2.5 text-sm font-semibold text-zinc-400 cursor-default text-center"
                       >
                         Active Plan
                       </button>
                     ) : (
                       <Link
                         href={user ? "/dashboard" : "/signup"}
-                        className="block w-full rounded-lg border border-zinc-700 bg-zinc-800 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-700 text-center"
+                        className="block w-full rounded-lg border border-zinc-700 bg-zinc-800 py-2.5 text-sm font-semibold text-zinc-200 transition-all duration-200 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none text-center"
                       >
                         Default Tier
                       </Link>
@@ -206,7 +207,7 @@ export default async function PricingPage() {
                   ) : (
                     <Link
                       href="/signup"
-                      className="block w-full rounded-lg bg-white py-2.5 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 text-center"
+                      className="block w-full rounded-lg bg-white py-2.5 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none text-center"
                     >
                       Get Started with {plan.name}
                     </Link>
@@ -221,7 +222,7 @@ export default async function PricingPage() {
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8 space-y-6">
           <h2 className="text-lg font-bold text-white">How Auvora Subscriptions & Quotas Work</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-zinc-400">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-zinc-400">
             <div className="space-y-2">
               <h3 className="font-semibold text-zinc-200">What counts as an analysis?</h3>
               <p className="leading-relaxed">

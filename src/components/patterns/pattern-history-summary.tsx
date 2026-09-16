@@ -10,7 +10,7 @@ export function PatternHistorySummary({
   const isEligible = eligibleCount >= 3;
 
   return (
-    <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-6 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
@@ -27,7 +27,7 @@ export function PatternHistorySummary({
           </span>
         </div>
 
-        <p className="text-sm text-zinc-300">
+        <p className="text-base text-zinc-300">
           {isEligible ? (
             analyzedCount != null ? (
               <>
@@ -45,7 +45,7 @@ export function PatternHistorySummary({
       </div>
 
       {!isEligible && (
-        <div className="text-xs font-mono text-zinc-400 bg-zinc-950 px-3 py-1.5 rounded-md border border-zinc-800 shrink-0">
+        <div className="text-sm font-mono text-zinc-400 bg-zinc-950 px-3 py-1.5 rounded-md border border-zinc-800 shrink-0">
           {3 - eligibleCount} more required
         </div>
       )}

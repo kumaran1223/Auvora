@@ -51,13 +51,13 @@ export function DeleteModal({ decisionId, decisionTitle }: DeleteModalProps) {
               <p className="text-sm text-zinc-300 font-medium">
                 &ldquo;{decisionTitle}&rdquo;
               </p>
-              <p className="text-xs text-zinc-400">
+              <p className="text-sm text-zinc-400">
                 All associated reports, scenarios, and outcomes will also be permanently deleted. This action cannot be undone.
               </p>
             </div>
 
             {error && (
-              <div className="rounded border border-red-900/50 bg-red-950/40 p-2 text-xs text-red-400">
+              <div className="rounded border border-red-900/50 bg-red-950/40 p-2 text-sm text-red-400">
                 {error}
               </div>
             )}
@@ -67,7 +67,7 @@ export function DeleteModal({ decisionId, decisionTitle }: DeleteModalProps) {
                 type="button"
                 onClick={() => setIsOpen(false)}
                 disabled={loading}
-                className="rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
+                className="rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-sm font-medium text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
               >
                 Cancel
               </button>

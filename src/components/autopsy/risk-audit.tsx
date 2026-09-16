@@ -38,7 +38,7 @@ export function RiskAudit({ riskResults }: RiskAuditProps) {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-300">
           Risk Audit
         </h3>
-        <p className="text-xs text-zinc-400">
+        <p className="text-base text-zinc-400">
           Which risks materialized in reality?
         </p>
       </div>
@@ -50,7 +50,7 @@ export function RiskAudit({ riskResults }: RiskAuditProps) {
           return (
             <div key={idx} className="p-4 space-y-2">
               <div className="flex items-start justify-between gap-3">
-                <span className="text-xs font-semibold text-zinc-200 leading-snug">
+                <span className="text-sm font-semibold text-zinc-200 leading-snug">
                   {item.risk_title}
                 </span>
                 <span
@@ -59,7 +59,7 @@ export function RiskAudit({ riskResults }: RiskAuditProps) {
                   {badge.label}
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">{item.explanation}</p>
+              <p className="text-base text-zinc-400 leading-relaxed">{item.explanation}</p>
             </div>
           );
         })}

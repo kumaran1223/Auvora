@@ -42,7 +42,7 @@ export function LimitModal({
           </p>
         </div>
 
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 space-y-2 text-xs text-zinc-300">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 space-y-2 text-sm text-zinc-300">
           <div className="font-semibold text-white">Upgrade to Pro ($19/mo) to unlock:</div>
           <ul className="space-y-1 text-zinc-400 list-disc list-inside">
             <li>30 AI stress-test analyses per month</li>

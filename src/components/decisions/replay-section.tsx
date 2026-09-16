@@ -127,7 +127,7 @@ export function ReplaySection({
             <button
               onClick={handleGenerateReplay}
               disabled={loading}
-              className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none motion-reduce:transform-none"
             >
               {loading ? (
                 <span className="flex items-center space-x-2">
@@ -147,7 +147,7 @@ export function ReplaySection({
         </div>
 
         {error && (
-          <div className="rounded-md border border-red-900/50 bg-red-950/40 p-3 text-xs text-red-400">
+          <div className="rounded-md border border-red-900/50 bg-red-950/40 p-3 text-sm text-red-400">
             {error}
           </div>
         )}
@@ -162,7 +162,7 @@ export function ReplaySection({
             </div>
             <div className="space-y-1 max-w-md">
               <h3 className="text-sm font-bold text-white">Record a real-world outcome first</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-sm text-zinc-400 leading-relaxed">
                 Record a real-world outcome before generating a Decision Replay. Once documented, Auvora will audit predictions against reality.
               </p>
             </div>
@@ -172,14 +172,14 @@ export function ReplaySection({
           <div className="flex flex-col items-center justify-center py-6 text-center space-y-4">
             <div className="space-y-1 max-w-md">
               <h3 className="text-base font-bold text-white">Compare predictions against reality</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-sm text-zinc-400 leading-relaxed">
                 Compare Auvora&apos;s original stress test against what actually happened to identify validated assumptions, materialized risks, and key strategic lessons.
               </p>
             </div>
             <button
               onClick={handleGenerateReplay}
               disabled={loading}
-              className="rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:opacity-50"
+              className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none motion-reduce:transform-none"
             >
               {loading ? "Generating Decision Replay..." : "Generate Decision Replay"}
             </button>
@@ -191,29 +191,29 @@ export function ReplaySection({
             <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                     Prediction Alignment
                   </span>
-                  <p className="text-[11px] text-zinc-500 font-normal">
+                  <p className="text-sm text-zinc-500 font-normal">
                     Prediction Alignment — Not a measure of business success
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-2xl font-bold text-white">{replay.alignment_score}</span>
-                  <span className="text-xs text-zinc-400">/ 100</span>
+                  <span className="text-sm text-zinc-400">/ 100</span>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <div className="text-sm font-semibold text-zinc-200">{replay.overall_verdict}</div>
-                <p className="text-xs text-zinc-400 leading-relaxed">{replay.key_takeaway}</p>
+                <p className="text-sm text-zinc-400 leading-relaxed">{replay.key_takeaway}</p>
               </div>
             </div>
 
             {/* Assumption Audit */}
             {replay.assumption_results && replay.assumption_results.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-zinc-300 uppercase tracking-wider">
                   Assumption Audit
                 </h3>
                 <div className="divide-y divide-zinc-800/60 rounded-xl border border-zinc-800 bg-zinc-950/60">
@@ -223,14 +223,14 @@ export function ReplaySection({
                     return (
                       <div key={idx} className="p-4 space-y-2">
                         <div className="flex items-start justify-between gap-3">
-                          <span className="text-xs font-medium text-zinc-200">
+                          <span className="text-sm font-medium text-zinc-200">
                             &quot;{item.original_statement}&quot;
                           </span>
                           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${badge.classNames}`}>
                             {badge.label}
                           </span>
                         </div>
-                        <p className="text-xs text-zinc-400 leading-relaxed">{item.explanation}</p>
+                        <p className="text-sm text-zinc-400 leading-relaxed">{item.explanation}</p>
                       </div>
                     );
                   })}
@@ -241,7 +241,7 @@ export function ReplaySection({
             {/* Risk Audit */}
             {replay.risk_results && replay.risk_results.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-zinc-300 uppercase tracking-wider">
                   Risk Audit
                 </h3>
                 <div className="divide-y divide-zinc-800/60 rounded-xl border border-zinc-800 bg-zinc-950/60">
@@ -251,14 +251,14 @@ export function ReplaySection({
                     return (
                       <div key={idx} className="p-4 space-y-2">
                         <div className="flex items-start justify-between gap-3">
-                          <span className="text-xs font-medium text-zinc-200">
+                          <span className="text-sm font-medium text-zinc-200">
                             {item.risk_title}
                           </span>
                           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${badge.classNames}`}>
                             {badge.label}
                           </span>
                         </div>
-                        <p className="text-xs text-zinc-400 leading-relaxed">{item.explanation}</p>
+                        <p className="text-sm text-zinc-400 leading-relaxed">{item.explanation}</p>
                       </div>
                     );
                   })}
@@ -269,7 +269,7 @@ export function ReplaySection({
             {/* Blind Spot Audit */}
             {replay.blind_spot_results && replay.blind_spot_results.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-zinc-300 uppercase tracking-wider">
                   Blind Spot Audit
                 </h3>
                 <div className="divide-y divide-zinc-800/60 rounded-xl border border-zinc-800 bg-zinc-950/60">
@@ -279,14 +279,14 @@ export function ReplaySection({
                     return (
                       <div key={idx} className="p-4 space-y-2">
                         <div className="flex items-start justify-between gap-3">
-                          <span className="text-xs font-medium text-zinc-200">
+                          <span className="text-sm font-medium text-zinc-200">
                             {item.blind_spot_title}
                           </span>
                           <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${badge.classNames}`}>
                             {badge.label}
                           </span>
                         </div>
-                        <p className="text-xs text-zinc-400 leading-relaxed">{item.explanation}</p>
+                        <p className="text-sm text-zinc-400 leading-relaxed">{item.explanation}</p>
                       </div>
                     );
                   })}
@@ -297,11 +297,11 @@ export function ReplaySection({
             {/* Strategic Lessons Learned */}
             {replay.lessons_learned && replay.lessons_learned.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-zinc-300 uppercase tracking-wider">
                   Strategic Lessons Learned
                 </h3>
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 space-y-2">
-                  <ul className="list-disc list-inside text-xs text-zinc-300 space-y-2 leading-relaxed">
+                  <ul className="list-disc list-inside text-sm text-zinc-300 space-y-2 leading-relaxed">
                     {replay.lessons_learned.map((lesson, idx) => (
                       <li key={idx}>{lesson}</li>
                     ))}
@@ -312,7 +312,7 @@ export function ReplaySection({
 
             {/* Outcome Traceability Footer */}
             {formattedRecordedDate && (
-              <div className="pt-2 text-[11px] text-zinc-500 border-t border-zinc-800/60 font-mono">
+              <div className="pt-2 text-sm text-zinc-500 border-t border-zinc-800/60 font-mono">
                 Replay based on outcome recorded on <strong className="text-zinc-400">{formattedRecordedDate}</strong>.
               </div>
             )}

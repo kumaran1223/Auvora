@@ -67,14 +67,14 @@ export function StressTestButton({ decisionId, decisionStatus }: StressTestButto
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h2 className="text-sm font-semibold text-white">AI Stress-Test Engine</h2>
-          <p className="text-xs text-zinc-400">
+          <p className="text-sm text-zinc-400">
             Expose assumptions, blind spots, second-order consequences, and scenarios.
           </p>
         </div>
         <button
           onClick={handleStressTest}
           disabled={isAnalyzing}
-          className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
         >
           {isAnalyzing ? (
             <span className="flex items-center space-x-2">
@@ -91,7 +91,7 @@ export function StressTestButton({ decisionId, decisionStatus }: StressTestButto
       </div>
 
       {error && (
-        <div className="rounded-md border border-red-900/50 bg-red-950/40 p-3 text-xs text-red-400">
+        <div className="rounded-md border border-red-900/50 bg-red-950/40 p-3 text-sm text-red-400">
           {error}
         </div>
       )}

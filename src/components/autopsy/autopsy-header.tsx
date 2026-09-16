@@ -60,7 +60,7 @@ export function AutopsyHeader({
       {/* Top Header & Re-run Action */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-zinc-800 pb-6">
         <div className="space-y-1.5">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
+          <span className="text-sm font-bold uppercase tracking-wider text-blue-400">
             DECISION AUTOPSY
           </span>
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
@@ -77,7 +77,7 @@ export function AutopsyHeader({
             type="button"
             onClick={onRunReplayClick}
             disabled={isLoading}
-            className="inline-flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-200 transition hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
           >
             {isLoading ? "Analyzing..." : isStale ? "Refresh Replay" : "Run Replay Again"}
           </button>
@@ -85,7 +85,7 @@ export function AutopsyHeader({
       </div>
 
       {/* Decision Context Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-400 bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-800/80">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-400 bg-zinc-950/60 p-3.5 rounded-lg border border-zinc-800/80">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-white">{decisionTitle}</span>
           <span
@@ -95,7 +95,7 @@ export function AutopsyHeader({
           </span>
         </div>
 
-        <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-400">
+        <div className="flex items-center gap-3 font-mono text-sm text-zinc-400">
           {formattedDate && <span>Outcome Recorded: {formattedDate}</span>}
           {replayCreatedAt && (
             <span>
@@ -112,7 +112,7 @@ export function AutopsyHeader({
             <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-300">
               Prediction Alignment
             </h3>
-            <p className="text-xs text-zinc-400">
+            <p className="text-base text-zinc-400">
               How closely the reported outcome matched Auvora&apos;s original stress-test analysis.
             </p>
           </div>
@@ -125,7 +125,7 @@ export function AutopsyHeader({
           </div>
         </div>
 
-        <p className="text-xs text-zinc-400 leading-relaxed italic">
+        <p className="text-sm text-zinc-400 leading-relaxed italic">
           Prediction alignment measures how closely the reported outcome matched Auvora&apos;s
           original analysis. It does not measure whether the decision was successful.
         </p>

@@ -14,14 +14,14 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between p-4 md:px-8">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between p-6 md:px-8">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-xl font-extrabold tracking-tight text-white">Auvora</span>
         </Link>
 
         {/* Desktop Nav Links */}
-        <div className="hidden md:flex items-center space-x-8 text-xs font-medium text-zinc-400">
+        <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-zinc-400">
           <a href="#how-it-works" className="transition hover:text-white">
             How it works
           </a>
@@ -38,14 +38,14 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
           {isAuthenticated ? (
             <Link
               href="/dashboard"
-              className="text-xs font-medium text-zinc-300 transition hover:text-white"
+              className="text-sm font-medium text-zinc-300 transition hover:text-white"
             >
               Dashboard
             </Link>
           ) : (
             <Link
               href="/login"
-              className="text-xs font-medium text-zinc-300 transition hover:text-white"
+              className="text-sm font-medium text-zinc-300 transition hover:text-white"
             >
               Sign in
             </Link>
@@ -53,7 +53,7 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
 
           <Link
             href={ctaLink}
-            className="rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400"
           >
             Stress-test a decision
           </Link>
@@ -78,7 +78,7 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="border-b border-zinc-800 bg-zinc-950 p-4 space-y-3 text-xs font-medium md:hidden">
+        <div className="border-b border-zinc-800 bg-zinc-950 p-6 space-y-3 text-xs font-medium md:hidden">
           <a
             href="#how-it-works"
             onClick={() => setMobileMenuOpen(false)}

@@ -24,15 +24,15 @@ export function TrustSection() {
 
   return (
     <section id="trust" className="scroll-mt-20 border-t border-zinc-800/80 bg-zinc-950 py-16 md:py-24">
-      <div className="mx-auto max-w-6xl px-4 md:px-8 space-y-12">
+      <div className="mx-auto max-w-[1400px] px-4 md:px-8 space-y-12">
         <div className="max-w-2xl space-y-3">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
             Trust & Transparency
           </span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
             Built on Rigorous Categorization, Not Unchecked Hype
           </h2>
-          <p className="text-sm text-zinc-400 leading-relaxed">
+          <p className="text-base text-zinc-400 leading-relaxed">
             Generic AI generates plausible answers. Auvora separates hard evidence from hidden assumptions so you make decisions based on reality.
           </p>
         </div>
@@ -42,7 +42,7 @@ export function TrustSection() {
           {categories.map((cat, idx) => (
             <div
               key={idx}
-              className="flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4 transition hover:bg-zinc-900/80"
+              className="flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 space-y-4 transition hover:bg-zinc-900/80"
             >
               <div className="space-y-3">
                 <span
@@ -50,7 +50,7 @@ export function TrustSection() {
                 >
                   {cat.label}
                 </span>
-                <p className="text-xs text-zinc-300 leading-relaxed">{cat.description}</p>
+                <p className="text-sm text-zinc-300 leading-relaxed">{cat.description}</p>
               </div>
             </div>
           ))}
@@ -71,7 +71,7 @@ export function TrustSection() {
               Decision-Support Disclaimer & Principle
             </h3>
           </div>
-          <p className="text-xs text-zinc-300 leading-relaxed max-w-4xl">
+          <p className="text-sm text-zinc-300 leading-relaxed max-w-4xl">
             Auvora is an AI decision-intelligence and stress-testing platform designed to challenge business choices, expose blind spots, and map second-order consequences. It does not replace human judgment, legal counsel, financial auditing, or fiduciary responsibility. Auvora highlights risks and evidence gaps to empower founders, but the final choice and ultimate responsibility always remain yours.
           </p>
         </div>

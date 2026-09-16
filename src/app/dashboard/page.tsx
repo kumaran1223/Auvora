@@ -38,7 +38,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 md:p-12">
-      <div className="mx-auto max-w-5xl space-y-8">
+      <div className="mx-auto max-w-7xl space-y-8 animate-fade-in-up">
         {/* Top Navbar */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-6">
           <div className="space-y-1">
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="text-xs text-zinc-400 hidden sm:inline-block font-mono">
+            <span className="text-sm text-zinc-400 hidden sm:inline-block font-mono">
               {user.email}
             </span>
             <LogoutButton />
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-white">Decision Intelligence Dashboard</h2>
-            <p className="text-xs text-zinc-400">Stress-test choices, surface risks, and track outcomes.</p>
+            <p className="text-sm text-zinc-400">Stress-test choices, surface risks, and track outcomes.</p>
           </div>
           <div className="flex items-center gap-3">
             <Link
@@ -110,6 +110,25 @@ export default async function DashboardPage() {
         <div className="space-y-4 pt-4 border-t border-zinc-800/80">
           <h3 className="text-base font-semibold text-zinc-200">Decision History & Outcomes</h3>
           <DecisionHistory decisions={allDecisions} />
+        </div>
+
+        {/* Account Settings / Danger Zone */}
+        <div className="space-y-4 pt-8 border-t border-zinc-800/80">
+          <h3 className="text-base font-semibold text-red-500">Account & Data Settings</h3>
+          <div className="rounded-xl border border-red-900/30 bg-red-950/10 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1 max-w-2xl">
+              <h4 className="text-sm font-semibold text-zinc-200">Request Account & Data Deletion</h4>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                You can request the permanent deletion of your Auvora account and all associated decision data. Deletion requests are processed by our support team. Please note that this action is strictly irreversible.
+              </p>
+            </div>
+            <a
+              href={`mailto:support@auvora.com?subject=${encodeURIComponent("Auvora Account & Data Deletion Request")}&body=${encodeURIComponent(`Please delete my Auvora account and all associated data.\n\nAccount Email: ${user.email}\n`)}`}
+              className="inline-flex shrink-0 items-center justify-center rounded-md border border-red-900/50 bg-red-950/50 px-4 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-900/80 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+            >
+              Request Deletion
+            </a>
+          </div>
         </div>
       </div>
     </main>

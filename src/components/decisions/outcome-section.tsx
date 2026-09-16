@@ -70,7 +70,7 @@ export function OutcomeSection({ decisionId, outcome }: OutcomeSectionProps) {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200"
+            className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
           >
             {outcome ? "Edit Outcome" : "Record Outcome"}
           </button>
@@ -85,7 +85,7 @@ export function OutcomeSection({ decisionId, outcome }: OutcomeSectionProps) {
             )}
 
             <div className="space-y-2">
-              <h3 className="font-semibold text-zinc-200 uppercase tracking-wider text-[11px]">
+              <h3 className="font-semibold text-zinc-200 uppercase tracking-wider text-xs">
                 What Actually Happened
               </h3>
               <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-zinc-300 whitespace-pre-wrap leading-relaxed">
@@ -95,7 +95,7 @@ export function OutcomeSection({ decisionId, outcome }: OutcomeSectionProps) {
 
             {actualObj?.what_surprised_you && (
               <div className="space-y-2">
-                <h3 className="font-semibold text-zinc-200 uppercase tracking-wider text-[11px]">
+                <h3 className="font-semibold text-zinc-200 uppercase tracking-wider text-xs">
                   What Surprised You
                 </h3>
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-zinc-300 whitespace-pre-wrap leading-relaxed">
@@ -118,13 +118,13 @@ export function OutcomeSection({ decisionId, outcome }: OutcomeSectionProps) {
             </div>
             <div className="space-y-1 max-w-md">
               <h3 className="text-base font-bold text-white">No outcome recorded yet</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-sm text-zinc-400 leading-relaxed">
                 This decision has been analyzed by Auvora, but no real-world outcome has been recorded yet. Documenting what actually happened helps build your decision history.
               </p>
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="rounded-md bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200"
+              className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
             >
               Record Outcome Now
             </button>

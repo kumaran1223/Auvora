@@ -28,8 +28,8 @@ export function ScenarioAnalysis({ report }: ScenarioAnalysisProps) {
   return (
     <section id="scenarios" className="scroll-mt-24 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">Three Possible Paths</h2>
-        <p className="text-xs text-zinc-400">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Three Possible Paths</h2>
+        <p className="text-base text-zinc-400">
           Planning scenarios (Best, Most Likely, Worst). Note: Probabilities represent planning estimates, not guaranteed predictions.
         </p>
       </div>
@@ -52,15 +52,15 @@ export function ScenarioAnalysis({ report }: ScenarioAnalysisProps) {
                   <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cfg.badgeStyle}`}>
                     {cfg.label}
                   </span>
-                  <span className="text-xs font-semibold text-zinc-300">
+                  <span className="text-sm font-semibold text-zinc-300">
                     Prob: <strong className="text-white">{sc.probability}%</strong>
                   </span>
                 </div>
 
                 <h3 className="text-sm font-bold text-white leading-snug">{sc.title}</h3>
-                <p className="text-xs text-zinc-300 leading-relaxed">{sc.description}</p>
+                <p className="text-base text-zinc-300 leading-relaxed">{sc.description}</p>
 
-                <div className="space-y-2 pt-2 border-t border-zinc-800/80 text-xs">
+                <div className="space-y-2 pt-2 border-t border-zinc-800/80 text-sm">
                   <div>
                     <span className="font-semibold text-zinc-400">Impact:</span>
                     <p className="text-zinc-200">{sc.impact}</p>
@@ -90,7 +90,7 @@ export function ScenarioAnalysis({ report }: ScenarioAnalysisProps) {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-xs space-y-1">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-sm space-y-1">
                 <span className="font-semibold text-emerald-400">Planned Response:</span>
                 <p className="text-zinc-300">{sc.response}</p>
               </div>

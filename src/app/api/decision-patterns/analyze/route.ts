@@ -8,6 +8,7 @@ import {
 import { normalizePatternInput } from "@/lib/ai/types";
 import { runAuvoraPatternAnalysis } from "@/lib/ai/engine";
 import { reserveAnalysisSlot, releaseAnalysisSlot } from "@/lib/entitlements";
+import { checkAiRateLimit } from "@/lib/security/rate-limit";
 
 export async function POST() {
   let reservedSlot = false;
@@ -45,6 +46,18 @@ export async function POST() {
           minimumRequired: 3,
         },
         { status: 422 }
+      );
+    }
+
+    // 4.5. HTTP rate limit check (soft shield)
+    const rateLimit = checkAiRateLimit(user.id);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many AI requests. Please try again shortly." },
+        { 
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter || 60) }
+        }
       );
     }
 

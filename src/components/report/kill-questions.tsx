@@ -10,10 +10,10 @@ export function KillQuestions({ report }: KillQuestionsProps) {
   return (
     <section id="kill-questions" className="scroll-mt-24 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">
+        <h2 className="text-2xl font-bold tracking-tight text-white">
           Questions You Should Answer Before You Commit
         </h2>
-        <p className="text-xs text-zinc-400">
+        <p className="text-base text-zinc-400">
           Critical questions designed to challenge the decision and expose deal-breaker risks.
         </p>
       </div>

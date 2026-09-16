@@ -17,8 +17,8 @@ export function AlternativePaths({ report }: AlternativePathsProps) {
   return (
     <section id="alternatives" className="scroll-mt-24 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold tracking-tight text-white">Alternative Paths</h2>
-        <p className="text-xs text-zinc-400">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Alternative Paths</h2>
+        <p className="text-base text-zinc-400">
           Comparing the original decision against realistic alternative choices and delay/do-nothing options.
         </p>
       </div>
@@ -31,7 +31,7 @@ export function AlternativePaths({ report }: AlternativePathsProps) {
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                <span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">
                   Option #{idx + 1}
                 </span>
                 <span className={`rounded border px-2 py-0.5 text-[10px] uppercase tracking-wider ${riskStyles[alt.risk_level] || ""}`}>
@@ -40,9 +40,9 @@ export function AlternativePaths({ report }: AlternativePathsProps) {
               </div>
 
               <h3 className="text-sm font-bold text-white leading-snug">{alt.title}</h3>
-              <p className="text-xs text-zinc-300 leading-relaxed">{alt.description}</p>
+              <p className="text-base text-zinc-300 leading-relaxed">{alt.description}</p>
 
-              <div className="space-y-2 pt-2 border-t border-zinc-800/80 text-xs">
+              <div className="space-y-2 pt-2 border-t border-zinc-800/80 text-sm">
                 {alt.advantages && alt.advantages.length > 0 && (
                   <div>
                     <span className="font-semibold text-emerald-400">Advantages:</span>
@@ -67,7 +67,7 @@ export function AlternativePaths({ report }: AlternativePathsProps) {
               </div>
             </div>
 
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-xs space-y-1">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-sm space-y-1">
               <span className="font-semibold text-amber-400">When to choose this path:</span>
               <p className="text-zinc-300">{alt.when_to_choose}</p>
             </div>

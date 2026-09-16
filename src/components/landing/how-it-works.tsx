@@ -29,15 +29,15 @@ export function HowItWorks() {
 
   return (
     <section id="how-it-works" className="scroll-mt-20 border-t border-zinc-800/80 bg-zinc-950 py-16 md:py-24">
-      <div className="mx-auto max-w-6xl px-4 md:px-8 space-y-12">
+      <div className="mx-auto max-w-[1400px] px-4 md:px-8 space-y-12">
         <div className="max-w-2xl space-y-3">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
             Methodology
           </span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
             How Auvora Stress-Tests Your Decisions
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-lg text-zinc-400 leading-relaxed">
             A 5-step systematic framework designed to interrogate business choices before you commit capital.
           </p>
         </div>
@@ -46,12 +46,12 @@ export function HowItWorks() {
           {steps.map((s, idx) => (
             <div
               key={idx}
-              className="flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-5 space-y-4 transition hover:bg-zinc-900/80"
+              className="flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 space-y-4 transition hover:bg-zinc-900/80"
             >
               <div className="space-y-2">
                 <span className="text-xs font-mono font-bold text-amber-400">{s.step}</span>
-                <h3 className="text-base font-bold text-white">{s.title}</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">{s.description}</p>
+                <h3 className="text-xl font-bold text-white">{s.title}</h3>
+                <p className="text-base text-zinc-400 leading-relaxed">{s.description}</p>
               </div>
             </div>
           ))}

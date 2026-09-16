@@ -33,15 +33,15 @@ export default function NewDecisionPage() {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 md:p-12">
-      <div className="mx-auto max-w-2xl space-y-8">
+      <div className="mx-auto max-w-3xl space-y-8">
         <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white">Put a decision under test</h1>
-            <p className="text-xs text-zinc-400">Expose blind spots and stress-test assumptions before committing resources.</p>
+            <p className="text-sm text-zinc-400">Expose blind spots and stress-test assumptions before committing resources.</p>
           </div>
           <Link
             href="/dashboard"
-            className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
+            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm font-semibold text-zinc-300 transition-all duration-200 hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
           >
             Cancel
           </Link>
@@ -56,7 +56,7 @@ export default function NewDecisionPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Decision Title */}
           <div className="space-y-1.5">
-            <label htmlFor="title" className="block text-xs font-semibold text-zinc-200">
+            <label htmlFor="title" className="block text-sm font-semibold text-zinc-200">
               Decision title <span className="text-red-400">*</span>
             </label>
             <input
@@ -65,17 +65,17 @@ export default function NewDecisionPage() {
               type="text"
               required
               placeholder="e.g. Expand sales team into European market in Q3"
-              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
             />
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-baseline">
-              <label htmlFor="description" className="block text-xs font-semibold text-zinc-200">
+              <label htmlFor="description" className="block text-sm font-semibold text-zinc-200">
                 What decision are you trying to make? <span className="text-red-400">*</span>
               </label>
-              <span className="text-[10px] text-zinc-500">Max 5,000 characters</span>
+              <span className="text-xs text-zinc-500">Max 5,000 characters</span>
             </div>
             <textarea
               id="description"
@@ -84,13 +84,13 @@ export default function NewDecisionPage() {
               rows={4}
               maxLength={5000}
               placeholder="Describe the core decision, key choices available, primary objectives, and assumptions..."
-              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
             />
           </div>
 
           {/* Context / Why Now */}
           <div className="space-y-1.5">
-            <label htmlFor="why_now" className="block text-xs font-medium text-zinc-300">
+            <label htmlFor="why_now" className="block text-sm font-medium text-zinc-300">
               What changed or created the need to decide now? <span className="text-zinc-500">(Optional)</span>
             </label>
             <textarea
@@ -98,14 +98,14 @@ export default function NewDecisionPage() {
               name="why_now"
               rows={3}
               placeholder="What triggered this opportunity or deadline? e.g. Competitor launch, runway limit, customer request..."
-              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
             />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Industry */}
             <div className="space-y-1.5">
-              <label htmlFor="industry" className="block text-xs font-medium text-zinc-300">
+              <label htmlFor="industry" className="block text-sm font-medium text-zinc-300">
                 Industry <span className="text-zinc-500">(Optional)</span>
               </label>
               <select
@@ -130,7 +130,7 @@ export default function NewDecisionPage() {
 
             {/* Company Size */}
             <div className="space-y-1.5">
-              <label htmlFor="company_size" className="block text-xs font-medium text-zinc-300">
+              <label htmlFor="company_size" className="block text-sm font-medium text-zinc-300">
                 Company size <span className="text-zinc-500">(Optional)</span>
               </label>
               <select
@@ -152,7 +152,7 @@ export default function NewDecisionPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Estimated Budget */}
             <div className="space-y-1.5">
-              <label htmlFor="budget" className="block text-xs font-medium text-zinc-300">
+              <label htmlFor="budget" className="block text-sm font-medium text-zinc-300">
                 Estimated budget <span className="text-zinc-500">(Optional)</span>
               </label>
               <input
@@ -161,13 +161,13 @@ export default function NewDecisionPage() {
                 type="number"
                 step="any"
                 placeholder="e.g. 50000"
-                className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
               />
             </div>
 
             {/* Time Horizon */}
             <div className="space-y-1.5">
-              <label htmlFor="timeline" className="block text-xs font-medium text-zinc-300">
+              <label htmlFor="timeline" className="block text-sm font-medium text-zinc-300">
                 Time horizon <span className="text-zinc-500">(Optional)</span>
               </label>
               <select
@@ -189,10 +189,10 @@ export default function NewDecisionPage() {
           {/* Success Definition */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-baseline">
-              <label htmlFor="success_definition" className="block text-xs font-medium text-zinc-300">
+              <label htmlFor="success_definition" className="block text-sm font-medium text-zinc-300">
                 What would a successful outcome look like? <span className="text-zinc-500">(Optional)</span>
               </label>
-              <span className="text-[10px] text-zinc-500">Max 5,000 characters</span>
+              <span className="text-xs text-zinc-500">Max 5,000 characters</span>
             </div>
             <textarea
               id="success_definition"
@@ -200,21 +200,21 @@ export default function NewDecisionPage() {
               rows={3}
               maxLength={5000}
               placeholder="e.g. Achieving $100k ARR within 6 months while keeping CAC under $300..."
-              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-all duration-200 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-zinc-700 motion-reduce:transition-none"
             />
           </div>
 
           <div className="pt-4 flex items-center justify-end space-x-3">
             <Link
               href="/dashboard"
-              className="rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+              className="rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-300 transition-all duration-200 hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50"
+              className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-zinc-950 transition transition-all duration-200 hover:bg-zinc-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none motion-reduce:transform-none"
             >
               {loading ? "Creating decision..." : "Stress-test with Auvora"}
             </button>

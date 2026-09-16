@@ -17,7 +17,7 @@ export function PatternCounterexamples({ counterexamples }: PatternCounterexampl
         <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
           Counterexamples
         </h4>
-        <p className="text-xs text-zinc-400 italic">
+        <p className="text-sm text-zinc-400 italic">
           No clear counterexamples were identified in the available history.
         </p>
       </div>
@@ -30,7 +30,7 @@ export function PatternCounterexamples({ counterexamples }: PatternCounterexampl
         <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
           Counterexamples
         </h4>
-        <p className="text-xs text-zinc-400 leading-relaxed">
+        <p className="text-base text-zinc-400 leading-relaxed">
           These decisions do not fully match the pattern and help prevent Auvora from overstating
           the conclusion.
         </p>
@@ -48,7 +48,7 @@ export function PatternCounterexamples({ counterexamples }: PatternCounterexampl
             >
               {item.title}
             </Link>
-            <p className="text-xs text-zinc-400 leading-relaxed">{item.evidence}</p>
+            <p className="text-base text-zinc-400 leading-relaxed">{item.evidence}</p>
           </div>
         ))}
       </div>

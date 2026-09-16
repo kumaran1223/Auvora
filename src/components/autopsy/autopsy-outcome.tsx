@@ -54,46 +54,46 @@ export function AutopsyOutcome({ outcome }: AutopsyOutcomeProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-300">
+            <span className="text-sm font-semibold uppercase tracking-wider text-zinc-300">
               Real-World Outcome
             </span>
             <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               USER REPORTED
             </span>
           </div>
-          <p className="text-xs text-zinc-400">
+          <p className="text-base text-zinc-400">
             This is the real-world outcome recorded by you.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${outcomeInfo.style}`}
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold border ${outcomeInfo.style}`}
           >
             {outcomeInfo.label}
           </span>
           {recordedDate && (
-            <span className="text-xs font-mono text-zinc-400">{recordedDate}</span>
+            <span className="text-sm font-mono text-zinc-400">{recordedDate}</span>
           )}
         </div>
       </div>
 
       <div className="space-y-3">
         <div className="space-y-1">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
             What Actually Happened
           </h4>
-          <p className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-zinc-200 leading-relaxed whitespace-pre-wrap">
             {whatHappened}
           </p>
         </div>
 
         {whatSurprisedYou && (
           <div className="space-y-1 pt-2 border-t border-zinc-800/60">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
               What Surprised You
             </h4>
-            <p className="text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
               {whatSurprisedYou}
             </p>
           </div>

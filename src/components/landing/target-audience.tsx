@@ -29,15 +29,15 @@ export function TargetAudience() {
 
   return (
     <section className="border-t border-zinc-800/80 bg-zinc-950 py-16 md:py-24">
-      <div className="mx-auto max-w-6xl px-4 md:px-8 space-y-12">
+      <div className="mx-auto max-w-[1400px] px-4 md:px-8 space-y-12">
         <div className="max-w-2xl space-y-3">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
             Target Audience
           </span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
             Built for people who have something at stake.
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-lg text-zinc-400 leading-relaxed">
             Designed for business leaders making high-consequence decisions with real capital.
           </p>
         </div>
@@ -46,7 +46,7 @@ export function TargetAudience() {
           {audiences.map((a, idx) => (
             <div
               key={idx}
-              className="flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-3 transition hover:bg-zinc-900/80"
+              className="flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 space-y-3 transition hover:bg-zinc-900/80"
             >
               <div className="space-y-2">
                 <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
@@ -55,7 +55,7 @@ export function TargetAudience() {
                 <h3 className="text-sm font-semibold text-white leading-snug">
                   {a.question}
                 </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed pt-1">{a.desc}</p>
+                <p className="text-base text-zinc-400 leading-relaxed pt-1">{a.desc}</p>
               </div>
             </div>
           ))}

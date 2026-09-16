@@ -9,6 +9,7 @@ import {
 import { normalizeReplayContext } from "@/lib/ai/types";
 import { runAuvoraReplay } from "@/lib/ai/engine";
 import { reserveAnalysisSlot, releaseAnalysisSlot } from "@/lib/entitlements";
+import { checkAiRateLimit } from "@/lib/security/rate-limit";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -78,6 +79,18 @@ export async function POST(
       return NextResponse.json(
         { error: "A real-world outcome must be recorded before generating a Decision Replay." },
         { status: 400 }
+      );
+    }
+
+    // 8.5. HTTP rate limit check (soft shield)
+    const rateLimit = checkAiRateLimit(user.id);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many AI requests. Please try again shortly." },
+        { 
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfter || 60) }
+        }
       );
     }
 

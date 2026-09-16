@@ -23,7 +23,7 @@ export function PatternEvidence({
         <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-300">
           Supporting decisions
         </h4>
-        <span className="text-xs font-mono text-zinc-400 bg-zinc-950 px-2.5 py-0.5 rounded border border-zinc-800">
+        <span className="text-sm font-mono text-zinc-400 bg-zinc-950 px-2.5 py-0.5 rounded border border-zinc-800">
           Appeared in {evidenceCount} of {totalDecisions} decisions
         </span>
       </div>
@@ -42,7 +42,7 @@ export function PatternEvidence({
                 {item.title}
               </Link>
             </div>
-            <p className="text-xs text-zinc-400 leading-relaxed">{item.evidence}</p>
+            <p className="text-base text-zinc-400 leading-relaxed">{item.evidence}</p>
           </div>
         ))}
       </div>

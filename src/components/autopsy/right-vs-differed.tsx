@@ -53,13 +53,13 @@ export function RightVsDiffered({
           <h4 className="text-sm font-semibold text-white">Where Auvora Was Right</h4>
         </div>
         {rightPoints.length > 0 ? (
-          <ul className="space-y-1.5 text-xs text-emerald-200/90 list-disc list-inside">
+          <ul className="space-y-1.5 text-sm text-emerald-200/90 list-disc list-inside">
             {rightPoints.map((pt, idx) => (
               <li key={idx}>{pt}</li>
             ))}
           </ul>
         ) : (
-          <p className="text-xs text-zinc-400 italic">No specific confirmed predictions logged.</p>
+          <p className="text-sm text-zinc-400 italic">No specific confirmed predictions logged.</p>
         )}
       </div>
 
@@ -70,13 +70,13 @@ export function RightVsDiffered({
           <h4 className="text-sm font-semibold text-white">Where Reality Differed</h4>
         </div>
         {differedPoints.length > 0 ? (
-          <ul className="space-y-1.5 text-xs text-amber-200/90 list-disc list-inside">
+          <ul className="space-y-1.5 text-sm text-amber-200/90 list-disc list-inside">
             {differedPoints.map((pt, idx) => (
               <li key={idx}>{pt}</li>
             ))}
           </ul>
         ) : (
-          <p className="text-xs text-zinc-400 italic">No significant prediction divergences logged.</p>
+          <p className="text-sm text-zinc-400 italic">No significant prediction divergences logged.</p>
         )}
       </div>
     </div>

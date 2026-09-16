@@ -52,7 +52,7 @@ export function ExecutiveStressTest({ report }: ExecutiveStressTestProps) {
       {/* Metrics Banner */}
       <div className="grid grid-cols-2 gap-4 rounded-xl border border-zinc-800 bg-zinc-900/80 p-6 sm:grid-cols-4">
         <div className="space-y-1">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
             Overall Risk
           </span>
           <div className={`text-xl font-bold capitalize ${riskColors[final_stress_test.overall_risk] || "text-white"}`}>
@@ -61,7 +61,7 @@ export function ExecutiveStressTest({ report }: ExecutiveStressTestProps) {
         </div>
 
         <div className="space-y-1">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
             Decision Strength
           </span>
           <div className="text-xl font-bold text-white capitalize">
@@ -70,7 +70,7 @@ export function ExecutiveStressTest({ report }: ExecutiveStressTestProps) {
         </div>
 
         <div className="space-y-1">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
             Confidence
           </span>
           <div className="text-xl font-bold text-white">
@@ -79,7 +79,7 @@ export function ExecutiveStressTest({ report }: ExecutiveStressTestProps) {
         </div>
 
         <div className="space-y-1">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
             Recommendation
           </span>
           <div>
@@ -93,16 +93,16 @@ export function ExecutiveStressTest({ report }: ExecutiveStressTestProps) {
       {/* Summary Narrative */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-zinc-200">Overview Narrative</h3>
-          <p className="text-sm text-zinc-300 leading-relaxed">{summary.overview}</p>
+          <h3 className="text-base font-semibold text-zinc-200">Overview Narrative</h3>
+          <p className="text-base text-zinc-300 leading-relaxed">{summary.overview}</p>
         </div>
 
         {summary.key_points && summary.key_points.length > 0 && (
           <div className="space-y-2 pt-2 border-t border-zinc-800/80">
-            <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">
               Core Strategic Takeaways
             </h4>
-            <ul className="list-disc list-inside space-y-1.5 text-xs text-zinc-300">
+            <ul className="list-disc list-inside space-y-1.5 text-sm text-zinc-300">
               {summary.key_points.map((pt, i) => (
                 <li key={i}>{pt}</li>
               ))}
@@ -110,7 +110,7 @@ export function ExecutiveStressTest({ report }: ExecutiveStressTestProps) {
           </div>
         )}
 
-        <div className="pt-2 text-[11px] text-zinc-500 italic">
+        <div className="pt-2 text-sm text-zinc-500 italic">
           Auvora&apos;s assessment is based on the information provided and identified uncertainties.
         </div>
       </div>
