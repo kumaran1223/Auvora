@@ -18,7 +18,7 @@ export function AdminShell({
 
   const navigation = [
     { name: "Overview", href: "/admin", future: false },
-    { name: "Users", href: "/admin/users", future: true },
+    { name: "Users", href: "/admin/users", future: false },
     { name: "Decisions", href: "/admin/decisions", future: true },
     { name: "Billing", href: "/admin/billing", future: true },
     { name: "Analytics", href: "/admin/analytics", future: true },

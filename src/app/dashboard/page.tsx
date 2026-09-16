@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserDecisionsWithMeta } from "@/lib/db/decisions";
 import { getUserUsageSummary } from "@/lib/entitlements";
-import { LogoutButton } from "@/components/auth/logout-button";
+import { ProfileDropdown } from "@/components/auth/profile-dropdown";
 import { UsageCard } from "@/components/dashboard/usage-card";
 import { DecisionHistory } from "@/components/dashboard/decision-history";
+import { isAdmin } from "@/lib/supabase/admin";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -18,9 +19,10 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [allDecisions, usage] = await Promise.all([
+  const [allDecisions, usage, isUserAdmin] = await Promise.all([
     getUserDecisionsWithMeta(),
     getUserUsageSummary(user.id),
+    isAdmin(),
   ]);
 
   // Metrics calculations
@@ -28,18 +30,19 @@ export default async function DashboardPage() {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth();
 
-  const decisionsThisMonth = allDecisions.filter((d) => {
-    const created = new Date(d.created_at);
-    return created.getFullYear() === currentYear && created.getMonth() === currentMonth;
-  }).length;
+  const currentMonthDecisions = allDecisions.filter((d) => {
+    const dDate = new Date(d.created_at);
+    return dDate.getFullYear() === currentYear && dDate.getMonth() === currentMonth;
+  });
 
+  const decisionsThisMonth = currentMonthDecisions.length;
   const completedDecisions = allDecisions.filter((d) => d.status === "completed").length;
   const needingReview = allDecisions.filter((d) => d.status === "draft").length;
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6 md:p-12">
       <div className="mx-auto max-w-7xl space-y-8 animate-fade-in-up">
-        {/* Top Navbar */}
+        {/* Header */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800 pb-6">
           <div className="space-y-1">
             <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
@@ -49,11 +52,8 @@ export default async function DashboardPage() {
               Think it through. Before reality does.
             </p>
           </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-zinc-400 hidden sm:inline-block font-mono">
-              {user.email}
-            </span>
-            <LogoutButton />
+          <div className="flex items-center">
+            <ProfileDropdown email={user.email} isAdmin={isUserAdmin} />
           </div>
         </header>
 

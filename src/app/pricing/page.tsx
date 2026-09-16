@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PLANS } from "@/lib/entitlements";
-import { LogoutButton } from "@/components/auth/logout-button";
+import { ProfileDropdown } from "@/components/auth/profile-dropdown";
 import { RazorpayCheckoutButton } from "@/components/billing/razorpay-checkout-button";
 import { CancelSubscriptionButton } from "@/components/billing/cancel-subscription-button";
+import { isAdmin } from "@/lib/supabase/admin";
 
 export default async function PricingPage() {
   const supabase = await createClient();
@@ -12,6 +13,7 @@ export default async function PricingPage() {
   } = await supabase.auth.getUser();
 
   let userPlan = "free";
+  let isUserAdmin = false;
   let activeSubRecord: {
     id: string;
     status: string;
@@ -20,11 +22,12 @@ export default async function PricingPage() {
   } | null = null;
 
   if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("plan")
-      .eq("id", user.id)
-      .maybeSingle();
+    const [{ data: profile }, adminStatus] = await Promise.all([
+      supabase.from("profiles").select("plan").eq("id", user.id).maybeSingle(),
+      isAdmin(),
+    ]);
+
+    isUserAdmin = adminStatus;
 
     if (profile?.plan) {
       userPlan = profile.plan.toLowerCase();
@@ -57,15 +60,7 @@ export default async function PricingPage() {
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="text-sm font-semibold text-zinc-300 hover:text-white"
-                >
-                  ← Back to Dashboard
-                </Link>
-                <LogoutButton />
-              </>
+              <ProfileDropdown email={user.email} isAdmin={isUserAdmin} />
             ) : (
               <>
                 <Link
