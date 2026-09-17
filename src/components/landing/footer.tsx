@@ -1,11 +1,13 @@
 import Link from "next/link";
 
-export function Footer() {
+export function Footer({ isAuthenticated }: { isAuthenticated?: boolean }) {
   return (
     <footer className="border-t border-zinc-800/80 bg-zinc-950 py-12 text-sm text-zinc-400">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-4 md:flex-row md:items-center md:justify-between md:px-8">
         <div className="space-y-2">
-          <span className="text-base font-extrabold tracking-tight text-white">Auvora</span>
+          <Link href="/">
+            <span className="text-base font-extrabold tracking-tight text-white">Auvora</span>
+          </Link>
           <p className="text-zinc-400">Think it through. Before reality does.</p>
         </div>
 
@@ -19,9 +21,15 @@ export function Footer() {
           <Link href="/#pricing" className="hover:text-white transition">
             Pricing
           </Link>
-          <Link href="/login" className="hover:text-white transition">
-            Sign in
-          </Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard" className="hover:text-white transition">
+              Dashboard
+            </Link>
+          ) : (
+            <Link href="/login" className="hover:text-white transition">
+              Sign in
+            </Link>
+          )}
           <Link href="/terms" className="hover:text-white transition">
             Terms
           </Link>

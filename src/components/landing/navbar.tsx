@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ProfileDropdown } from "@/components/auth/profile-dropdown";
 
 interface NavbarProps {
   isAuthenticated: boolean;
+  email?: string;
+  isAdmin?: boolean;
 }
 
-export function Navbar({ isAuthenticated }: NavbarProps) {
+export function Navbar({ isAuthenticated, email, isAdmin }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const ctaLink = isAuthenticated ? "/decisions/new" : "/signup";
@@ -36,12 +39,7 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
         {/* Right Side Actions */}
         <div className="hidden md:flex items-center space-x-4">
           {isAuthenticated ? (
-            <Link
-              href="/dashboard"
-              className="text-sm font-medium text-zinc-300 transition hover:text-white"
-            >
-              Dashboard
-            </Link>
+            <ProfileDropdown email={email} isAdmin={isAdmin || false} />
           ) : (
             <Link
               href="/login"

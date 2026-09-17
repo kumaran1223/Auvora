@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { isAdmin as checkIsAdmin } from "@/lib/supabase/admin";
+
 export default async function HomePage() {
   const supabase = await createClient();
 
@@ -33,10 +35,12 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
 
   const isAuthenticated = Boolean(user);
+  const email = user?.email;
+  const isAdmin = user ? await checkIsAdmin() : false;
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-zinc-800 selection:text-white">
-      <Navbar isAuthenticated={isAuthenticated} />
+      <Navbar isAuthenticated={isAuthenticated} email={email} isAdmin={isAdmin} />
       <Hero isAuthenticated={isAuthenticated} />
       <ProblemSection />
       <HowItWorks />
@@ -47,7 +51,7 @@ export default async function HomePage() {
       <TargetAudience />
       <PricingSection isAuthenticated={isAuthenticated} />
       <FinalCta isAuthenticated={isAuthenticated} />
-      <Footer />
+      <Footer isAuthenticated={isAuthenticated} />
     </main>
   );
 }
