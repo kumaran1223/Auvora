@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users can select own decision reports" ON public.decision_reports;

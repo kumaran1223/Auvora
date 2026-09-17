@@ -96,7 +96,7 @@ export function RazorpayCheckoutButton({
         key: keyId,
         subscription_id: subscriptionId,
         name: "Auvora Decision Intelligence",
-        description: `Auvora ${plan.toUpperCase()} Monthly Subscription (Test Mode)`,
+        description: `Auvora ${plan.toUpperCase()} Monthly Subscription`,
         theme: { color: "#09090b" },
         handler: async function (response: RazorpayResponse) {
           setLoading(true);
@@ -185,4 +185,5 @@ export function RazorpayCheckoutButton({
     </div>
   );
 }
+
 

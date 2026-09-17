@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Razorpay Test Mode configuration is incomplete. Please configure RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, and Plan IDs.",
+            "Razorpay configuration is incomplete. Please configure RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, and Plan IDs.",
         },
         { status: 500 }
       );
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create subscription on Razorpay (Test Mode)
+    // Create subscription on Razorpay
     const subscription = await razorpay.subscriptions.create({
       plan_id: razorpayPlanId,
       total_count: 12,
@@ -145,3 +145,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

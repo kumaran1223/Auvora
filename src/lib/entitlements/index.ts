@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import {
   PlanConfig,
   PlanType,
@@ -18,7 +19,8 @@ export const PLANS: Record<PlanType, PlanConfig> = {
       "3 AI stress-test analyses per month",
       "Assumption & evidence gap discovery",
       "Second-order consequence mapping",
-      "Scenario & alternative comparison",
+      "Full AI decision stress-testing engine",
+      "Scenario comparison",
       "Standard support",
     ],
   },
@@ -145,9 +147,10 @@ export async function getUserUsageSummary(userId: string): Promise<UserUsageSumm
 export async function reserveAnalysisSlot(
   userId: string
 ): Promise<ReserveAnalysisResult> {
-  const supabase = await createClient();
+  const adminClient = getAdminSupabaseClient();
+  if (!adminClient) throw new Error("Missing admin client");
 
-  const { data, error } = await supabase.rpc("reserve_decision_analysis", {
+  const { data, error } = await adminClient.rpc("reserve_decision_analysis", {
     p_user_id: userId,
   });
 
@@ -168,9 +171,10 @@ export async function reserveAnalysisSlot(
 export async function releaseAnalysisSlot(
   userId: string
 ): Promise<ReleaseAnalysisResult> {
-  const supabase = await createClient();
+  const adminClient = getAdminSupabaseClient();
+  if (!adminClient) throw new Error("Missing admin client");
 
-  const { data, error } = await supabase.rpc("release_decision_analysis", {
+  const { data, error } = await adminClient.rpc("release_decision_analysis", {
     p_user_id: userId,
   });
 
@@ -181,3 +185,8 @@ export async function releaseAnalysisSlot(
 
   return data as ReleaseAnalysisResult;
 }
+
+
+
+
+

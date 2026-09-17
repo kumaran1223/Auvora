@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import type {
   Decision,
   CreateDecisionInput,
@@ -175,10 +176,17 @@ export async function getDecisionReport(
   decisionId: string
 ): Promise<DecisionReport | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const adminClient = getAdminSupabaseClient();
+  if (!adminClient) throw new Error("Missing admin client");
+
+  const { data, error } = await adminClient
     .from("decision_reports")
     .select("*")
     .eq("decision_id", decisionId)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (error) {
@@ -420,5 +428,53 @@ export async function saveDecisionReplay(
   }
 
   return savedData;
+}
+
+
+import type { AuvoraReportData } from "@/lib/ai/schemas";
+
+/**
+ * Safely parses Supabase JSONB fields into typed AuvoraReportData.
+ */
+export function parseDecisionReportData(rawReport: DecisionReport): AuvoraReportData | null {
+  if (!rawReport) return null;
+  try {
+    const summaryObj = (rawReport.summary as { overview?: string; key_points?: string[] }) || {};
+    const consequencesObj = (rawReport.consequences as { chains?: unknown[]; risks?: unknown[] }) || {};
+    const finalTestObj = (rawReport.final_stress_test as Record<string, unknown>) || {};
+
+    return {
+      summary: {
+        overview: summaryObj.overview || "No summary overview provided.",
+        key_points: Array.isArray(summaryObj.key_points) ? summaryObj.key_points : [],
+      },
+      risk_score: Number(rawReport.risk_score) || 50,
+      assumptions: Array.isArray(rawReport.assumptions) ? (rawReport.assumptions as AuvoraReportData["assumptions"]) : [],
+      evidence_gaps: Array.isArray(rawReport.evidence_gaps) ? (rawReport.evidence_gaps as AuvoraReportData["evidence_gaps"]) : [],
+      blind_spots: Array.isArray(rawReport.blind_spots) ? (rawReport.blind_spots as AuvoraReportData["blind_spots"]) : [],
+      stakeholders: Array.isArray(rawReport.stakeholders) ? (rawReport.stakeholders as AuvoraReportData["stakeholders"]) : [],
+      risks: Array.isArray(consequencesObj.risks) ? (consequencesObj.risks as AuvoraReportData["risks"]) : [],
+      consequences: Array.isArray(consequencesObj.chains) ? (consequencesObj.chains as AuvoraReportData["consequences"]) : [],
+      scenarios: Array.isArray(rawReport.scenarios) ? (rawReport.scenarios as AuvoraReportData["scenarios"]) : [],
+      alternatives: Array.isArray(rawReport.alternatives) ? (rawReport.alternatives as AuvoraReportData["alternatives"]) : [],
+      kill_questions: Array.isArray(finalTestObj["kill_questions"]) ? (finalTestObj["kill_questions"] as string[]) : [],
+      final_stress_test: {
+        overall_risk: (finalTestObj["overall_risk"] as AuvoraReportData["final_stress_test"]["overall_risk"]) || "medium",
+        decision_strength: (finalTestObj["decision_strength"] as AuvoraReportData["final_stress_test"]["decision_strength"]) || "moderate",
+        confidence: Number(finalTestObj["confidence"]) || 70,
+        recommendation: (finalTestObj["recommendation"] as AuvoraReportData["final_stress_test"]["recommendation"]) || "proceed_with_conditions",
+        reasoning: (finalTestObj["reasoning"] as string) || "Proceed cautiously.",
+        top_3_actions_before_commitment: Array.isArray(finalTestObj["top_3_actions_before_commitment"])
+          ? (finalTestObj["top_3_actions_before_commitment"] as string[])
+          : [],
+        biggest_assumption: (finalTestObj["biggest_assumption"] as string) || "N/A",
+        biggest_evidence_gap: (finalTestObj["biggest_evidence_gap"] as string) || "N/A",
+        biggest_blind_spot: (finalTestObj["biggest_blind_spot"] as string) || "N/A",
+        decision_trigger: (finalTestObj["decision_trigger"] as string) || "N/A",
+      },
+    };
+  } catch {
+    return null;
+  }
 }
 

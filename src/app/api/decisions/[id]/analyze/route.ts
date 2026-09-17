@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import { getDecisionById, updateDecision } from "@/lib/db/decisions";
 import { normalizeDecisionContext } from "@/lib/ai/types";
 import { runAuvoraAnalysis } from "@/lib/ai/engine";
@@ -98,10 +99,14 @@ export async function POST(
     const normalizedContext = normalizeDecisionContext(decision);
     
     // 7a. Initiate check for existing report concurrently with AI generation
-    const existingReportPromise = supabase
+    const adminClient = getAdminSupabaseClient();
+    if (!adminClient) throw new Error("Missing admin client");
+    
+    const existingReportPromise = adminClient
       .from("decision_reports")
       .select("id")
       .eq("decision_id", decisionId)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     const reportData = await runAuvoraAnalysis(normalizedContext);
@@ -165,14 +170,33 @@ export async function POST(
     console.log(`[AI LATENCY] report-persistence: ${Math.round(performance.now() - t_persistence_start)}ms (status: success)`);
     console.log(`[AI LATENCY] total: ${Math.round(performance.now() - t_total_start)}ms (status: success)`);
 
+    
+    let clientReportData = reportData;
+    if (reservation.plan === "free") {
+      clientReportData = {
+        ...reportData,
+        blind_spots: [],
+        alternatives: [],
+        kill_questions: [],
+        final_stress_test: reportData.final_stress_test
+      };
+    }
+
     return NextResponse.json(
       {
         success: true,
-        report: reportData,
+        report: clientReportData,
       },
       { status: 200 }
     );
   } catch (err: unknown) {
+    console.error("[AI ANALYZE DIAGNOSTIC]", {
+      name: err instanceof Error ? err.name : undefined,
+      message: err instanceof Error ? err.message : String(err),
+      status: typeof err === "object" && err !== null && "status" in err
+        ? (err as { status?: unknown }).status
+        : undefined,
+    });
     if (
       err &&
       typeof err === "object" &&
@@ -240,3 +264,7 @@ export async function POST(
     );
   }
 }
+
+
+
+

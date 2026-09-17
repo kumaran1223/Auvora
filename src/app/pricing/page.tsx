@@ -94,7 +94,7 @@ export default async function PricingPage() {
           <div className="mx-auto max-w-xl rounded-xl border border-zinc-800 bg-zinc-900/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in-up" style={{ animationDelay: '60ms' }}>
             <div className="space-y-1 text-center sm:text-left">
               <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                Subscription Active (Razorpay Test Mode)
+                Subscription Active
               </div>
               <div className="text-sm text-zinc-300">
                 You are currently subscribed to the <strong className="text-white capitalize">{activeSubRecord.plan}</strong> plan.
@@ -242,7 +242,7 @@ export default async function PricingPage() {
             <div className="space-y-2">
               <h3 className="font-semibold text-zinc-200">Are payments secure?</h3>
               <p className="leading-relaxed">
-                All subscriptions are authenticated via Razorpay (Test Mode). No card credentials or banking passwords are ever stored on Auvora servers.
+                All subscriptions are authenticated via Razorpay. No card credentials or banking passwords are ever stored on Auvora servers.
               </p>
             </div>
           </div>
@@ -251,3 +251,4 @@ export default async function PricingPage() {
     </main>
   );
 }
+

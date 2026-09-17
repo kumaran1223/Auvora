@@ -7,7 +7,7 @@ import {
 } from "@/lib/db/decision-patterns";
 import { normalizePatternInput } from "@/lib/ai/types";
 import { runAuvoraPatternAnalysis } from "@/lib/ai/engine";
-import { reserveAnalysisSlot, releaseAnalysisSlot } from "@/lib/entitlements";
+import { reserveAnalysisSlot, releaseAnalysisSlot, getUserUsageSummary } from "@/lib/entitlements";
 import { checkAiRateLimit } from "@/lib/security/rate-limit";
 
 export async function POST() {
@@ -29,6 +29,15 @@ export async function POST() {
       );
     }
     userId = user.id;
+
+    // 2.5. Enforce Pro/Business entitlement for Decision Patterns
+    const usage = await getUserUsageSummary(user.id);
+    if (usage.plan === "free") {
+      return NextResponse.json(
+        { error: "Decision Pattern Analysis is available on Pro and Business plans." },
+        { status: 403 }
+      );
+    }
 
     // 3. Retrieve historical decision evidence
     const historyResult = await getHistoricalDecisionEvidence();
@@ -155,4 +164,5 @@ export async function POST() {
     );
   }
 }
+
 

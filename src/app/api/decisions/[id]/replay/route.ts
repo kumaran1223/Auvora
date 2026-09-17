@@ -8,7 +8,7 @@ import {
 } from "@/lib/db/decisions";
 import { normalizeReplayContext } from "@/lib/ai/types";
 import { runAuvoraReplay } from "@/lib/ai/engine";
-import { reserveAnalysisSlot, releaseAnalysisSlot } from "@/lib/entitlements";
+import { reserveAnalysisSlot, releaseAnalysisSlot, getUserUsageSummary } from "@/lib/entitlements";
 import { checkAiRateLimit } from "@/lib/security/rate-limit";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -53,6 +53,15 @@ export async function POST(
       return NextResponse.json(
         { error: "Decision not found or unauthorized." },
         { status: 404 }
+      );
+    }
+
+    // 5.5. Enforce Pro/Business entitlement for Decision Replays
+    const usage = await getUserUsageSummary(user.id);
+    if (usage.plan === "free") {
+      return NextResponse.json(
+        { error: "Decision Replays are available on Pro and Business plans." },
+        { status: 403 }
       );
     }
 
@@ -186,4 +195,5 @@ export async function POST(
     );
   }
 }
+
 
