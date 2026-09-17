@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUserUsageSummary } from "@/lib/entitlements";
 import {
   getDecisionById,
   getDecisionReport,
   getDecisionOutcome,
   getDecisionReplay,
+  parseDecisionReportData,
 } from "@/lib/db/decisions";
 import { ArchiveButton } from "@/components/decisions/archive-button";
 import { DeleteModal } from "@/components/decisions/delete-modal";
@@ -24,7 +26,7 @@ import { KillQuestions } from "@/components/report/kill-questions";
 import { FinalStressTest } from "@/components/report/final-stress-test";
 import { OutcomeSection } from "@/components/decisions/outcome-section";
 import { DecisionAutopsy } from "@/components/autopsy/decision-autopsy";
-import type { AuvoraReportData } from "@/lib/ai/schemas";
+
 
 interface DecisionDetailPageProps {
   params: Promise<{ id: string }>;
@@ -41,6 +43,9 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
   if (!user) {
     redirect("/login");
   }
+
+  const usage = await getUserUsageSummary(user.id);
+  const isFree = usage.plan === "free";
 
   const decision = await getDecisionById(id);
 
@@ -61,47 +66,15 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
     archived: "border-zinc-700 bg-zinc-800 text-zinc-400",
   };
 
-  // Safe parsing of Supabase JSONB fields into typed AuvoraReportData
-  let parsedReport: AuvoraReportData | null = null;
-  if (rawReport) {
-    try {
-      const summaryObj = (rawReport.summary as { overview?: string; key_points?: string[] }) || {};
-      const consequencesObj = (rawReport.consequences as { chains?: unknown[]; risks?: unknown[] }) || {};
-      const finalTestObj = (rawReport.final_stress_test as Record<string, unknown>) || {};
-
-      parsedReport = {
-        summary: {
-          overview: summaryObj.overview || "No summary overview provided.",
-          key_points: Array.isArray(summaryObj.key_points) ? summaryObj.key_points : [],
-        },
-        risk_score: Number(rawReport.risk_score) || 50,
-        assumptions: Array.isArray(rawReport.assumptions) ? (rawReport.assumptions as AuvoraReportData["assumptions"]) : [],
-        evidence_gaps: Array.isArray(rawReport.evidence_gaps) ? (rawReport.evidence_gaps as AuvoraReportData["evidence_gaps"]) : [],
-        blind_spots: Array.isArray(rawReport.blind_spots) ? (rawReport.blind_spots as AuvoraReportData["blind_spots"]) : [],
-        stakeholders: Array.isArray(rawReport.stakeholders) ? (rawReport.stakeholders as AuvoraReportData["stakeholders"]) : [],
-        risks: Array.isArray(consequencesObj.risks) ? (consequencesObj.risks as AuvoraReportData["risks"]) : [],
-        consequences: Array.isArray(consequencesObj.chains) ? (consequencesObj.chains as AuvoraReportData["consequences"]) : [],
-        scenarios: Array.isArray(rawReport.scenarios) ? (rawReport.scenarios as AuvoraReportData["scenarios"]) : [],
-        alternatives: Array.isArray(rawReport.alternatives) ? (rawReport.alternatives as AuvoraReportData["alternatives"]) : [],
-        kill_questions: Array.isArray(finalTestObj["kill_questions"]) ? (finalTestObj["kill_questions"] as string[]) : [],
-        final_stress_test: {
-          overall_risk: (finalTestObj["overall_risk"] as AuvoraReportData["final_stress_test"]["overall_risk"]) || "medium",
-          decision_strength: (finalTestObj["decision_strength"] as AuvoraReportData["final_stress_test"]["decision_strength"]) || "moderate",
-          confidence: Number(finalTestObj["confidence"]) || 70,
-          recommendation: (finalTestObj["recommendation"] as AuvoraReportData["final_stress_test"]["recommendation"]) || "proceed_with_conditions",
-          reasoning: (finalTestObj["reasoning"] as string) || "Proceed cautiously.",
-          top_3_actions_before_commitment: Array.isArray(finalTestObj["top_3_actions_before_commitment"])
-            ? (finalTestObj["top_3_actions_before_commitment"] as string[])
-            : [],
-          biggest_assumption: (finalTestObj["biggest_assumption"] as string) || "N/A",
-          biggest_evidence_gap: (finalTestObj["biggest_evidence_gap"] as string) || "N/A",
-          biggest_blind_spot: (finalTestObj["biggest_blind_spot"] as string) || "N/A",
-          decision_trigger: (finalTestObj["decision_trigger"] as string) || "N/A",
-        },
-      };
-    } catch {
-      parsedReport = null;
-    }
+  let parsedReport = rawReport ? parseDecisionReportData(rawReport) : null;
+  if (parsedReport && isFree) {
+    parsedReport = {
+      ...parsedReport,
+      blind_spots: [],
+      alternatives: [],
+      kill_questions: [],
+      final_stress_test: parsedReport.final_stress_test
+    };
   }
 
   return (
@@ -122,6 +95,15 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
             >
               Edit
             </Link>
+            {!isFree && (
+              <a
+                href={`/api/decisions/${decision.id}/pdf`}
+                className="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700 flex items-center space-x-1"
+                download="auvora-decision-report.pdf"
+              >
+                <span>Download PDF</span>
+              </a>
+            )}
             <ArchiveButton decisionId={decision.id} currentStatus={decision.status} />
             <DeleteModal decisionId={decision.id} decisionTitle={decision.title} />
           </div>
@@ -204,13 +186,13 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
               <div className="animate-fade-in-up" style={{ animationDelay: '0ms' }}><ExecutiveStressTest report={parsedReport} /></div>
               <div className="animate-fade-in-up" style={{ animationDelay: '60ms' }}><AssumptionRiskMap report={parsedReport} /></div>
               <div className="animate-fade-in-up" style={{ animationDelay: '120ms' }}><EvidenceGaps report={parsedReport} /></div>
-              <div className="animate-fade-in-up" style={{ animationDelay: '180ms' }}><BlindSpots report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '180ms' }}>{isFree ? <LockedFeatureCard title="Blind Spots" description="Critical risks you might be ignoring because of cognitive bias." /> : <BlindSpots report={parsedReport} />}</div>
               <div className="animate-fade-in-up" style={{ animationDelay: '240ms' }}><StakeholderAnalysis report={parsedReport} /></div>
               <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><RiskAnalysis report={parsedReport} /></div>
               <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><ConsequenceChains report={parsedReport} /></div>
               <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><ScenarioAnalysis report={parsedReport} /></div>
-              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><AlternativePaths report={parsedReport} /></div>
-              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><KillQuestions report={parsedReport} /></div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>{isFree ? <LockedFeatureCard title="Alternative Paths" description="Better or safer ways to achieve your core goal." /> : <AlternativePaths report={parsedReport} />}</div>
+              <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>{isFree ? <LockedFeatureCard title="Kill Questions" description="Critical questions designed to challenge the decision and expose deal-breaker risks." /> : <KillQuestions report={parsedReport} />}</div>
               <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}><FinalStressTest report={parsedReport} /></div>
             </>
         )}
@@ -232,4 +214,36 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
     </main>
   );
 }
+
+
+
+function LockedFeatureCard({ title, description }: { title: string; description: string }) {
+  return (
+    <section className="scroll-mt-24 space-y-6">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold tracking-tight text-white">{title}</h2>
+        <p className="text-base text-zinc-400">{description}</p>
+      </div>
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/30 p-8 text-center space-y-4">
+        <div className="rounded-full bg-zinc-800 p-3">
+          <svg className="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+        </div>
+        <div className="space-y-1 max-w-sm">
+          <h3 className="text-lg font-semibold text-white">Available with Pro</h3>
+          <p className="text-sm text-zinc-400">Unlock this section to see deeper analysis for this decision.</p>
+        </div>
+        <Link href="/pricing" className="mt-2 inline-flex rounded-md bg-white px-4 py-2 text-sm font-medium text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400">
+          Unlock with Pro
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+
+
+
+
+
+
 
