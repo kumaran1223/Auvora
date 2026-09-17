@@ -22,15 +22,15 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
 
         {/* Desktop Nav Links */}
         <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-zinc-400">
-          <a href="#how-it-works" className="transition hover:text-white">
+          <Link href="/#how-it-works" className="transition hover:text-white">
             How it works
-          </a>
-          <a href="#why-auvora" className="transition hover:text-white">
+          </Link>
+          <Link href="/#why-auvora" className="transition hover:text-white">
             Why Auvora
-          </a>
-          <a href="#pricing" className="transition hover:text-white">
+          </Link>
+          <Link href="/#pricing" className="transition hover:text-white">
             Pricing
-          </a>
+          </Link>
         </div>
 
         {/* Right Side Actions */}
@@ -79,27 +79,27 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="border-b border-zinc-800 bg-zinc-950 p-6 space-y-3 text-xs font-medium md:hidden">
-          <a
-            href="#how-it-works"
+          <Link
+            href="/#how-it-works"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-zinc-300 hover:text-white"
           >
             How it works
-          </a>
-          <a
-            href="#why-auvora"
+          </Link>
+          <Link
+            href="/#why-auvora"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-zinc-300 hover:text-white"
           >
             Why Auvora
-          </a>
-          <a
-            href="#pricing"
+          </Link>
+          <Link
+            href="/#pricing"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-zinc-300 hover:text-white"
           >
             Pricing
-          </a>
+          </Link>
 
           <div className="pt-3 border-t border-zinc-850 flex flex-col gap-2">
             {isAuthenticated ? (

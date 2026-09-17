@@ -10,15 +10,15 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap gap-6 font-medium">
-          <a href="#how-it-works" className="hover:text-white transition">
+          <Link href="/#how-it-works" className="hover:text-white transition">
             How it works
-          </a>
-          <a href="#why-auvora" className="hover:text-white transition">
+          </Link>
+          <Link href="/#why-auvora" className="hover:text-white transition">
             Why Auvora
-          </a>
-          <a href="#pricing" className="hover:text-white transition">
+          </Link>
+          <Link href="/#pricing" className="hover:text-white transition">
             Pricing
-          </a>
+          </Link>
           <Link href="/login" className="hover:text-white transition">
             Sign in
           </Link>
