@@ -16,16 +16,9 @@ export default function ContactPage() {
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-8 space-y-6">
         <div>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-2">Support Email</h2>
-          <a href="mailto:support@auvora.com" className="text-lg font-medium text-white hover:text-amber-400 transition">
-            support@auvora.com
-          </a>
-        </div>
-
-        <div>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-2">Response Time</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-2">Support Status</h2>
           <p className="text-zinc-300">
-            We aim to respond to all inquiries within 24-48 business hours. For billing and account deletion requests, please email us from the address associated with your Auvora account to expedite verification.
+            Direct support contact is not currently available. Please check back soon for contact options.
           </p>
         </div>
       </div>

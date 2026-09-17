@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Auvora",
@@ -60,10 +61,9 @@ export default function PrivacyPage() {
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-white">7. Contact Us</h2>
         <p>
-          If you have any questions about this Privacy Policy or wish to request data deletion, please contact us at: <a href="mailto:support@auvora.com" className="text-amber-400 hover:underline">support@auvora.com</a>.
+          If you have any questions about this Privacy Policy or wish to request data deletion, please visit <Link href="/contact" className="text-amber-400 hover:underline">our Contact page</Link>.
         </p>
       </section>
     </>
   );
 }
-
