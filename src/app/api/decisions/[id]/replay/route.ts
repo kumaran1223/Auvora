@@ -4,6 +4,7 @@ import {
   getDecisionById,
   getDecisionReport,
   getDecisionOutcome,
+  getDecisionReplay,
   saveDecisionReplay,
 } from "@/lib/db/decisions";
 import { normalizeReplayContext } from "@/lib/ai/types";
@@ -91,6 +92,23 @@ export async function POST(
       );
     }
 
+    // 8.2 Determine exact outcome_recorded_at timestamp for traceability and staleness checking
+    const outcomeRecordedAt = outcome.recorded_at || outcome.created_at;
+
+    // 8.3 Check for existing valid replay to prevent duplicate AI generations and quota exhaustion
+    const existingReplay = await getDecisionReplay(decisionId);
+    if (existingReplay && existingReplay.outcome_recorded_at === outcomeRecordedAt) {
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Cached decision replay retrieved successfully.",
+          replay: existingReplay,
+          cached: true,
+        },
+        { status: 200 }
+      );
+    }
+
     // 8.5. HTTP rate limit check (soft shield)
     const rateLimit = checkAiRateLimit(user.id);
     if (!rateLimit.allowed) {
@@ -126,9 +144,6 @@ export async function POST(
 
     // 11. Run exactly ONE OpenAI replay request
     const replayData = await runAuvoraReplay(normalizedContext);
-
-    // 12. Determine exact outcome_recorded_at timestamp for traceability
-    const outcomeRecordedAt = outcome.recorded_at || outcome.created_at;
 
     // 13. Persist latest replay using upsert
     let replayRecord = null;

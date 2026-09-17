@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   getHistoricalDecisionEvidence,
+  getLatestPatternReport,
   savePatternReport,
   validateAndCanonicalizePatternReport,
 } from "@/lib/db/decision-patterns";
@@ -58,12 +59,39 @@ export async function POST() {
       );
     }
 
+    // 4.2 Determine the most recent update across all eligible history records
+    let maxHistoryUpdatedAt = 0;
+    for (const record of historyResult.decisions) {
+      const decisionTime = new Date(record.decision.updated_at).getTime();
+      const outcomeTime = new Date(record.outcome.updated_at).getTime();
+      const replayTime = record.replay?.updated_at ? new Date(record.replay.updated_at).getTime() : 0;
+
+      maxHistoryUpdatedAt = Math.max(maxHistoryUpdatedAt, decisionTime, outcomeTime, replayTime);
+    }
+
+    // 4.3 Check for existing valid pattern report to prevent duplicate AI generations and quota exhaustion
+    const existingReport = await getLatestPatternReport(user.id);
+    if (existingReport) {
+      const reportTime = new Date(existingReport.updated_at).getTime();
+      if (reportTime > maxHistoryUpdatedAt) {
+        return NextResponse.json(
+          {
+            success: true,
+            message: "Cached decision pattern report retrieved successfully.",
+            report: existingReport,
+            cached: true,
+          },
+          { status: 200 }
+        );
+      }
+    }
+
     // 4.5. HTTP rate limit check (soft shield)
     const rateLimit = checkAiRateLimit(user.id);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: "Too many AI requests. Please try again shortly." },
-        { 
+        {
           status: 429,
           headers: { "Retry-After": String(rateLimit.retryAfter || 60) }
         }
@@ -149,10 +177,10 @@ export async function POST() {
 
     const isGlobalQuotaExhausted = error instanceof Error && error.name === "GlobalProviderQuotaExhaustedError";
     const isGlobalGuardError = error instanceof Error && error.name === "GlobalProviderGuardError";
-    
+
     let errorMessage = error instanceof Error ? error.message : "Failed to generate decision pattern report. Please try again.";
     let statusCode = 500;
-    
+
     if (isGlobalQuotaExhausted || isGlobalGuardError) {
       errorMessage = "Auvora's AI analysis is temporarily unavailable. Please try again later.";
       statusCode = 503;
