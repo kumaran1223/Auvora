@@ -43,42 +43,56 @@ export function UsageCard({ usage }: UsageCardProps) {
             Resets on {formattedResetDate}
           </p>
         </div>
-
-        <Link
-          href="/pricing"
-          className="inline-flex items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-sm font-medium text-zinc-200 transition-all duration-200 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
-        >
-          {usage.plan === "business" ? "Manage Subscription" : "Upgrade Plan →"}
-        </Link>
-      </div>
-
-      {/* Progress Bar & Stats */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-zinc-300">
-            <span className="text-white font-bold">{usedCount}</span> of{" "}
-            <span className="text-white font-bold">{monthlyLimit}</span> used
-          </span>
-          <span className="font-semibold text-zinc-400">
-            {remainingCount} remaining
-          </span>
-        </div>
-
-        <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-800">
-          <div
-            className={`h-full transition-all duration-500 ${barColorClass}`}
-            style={{ width: `${percentageUsed}%` }}
-          />
-        </div>
-      </div>
-
-      {percentageUsed >= 100 && (
-        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-300 flex items-center justify-between">
-          <span>You&apos;ve reached your monthly stress-test limit ({monthlyLimit}/{monthlyLimit}).</span>
-          <Link href="/pricing" className="underline font-semibold ml-2 transition-colors duration-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50 rounded-sm motion-reduce:transition-none">
-            Upgrade to Pro →
+        {!usage.isUnlimited && (
+          <Link
+            href="/pricing"
+            className="inline-flex items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-sm font-medium text-zinc-200 transition-all duration-200 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
+          >
+            {usage.plan === "business" ? "Manage Subscription" : "Upgrade Plan →"}
           </Link>
+        )}
+      </div>
+
+      {usage.isUnlimited ? (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium text-emerald-400">Unlimited Analyses</span>
+          </div>
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-800">
+            <div className="h-full transition-all duration-500 bg-emerald-500" style={{ width: '100%' }} />
+          </div>
         </div>
+      ) : (
+        <>
+          {/* Progress Bar & Stats */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-zinc-300">
+                <span className="text-white font-bold">{usedCount}</span> of{" "}
+                <span className="text-white font-bold">{monthlyLimit}</span> used
+              </span>
+              <span className="font-semibold text-zinc-400">
+                {remainingCount} remaining
+              </span>
+            </div>
+
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-800">
+              <div
+                className={`h-full transition-all duration-500 ${barColorClass}`}
+                style={{ width: `${percentageUsed}%` }}
+              />
+            </div>
+          </div>
+
+          {percentageUsed >= 100 && (
+            <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-300 flex items-center justify-between">
+              <span>You&apos;ve reached your monthly stress-test limit ({monthlyLimit}/{monthlyLimit}).</span>
+              <Link href="/pricing" className="underline font-semibold ml-2 transition-colors duration-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50 rounded-sm motion-reduce:transition-none">
+                Upgrade to Pro →
+              </Link>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

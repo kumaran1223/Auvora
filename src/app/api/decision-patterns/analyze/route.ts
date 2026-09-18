@@ -33,7 +33,7 @@ export async function POST() {
 
     // 2.5. Enforce Pro/Business entitlement for Decision Patterns
     const usage = await getUserUsageSummary(user.id);
-    if (usage.plan === "free") {
+    if (usage.plan === "free" && !usage.isUnlimited) {
       return NextResponse.json(
         { error: "Decision Pattern Analysis is available on Pro and Business plans." },
         { status: 403 }

@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const usage = await getUserUsageSummary(user.id);
-    if (usage.plan === "free") {
+    if (usage.plan === "free" && !usage.isUnlimited) {
       return NextResponse.json({ error: "PDF reports are available on Pro and Business plans." }, { status: 403 });
     }
 

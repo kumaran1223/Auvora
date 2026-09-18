@@ -46,7 +46,7 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
   }
 
   const usage = await getUserUsageSummary(user.id);
-  const isFree = usage.plan === "free";
+  const isFree = usage.plan === "free" && !usage.isUnlimited;
 
   const decision = await getDecisionById(id);
 

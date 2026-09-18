@@ -172,7 +172,7 @@ export async function POST(
 
     
     let clientReportData = reportData;
-    if (reservation.plan === "free") {
+    if (reservation.plan === "free" && !reservation.isUnlimited) {
       clientReportData = {
         ...reportData,
         blind_spots: [],

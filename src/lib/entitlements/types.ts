@@ -13,20 +13,22 @@ export interface UserUsageSummary {
   userId: string;
   plan: PlanType;
   planName: string;
-  monthlyLimit: number;
+  monthlyLimit: number | null;
   usedCount: number;
-  remainingCount: number;
+  remainingCount: number | null;
   percentageUsed: number;
   resetDate: string; // ISO date string e.g. "2026-10-01"
   canAnalyze: boolean;
+  isUnlimited: boolean;
 }
 
 export interface ReserveAnalysisResult {
   allowed: boolean;
   current_count: number;
-  limit: number;
+  limit: number | null;
   plan: PlanType;
   error?: string;
+  isUnlimited: boolean;
 }
 
 export interface ReleaseAnalysisResult {

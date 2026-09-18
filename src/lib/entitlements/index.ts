@@ -64,6 +64,9 @@ export function getPlanConfig(planType: string | null | undefined): PlanConfig {
 }
 
 export async function getUserUsageSummary(userId: string): Promise<UserUsageSummary> {
+  const { isAdmin } = await import("@/lib/supabase/admin");
+  const isUserAdmin = await isAdmin(userId);
+
   const supabase = await createClient();
 
   const now = new Date();
@@ -104,6 +107,27 @@ export async function getUserUsageSummary(userId: string): Promise<UserUsageSumm
   const planType = (effectivePlanStr.toLowerCase() || "free") as PlanType;
   const config = getPlanConfig(planType);
 
+  // Calculate reset date (1st day of next month)
+  const nextMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)
+  );
+  const resetDate = nextMonth.toISOString().split("T")[0] || "";
+
+  if (isUserAdmin) {
+    return {
+      userId,
+      plan: planType,
+      planName: "Admin",
+      monthlyLimit: null,
+      usedCount: 0,
+      remainingCount: null,
+      percentageUsed: 0,
+      resetDate,
+      canAnalyze: true,
+      isUnlimited: true,
+    };
+  }
+
   // 2. Determine current UTC period start (1st day of current month)
   const currentPeriodStart =
     new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
@@ -125,12 +149,6 @@ export async function getUserUsageSummary(userId: string): Promise<UserUsageSumm
     Math.round((usedCount / config.monthlyLimit) * 100)
   );
 
-  // Calculate reset date (1st day of next month)
-  const nextMonth = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)
-  );
-  const resetDate = nextMonth.toISOString().split("T")[0] || "";
-
   return {
     userId,
     plan: planType,
@@ -141,12 +159,26 @@ export async function getUserUsageSummary(userId: string): Promise<UserUsageSumm
     percentageUsed,
     resetDate,
     canAnalyze: remainingCount > 0,
+    isUnlimited: false,
   };
 }
 
 export async function reserveAnalysisSlot(
   userId: string
 ): Promise<ReserveAnalysisResult> {
+  const { isAdmin } = await import("@/lib/supabase/admin");
+  const isUserAdmin = await isAdmin(userId);
+
+  if (isUserAdmin) {
+    return {
+      allowed: true,
+      current_count: 0,
+      limit: null,
+      plan: "free",
+      isUnlimited: true,
+    };
+  }
+
   const adminClient = getAdminSupabaseClient();
   if (!adminClient) throw new Error("Missing admin client");
 
@@ -162,15 +194,23 @@ export async function reserveAnalysisSlot(
       limit: 0,
       plan: "free",
       error: "Unable to process usage reservation.",
+      isUnlimited: false,
     };
   }
 
-  return data as ReserveAnalysisResult;
+  return { ...(data as ReserveAnalysisResult), isUnlimited: false };
 }
 
 export async function releaseAnalysisSlot(
   userId: string
 ): Promise<ReleaseAnalysisResult> {
+  const { isAdmin } = await import("@/lib/supabase/admin");
+  const isUserAdmin = await isAdmin(userId);
+
+  if (isUserAdmin) {
+    return { released: true, current_count: 0 };
+  }
+
   const adminClient = getAdminSupabaseClient();
   if (!adminClient) throw new Error("Missing admin client");
 

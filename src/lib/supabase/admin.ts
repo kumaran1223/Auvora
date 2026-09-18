@@ -12,13 +12,17 @@ export function getAdminSupabaseClient() {
   return createClient(url, secretKey);
 }
 
-export async function isAdmin(): Promise<boolean> {
+export async function isAdmin(userId?: string): Promise<boolean> {
   try {
-    const supabase = await createServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    let targetUserId = userId;
 
-    if (authError || !user || !user.id) {
-      return false;
+    if (!targetUserId) {
+      const supabase = await createServerClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || !user.id) {
+        return false;
+      }
+      targetUserId = user.id;
     }
 
     const adminClient = getAdminSupabaseClient();
@@ -29,7 +33,7 @@ export async function isAdmin(): Promise<boolean> {
     const { data, error } = await adminClient
       .from("admin_users")
       .select("id")
-      .eq("id", user.id)
+      .eq("id", targetUserId)
       .single();
 
     if (error || !data) {

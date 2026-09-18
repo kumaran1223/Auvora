@@ -59,7 +59,7 @@ export async function POST(
 
     // 5.5. Enforce Pro/Business entitlement for Decision Replays
     const usage = await getUserUsageSummary(user.id);
-    if (usage.plan === "free") {
+    if (usage.plan === "free" && !usage.isUnlimited) {
       return NextResponse.json(
         { error: "Decision Replays are available on Pro and Business plans." },
         { status: 403 }
