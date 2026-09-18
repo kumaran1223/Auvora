@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export default async function AdminOverviewPage() {
