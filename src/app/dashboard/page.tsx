@@ -42,6 +42,8 @@ export default async function DashboardPage() {
     isAdmin(),
   ]);
 
+  console.log(`[AUTH_TRACE] route=/dashboard user_id=${user.id} plan=${usage.planName} timestamp=${new Date().toISOString()}`);
+
   // Metrics calculations
   const now = new Date();
   const currentYear = now.getFullYear();

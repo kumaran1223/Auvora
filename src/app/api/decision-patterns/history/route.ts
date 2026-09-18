@@ -16,6 +16,8 @@ export async function GET() {
       );
     }
 
+    console.log(`[AUTH_TRACE] route=/api/decision-patterns/history user_id=${user.id} timestamp=${new Date().toISOString()}`);
+
     const historyResult = await getHistoricalDecisionEvidence();
 
     return NextResponse.json(historyResult, { status: 200 });
