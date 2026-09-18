@@ -20,6 +20,20 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    throw new Error("Unable to verify onboarding status. Please try again.");
+  }
+
+  if (!profile?.onboarding_completed) {
+    redirect("/onboarding");
+  }
+
   const [allDecisions, usage, isUserAdmin] = await Promise.all([
     getUserDecisionsWithMeta(),
     getUserUsageSummary(user.id),
