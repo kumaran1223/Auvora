@@ -7,6 +7,7 @@ import { ProfileDropdown } from "@/components/auth/profile-dropdown";
 import { UsageCard } from "@/components/dashboard/usage-card";
 import { DecisionHistory } from "@/components/dashboard/decision-history";
 import { isAdmin } from "@/lib/supabase/admin";
+import { DeleteAccountModal } from "@/components/auth/delete-account-modal";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -122,12 +123,7 @@ export default async function DashboardPage() {
                 You can request the permanent deletion of your Auvora account and all associated decision data. Deletion requests are processed by our support team. Please note that this action is strictly irreversible.
               </p>
             </div>
-            <Link
-              href="/contact"
-              className="inline-flex shrink-0 items-center justify-center rounded-md border border-red-900/50 bg-red-950/50 px-4 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-900/80 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-            >
-              Request Deletion
-            </Link>
+            <DeleteAccountModal />
           </div>
         </div>
       </div>
