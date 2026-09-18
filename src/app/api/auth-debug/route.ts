@@ -4,7 +4,7 @@ import { getUserUsageSummary } from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(_request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
