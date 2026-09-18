@@ -71,6 +71,8 @@ export async function updateSession(request: NextRequest) {
   // session cookies, ensuring neither Vercel's CDN nor Next.js's Full Route Cache can
   // serve one user's authenticated RSC payload to a different user's request.
   supabaseResponse.headers.set("Cache-Control", "private, no-store");
+  supabaseResponse.headers.set("x-middleware-cache", "no-cache");
+  supabaseResponse.headers.set("Vary", "Cookie");
 
   return supabaseResponse;
 }
