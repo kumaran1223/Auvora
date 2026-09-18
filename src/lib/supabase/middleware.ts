@@ -66,5 +66,11 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
+  // Prevent authenticated session responses from being cached and replayed to another user.
+  // This is applied to the pass-through (non-redirect) response that carries Supabase
+  // session cookies, ensuring neither Vercel's CDN nor Next.js's Full Route Cache can
+  // serve one user's authenticated RSC payload to a different user's request.
+  supabaseResponse.headers.set("Cache-Control", "private, no-store");
+
   return supabaseResponse;
 }

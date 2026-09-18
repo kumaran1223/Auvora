@@ -42,7 +42,6 @@ export async function createDecisionAction(formData: FormData) {
       status: "draft",
     });
 
-    revalidatePath("/dashboard");
     return { success: true, decisionId: decision.id };
   } catch {
     return { error: "Unable to create decision. Please try again." };
@@ -81,7 +80,6 @@ export async function updateDecisionAction(decisionId: string, formData: FormDat
       success_definition: successDefinition,
     });
 
-    revalidatePath("/dashboard");
     revalidatePath(`/decisions/${decisionId}`);
     return { success: true };
   } catch {
@@ -102,7 +100,6 @@ export async function archiveDecisionAction(decisionId: string) {
       status: newStatus,
     });
 
-    revalidatePath("/dashboard");
     revalidatePath(`/decisions/${decisionId}`);
     return { success: true, status: newStatus };
   } catch {
@@ -119,7 +116,6 @@ export async function deleteDecisionAction(decisionId: string) {
 
     await deleteDecision(decisionId);
 
-    revalidatePath("/dashboard");
     return { success: true };
   } catch {
     return { error: "Unable to delete decision. Please try again." };
