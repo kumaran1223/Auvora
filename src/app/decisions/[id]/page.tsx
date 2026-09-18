@@ -12,6 +12,7 @@ import {
 import { ArchiveButton } from "@/components/decisions/archive-button";
 import { DeleteModal } from "@/components/decisions/delete-modal";
 import { ReanalyzeDialog } from "@/components/decisions/reanalyze-dialog";
+import { AnalysisPoller } from "@/components/decisions/analysis-poller";
 import { ReportNavigation } from "@/components/report/report-navigation";
 import { ExecutiveStressTest } from "@/components/report/executive-stress-test";
 import { AssumptionRiskMap } from "@/components/report/assumption-risk-map";
@@ -159,6 +160,7 @@ export default async function DecisionDetailPage({ params }: DecisionDetailPageP
         {decision.status === "analyzing" ? (
           /* Loading State */
           <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-blue-500/30 bg-blue-950/20 p-8 text-center space-y-4">
+            <AnalysisPoller />
             <div className="flex items-center space-x-3 text-blue-400">
               <svg className="animate-spin h-6 w-6 text-blue-400" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
