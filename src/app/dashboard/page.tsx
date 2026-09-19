@@ -44,6 +44,15 @@ export default async function DashboardPage() {
 
   console.log(`[AUTH_TRACE] route=/dashboard user_id=${user.id} plan=${usage.planName} timestamp=${new Date().toISOString()}`);
 
+  console.log(`[ENTITLEMENT_TRACE]
+user_id=${user.id}
+profile_plan=${usage.planName}
+is_admin=${isUserAdmin}
+entitlement_plan=${usage.plan}
+analysis_limit=${usage.monthlyLimit}
+usage_used=${usage.usedCount}
+usage_remaining=${usage.remainingCount}`);
+
   // Metrics calculations
   const now = new Date();
   const currentYear = now.getFullYear();
