@@ -52,6 +52,9 @@ export async function updateSession(request: NextRequest) {
     supabaseResponse.cookies.getAll().forEach((c) => {
       redirectResponse.cookies.set(c.name, c.value, c);
     });
+    redirectResponse.headers.set("Cache-Control", "private, no-store");
+    redirectResponse.headers.set("x-middleware-cache", "no-cache");
+    redirectResponse.headers.set("Vary", "Cookie");
     return redirectResponse;
   }
 
@@ -63,6 +66,9 @@ export async function updateSession(request: NextRequest) {
     supabaseResponse.cookies.getAll().forEach((c) => {
       redirectResponse.cookies.set(c.name, c.value, c);
     });
+    redirectResponse.headers.set("Cache-Control", "private, no-store");
+    redirectResponse.headers.set("x-middleware-cache", "no-cache");
+    redirectResponse.headers.set("Vary", "Cookie");
     return redirectResponse;
   }
 
